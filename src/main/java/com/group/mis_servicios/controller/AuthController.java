@@ -1,18 +1,14 @@
-package controller;
+package com.group.mis_servicios.controller;
 
 
-import dto.LoginDTO;
-import dto.RegistroDTO;
+import com.group.mis_servicios.dto.RegistroDTO;
+import com.group.mis_servicios.entity.User;
+import com.group.mis_servicios.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import service.AuthService;
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
@@ -20,7 +16,7 @@ import service.AuthService;
 public class AuthController {
 
     @Autowired
-    private service.AuthService authService;
+    private AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegistroDTO dto) {
@@ -29,4 +25,9 @@ public class AuthController {
     }
 
 
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = authService.obtenerUsuarios();
+        return ResponseEntity.ok(users);
+    }
 }

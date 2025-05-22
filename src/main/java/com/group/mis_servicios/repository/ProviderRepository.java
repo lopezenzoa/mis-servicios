@@ -1,6 +1,6 @@
-package repository;
+package com.group.mis_servicios.repository;
 
-import entity.Provider;
+import com.group.mis_servicios.entity.Provider;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
