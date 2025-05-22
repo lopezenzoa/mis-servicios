@@ -1,4 +1,4 @@
-package entity;
+package com.group.mis_servicios.entity;
 
 import jakarta.persistence.*;
 
@@ -17,4 +17,8 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Credentials credentials;
+
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
+    private Category categoria;
 }

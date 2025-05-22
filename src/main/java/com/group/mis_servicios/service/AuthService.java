@@ -1,12 +1,12 @@
-package service;
+package com.group.mis_servicios.service;
 
-import dto.RegistroDTO;
-import entity.Credentials;
-import entity.User;
+import com.group.mis_servicios.dto.RegistroDTO;
+import com.group.mis_servicios.entity.Credentials;
+import com.group.mis_servicios.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import repository.CredentialsRepository;
-import repository.UserRepository;
+import com.group.mis_servicios.repository.CredentialsRepository;
+import com.group.mis_servicios.repository.UserRepository;
 
 @Service
 public class AuthService {

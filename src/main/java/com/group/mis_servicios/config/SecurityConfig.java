@@ -1,4 +1,4 @@
-package config;
+package com.group.mis_servicios.config;
 
 
 import org.springframework.context.annotation.Bean;

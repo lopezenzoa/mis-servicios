@@ -1,4 +1,4 @@
-package dto;
+package com.group.mis_servicios.dto;
 
 public class RegistroDTO {
     private String username;
