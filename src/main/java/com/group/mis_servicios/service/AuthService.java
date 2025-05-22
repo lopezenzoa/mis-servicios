@@ -1,9 +1,11 @@
 package com.group.mis_servicios.service;
 
+import com.group.mis_servicios.dto.LoginDTO;
 import com.group.mis_servicios.dto.RegistroDTO;
 import com.group.mis_servicios.entity.Credentials;
 import com.group.mis_servicios.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.group.mis_servicios.repository.CredentialsRepository;
 import com.group.mis_servicios.repository.UserRepository;

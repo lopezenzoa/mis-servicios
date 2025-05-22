@@ -1,6 +1,7 @@
 package com.group.mis_servicios.controller;
 
 
+import com.group.mis_servicios.dto.LoginDTO;
 import com.group.mis_servicios.dto.RegistroDTO;
 import com.group.mis_servicios.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,5 +22,14 @@ public class AuthController {
         return ResponseEntity.ok("Usuario registrado");
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginDTO dto) {
+        boolean success = authService.login(dto);
+        if (success) {
+            return ResponseEntity.ok("Login exitoso");
+        } else {
+            return ResponseEntity.status(401).body("Credenciales inválidas");
+        }
+    }
 
 }
