@@ -1,9 +1,9 @@
-package service;
+package com.group.mis_servicios.service;
 
-import entity.Provider;
+import com.group.mis_servicios.entity.Provider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import repository.ProviderRepository;
+import com.group.mis_servicios.repository.ProviderRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +14,7 @@ public class ProviderService {
     private ProviderRepository providerRepository;
 
 
-    public List<Provider> lisAll(){
+    public List<Provider> listAll(){
        return providerRepository.findAll();
     }
 
@@ -24,6 +24,9 @@ public class ProviderService {
 
     public Provider filterByLicenseNumber(String licenseNumber){
       return  providerRepository.findByLicenseNumber(licenseNumber).orElse(null);
+    }
+    public Provider save(Provider provider) {
+        return providerRepository.save(provider);
     }
 
 }

@@ -1,13 +1,16 @@
-package service;
+package com.group.mis_servicios.service;
 
-import dto.RegistroDTO;
-import entity.Credentials;
-import entity.User;
+import com.group.mis_servicios.dto.LoginDTO;
+import com.group.mis_servicios.dto.RegistroDTO;
+import com.group.mis_servicios.entity.Credentials;
+import com.group.mis_servicios.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import repository.CredentialsRepository;
-import repository.UserRepository;
+import com.group.mis_servicios.repository.CredentialsRepository;
+import com.group.mis_servicios.repository.UserRepository;
+
+import java.util.List;
 
 @Service
 public class AuthService {
@@ -37,5 +40,9 @@ public class AuthService {
         return credentialsRepository.findByUsername(dto.getUsername())
                 .map(c -> encoder.matches(dto.getPassword(), c.getPassword()))
                 .orElse(false);
+    }
+
+    public List<User> obtenerUsuarios() {
+        return userRepository.findAll();
     }
 }
