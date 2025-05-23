@@ -5,17 +5,22 @@ import com.group.mis_servicios.dto.ProviderDTO;
 import com.group.mis_servicios.entity.Cliente;
 import com.group.mis_servicios.entity.Credentials;
 import com.group.mis_servicios.entity.Provider;
+import com.group.mis_servicios.repository.ServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.group.mis_servicios.repository.ProviderRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProviderService {
     @Autowired
     private ProviderRepository providerRepository;
+    @Autowired
+    private ServiceRepository serviceRepository;
 
 
     public List<Provider> listAll(){
@@ -33,6 +38,23 @@ public class ProviderService {
         return providerRepository.save(provider);
     }
 
+    public List<ProviderDTO> filterByServices(String serviceName) {
+        List<ProviderDTO> providerDTOs = new ArrayList<>();
+        Optional<com.group.mis_servicios.entity.Service> service = serviceRepository.findByName(serviceName);
+
+        if (service.isPresent()) {
+            List<Provider> providers = providerRepository.findAll()
+                    .stream()
+                    .filter(p -> p.getServices().contains(service.get()))
+                    .toList();
+
+            providers.forEach(provider -> {
+                providerDTOs.add(mapProviderToDto(provider));
+            });
+        }
+
+        return providerDTOs;
+    }
 
     public ProviderDTO update(Long id, ProviderDTO updated) {
         Optional<Provider> providerOptional = providerRepository.findById(id);

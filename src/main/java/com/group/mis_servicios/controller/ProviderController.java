@@ -42,7 +42,10 @@ public class ProviderController {
     public ResponseEntity<ProviderDTO> updateProfile(@PathVariable Long id, @RequestBody ProviderDTO updated) {
         return new ResponseEntity<>(service.update(id, updated), HttpStatus.OK);
     }
-
+    @GetMapping("/{services}")
+    public ResponseEntity<List<ProviderDTO>> filterByServices(@PathVariable String services){
+        return ResponseEntity.ok(service.filterByServices(services));
+    }
 
     @PostMapping("/register")
     public ResponseEntity<Provider> registerProvider(@RequestBody ProviderDTO dto) {
