@@ -12,6 +12,10 @@ public class Service {
     @ManyToOne
     private Provider provider;
 
+    @ManyToOne
+    @JoinColumn(name = "cliente_id")
+    private Cliente cliente;
+
     public Long getId() {
         return id;
     }
@@ -43,4 +47,5 @@ public class Service {
     public void setProvider(Provider provider) {
         this.provider = provider;
     }
+
 }
