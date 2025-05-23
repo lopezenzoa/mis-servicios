@@ -1,50 +1,53 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.dto.ClienteDTO;
 import com.group.mis_servicios.dto.ProviderDTO;
-import com.group.mis_servicios.entity.Cliente;
+import com.group.mis_servicios.dto.ProviderResponseDTO;
+import com.group.mis_servicios.entity.Category;
 import com.group.mis_servicios.entity.Credentials;
 import com.group.mis_servicios.entity.Provider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.group.mis_servicios.repository.CategoryRepository;
 import com.group.mis_servicios.repository.ProviderRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ProviderService {
+
     @Autowired
     private ProviderRepository providerRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
 
-    public List<Provider> listAll(){
-       return providerRepository.findAll();
+    public List<Provider> listAll() {
+        return providerRepository.findAll();
     }
 
-    public Optional<Provider> getById(Long id){
+    public Optional<Provider> getById(Long id) {
         return providerRepository.findById(id);
     }
 
-    public Provider filterByLicenseNumber(String licenseNumber){
-      return  providerRepository.findByLicenseNumber(licenseNumber).orElse(null);
+    public Provider filterByLicenseNumber(String licenseNumber) {
+        return providerRepository.findByLicenseNumber(licenseNumber).orElse(null);
     }
+
     public Provider save(Provider provider) {
         return providerRepository.save(provider);
     }
-
 
     public ProviderDTO update(Long id, ProviderDTO updated) {
         Optional<Provider> providerOptional = providerRepository.findById(id);
 
         if (providerOptional.isPresent()) {
-            Provider provider = providerOptional.get();
-
-            Provider provider1 = providerRepository.save(mapDtoToProvider(updated));
-
-            provider1.setId(provider1.getId());
-
-            return mapProviderToDto(provider1);
+            Provider provider = mapDtoToProvider(updated);
+            provider.setId(id);
+            providerRepository.save(provider);
+            return mapProviderToDto(provider);
         }
 
         return new ProviderDTO();
@@ -52,7 +55,6 @@ public class ProviderService {
 
     private ProviderDTO mapProviderToDto(Provider provider) {
         ProviderDTO dto = new ProviderDTO();
-
         dto.setFirstName(provider.getFirstName());
         dto.setLastName(provider.getLastName());
         dto.setUsername(provider.getCredentials().getUsername());
@@ -60,7 +62,7 @@ public class ProviderService {
         dto.setEmail(provider.getEmail());
         dto.setAddress(provider.getAddress());
         dto.setLicenseNumber(provider.getLicenseNumber());
-
+        dto.setCategoryId(provider.getCategory() != null ? provider.getCategory().getId() : null);
         return dto;
     }
 
@@ -78,6 +80,50 @@ public class ProviderService {
         provider.setAddress(dto.getAddress());
         provider.setLicenseNumber(dto.getLicenseNumber());
 
+        if (dto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+            provider.setCategory(category);
+        }
+
         return provider;
+    }
+
+    public Provider crearProvider(ProviderDTO dto) {
+        Provider provider = mapDtoToProvider(dto);
+        return providerRepository.save(provider);
+    }
+
+    public List<ProviderResponseDTO> buscarPorNombreCategoria(String nombreCategoria) {
+        return providerRepository.findByCategory_Nombre(nombreCategoria)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    public List<ProviderResponseDTO> buscarPorCriterios(String firstName, String lastName, String email, String licenseNumber) {
+        List<Provider> providers = providerRepository.findByCriterios(firstName, lastName, email, licenseNumber);
+        return providers.stream().map(this::mapToResponse).toList();
+    }
+
+    public Page<ProviderResponseDTO> listarPaginado(Pageable pageable) {
+        return providerRepository.findAll(pageable)
+                .map(this::mapToResponse);
+    }
+
+    private ProviderResponseDTO mapToResponse(Provider provider) {
+        ProviderResponseDTO dto = new ProviderResponseDTO();
+        dto.setId(provider.getId());
+        dto.setFirstName(provider.getFirstName());
+        dto.setLastName(provider.getLastName());
+        dto.setEmail(provider.getEmail());
+        dto.setAddress(provider.getAddress());
+        dto.setLicenseNumber(provider.getLicenseNumber());
+        dto.setCategoryName(provider.getCategory() != null ? provider.getCategory().getNombre() : null);
+        return dto;
+    }
+
+    public ProviderResponseDTO toResponseDTO(Provider provider) {
+        return mapToResponse(provider);
     }
 }
