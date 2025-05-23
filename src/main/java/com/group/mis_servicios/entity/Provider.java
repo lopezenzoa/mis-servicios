@@ -13,7 +13,9 @@ public class Provider extends User {
     private String licenseNumber;
     @OneToMany(mappedBy = "provider")
     private List<Service> services;
-    // private List<Shift> shifts;
+
+    @OneToMany(mappedBy = "provider")
+    private List<Shift> shifts;
 
 
 }
