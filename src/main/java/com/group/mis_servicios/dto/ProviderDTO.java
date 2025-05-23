@@ -32,4 +32,6 @@ public class ProviderDTO {
     @NotBlank(message = "El número de licencia es obligatorio")
     @Pattern(regexp = "\\d{5,10}", message = "La licencia debe tener entre 5 y 10 dígitos")
     private String licenseNumber;
+    private Long categoryId;
+
 }

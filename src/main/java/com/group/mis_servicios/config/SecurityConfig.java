@@ -23,6 +23,8 @@ public class SecurityConfig {
                             .requestMatchers("/users/**").permitAll()
                             .requestMatchers("/shifts/**").permitAll()
                             .requestMatchers("/auth/logout").permitAll()
+                            .requestMatchers("/categorias/**").permitAll()
+
 
                             .anyRequest().authenticated()
                     );
