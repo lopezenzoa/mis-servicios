@@ -3,6 +3,7 @@ package com.group.mis_servicios.controller;
 import com.group.mis_servicios.dto.ProviderDTO;
 import com.group.mis_servicios.entity.Credentials;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.group.mis_servicios.service.ProviderService;
@@ -12,7 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users/providers")
+@RequestMapping("/providers")
 public class ProviderController {
     @Autowired
     private BCryptPasswordEncoder encoder;
@@ -35,6 +36,11 @@ public class ProviderController {
     @GetMapping("/license")
     public ResponseEntity<Provider> filterByLicenseNumber(@RequestParam String licenseNumber) {
         return ResponseEntity.ok(service.filterByLicenseNumber(licenseNumber));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProviderDTO> updateProfile(@PathVariable Long id, @RequestBody ProviderDTO updated) {
+        return new ResponseEntity<>(service.update(id, updated), HttpStatus.OK);
     }
 
 
