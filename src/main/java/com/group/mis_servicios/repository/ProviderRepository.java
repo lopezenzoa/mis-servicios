@@ -1,6 +1,8 @@
 package com.group.mis_servicios.repository;
 
+import com.group.mis_servicios.dto.ProviderDTO;
 import com.group.mis_servicios.entity.Provider;
+import com.group.mis_servicios.entity.Service;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
