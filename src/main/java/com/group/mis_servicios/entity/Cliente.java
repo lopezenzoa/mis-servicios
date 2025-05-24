@@ -20,8 +20,4 @@ public class Cliente {
     private String email;
     private String direccion;
     private String telefono;
-
-
-    @OneToMany(mappedBy = "cliente")
-    private List<Service> servicios;
 }
