@@ -1,19 +1,20 @@
 package com.group.mis_servicios.controller;
 
-import com.group.mis_servicios.dto.ProviderDTO;
-import com.group.mis_servicios.entity.Credentials;
+import com.group.mis_servicios.view.dto.ProviderDTO;
+import com.group.mis_servicios.model.entity.Credentials;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.group.mis_servicios.service.ProviderService;
-import com.group.mis_servicios.entity.Provider;
+import com.group.mis_servicios.model.entity.Provider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/providers")
+@CrossOrigin("*")
 public class ProviderController {
     @Autowired
     private BCryptPasswordEncoder encoder;
@@ -21,46 +22,30 @@ public class ProviderController {
     @Autowired
     private ProviderService service;
 
-    @GetMapping
-    public ResponseEntity<List<Provider>> listAll() {
-        return ResponseEntity.ok(service.listAll());
+    @GetMapping("/")
+    public ResponseEntity<List<ProviderDTO>> listAll() {
+        return new ResponseEntity<>(service.listAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Provider> getById(@PathVariable Long id) {
-        return service.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ProviderDTO> getById(@PathVariable Integer id) {
+        return new ResponseEntity<>(service.getById(id), HttpStatus.OK);
     }
 
-    @GetMapping("/license")
-    public ResponseEntity<Provider> filterByLicenseNumber(@RequestParam String licenseNumber) {
-        return ResponseEntity.ok(service.filterByLicenseNumber(licenseNumber));
+    @GetMapping("/license/{licenseNumber}")
+    public ResponseEntity<ProviderDTO> filterByLicenseNumber(@PathVariable String licenseNumber) {
+        return new ResponseEntity<>(service.filterByLicenseNumber(licenseNumber), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProviderDTO> updateProfile(@PathVariable Long id, @RequestBody ProviderDTO updated) {
+    public ResponseEntity<ProviderDTO> updateProfile(@PathVariable Integer id, @RequestBody ProviderDTO updated) {
         return new ResponseEntity<>(service.update(id, updated), HttpStatus.OK);
     }
 
 
-    @PostMapping("/register")
-    public ResponseEntity<Provider> registerProvider(@RequestBody ProviderDTO dto) {
-        Provider provider = new Provider();
-        provider.setFirstName(dto.getFirstName());
-        provider.setLastName(dto.getLastName());
-        provider.setEmail(dto.getEmail());
-        provider.setAddress(dto.getAddress());
-        provider.setLicenseNumber(dto.getLicenseNumber());
-
-        Credentials credentials = new Credentials();
-        credentials.setUsername(dto.getUsername());
-        credentials.setPassword(encoder.encode(dto.getPassword()));
-        credentials.setUser(provider);
-
-        provider.setCredentials(credentials);
-
-        Provider saved = service.save(provider);
-        return ResponseEntity.ok(saved);
+    @PostMapping("/create")
+    public ResponseEntity<String> create(@RequestBody ProviderDTO dto) {
+        service.create(dto);
+        return new ResponseEntity<>("The provider has been created successfully", HttpStatus.OK);
     }
 }

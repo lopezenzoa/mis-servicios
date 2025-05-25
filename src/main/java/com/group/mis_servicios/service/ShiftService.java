@@ -1,8 +1,7 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.dto.ProviderDTO;
-import com.group.mis_servicios.entity.Shift;
-import com.group.mis_servicios.repository.ShiftRepository;
+import com.group.mis_servicios.model.entity.Shift;
+import com.group.mis_servicios.model.repository.ShiftRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +17,7 @@ public class ShiftService {
         return repository.findAll();
     }
 
-    public Shift getById(Long id) {
+    public Shift getById(Integer id) {
         Optional<Shift> shift = repository.findById(id);
 
         return shift.orElseGet(Shift::new);
@@ -28,7 +27,7 @@ public class ShiftService {
         return repository.save(shift);
     }
 
-    public Shift update(Long id, Shift updated) {
+    public Shift update(Integer id, Shift updated) {
         Optional<Shift> shiftOptional = repository.findById(id);
 
         if (shiftOptional.isPresent()) {
@@ -38,7 +37,7 @@ public class ShiftService {
         return new Shift();
     }
 
-    public boolean delete(Long id) {
+    public boolean delete(Integer id) {
         Optional<Shift> shiftOptional = repository.findById(id);
 
         if (shiftOptional.isPresent()) {

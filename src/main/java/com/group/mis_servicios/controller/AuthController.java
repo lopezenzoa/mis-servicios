@@ -1,10 +1,11 @@
 package com.group.mis_servicios.controller;
 
 
-import com.group.mis_servicios.dto.RegistroDTO;
-import com.group.mis_servicios.entity.User;
+import com.group.mis_servicios.view.dto.RegisterDTO;
+import com.group.mis_servicios.model.entity.User;
 import com.group.mis_servicios.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,20 +15,17 @@ import java.util.List;
 @RequestMapping("/auth")
 @CrossOrigin("*")
 public class AuthController {
-
     @Autowired
-    private AuthService authService;
+    private AuthService service;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegistroDTO dto) {
-        authService.registrarUsuario(dto);
-        return ResponseEntity.ok("Usuario registrado");
+    public ResponseEntity<String> register(@RequestBody RegisterDTO dto) {
+        service.register(dto);
+        return new ResponseEntity<>("The user has been registered succesfully!", HttpStatus.OK);
     }
 
-
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = authService.obtenerUsuarios();
-        return ResponseEntity.ok(users);
+    public ResponseEntity<List<User>> getAuthUsers() {
+        return new ResponseEntity<>(service.getAuthUsers(), HttpStatus.OK);
     }
 }

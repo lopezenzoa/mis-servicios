@@ -1,56 +1,60 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.dto.ClienteDTO;
-import com.group.mis_servicios.dto.ProviderDTO;
-import com.group.mis_servicios.entity.Cliente;
-import com.group.mis_servicios.entity.Credentials;
-import com.group.mis_servicios.entity.Provider;
+import com.group.mis_servicios.view.dto.ProviderDTO;
+import com.group.mis_servicios.model.entity.Credentials;
+import com.group.mis_servicios.model.entity.Provider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.group.mis_servicios.repository.ProviderRepository;
+import com.group.mis_servicios.model.repository.ProviderRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ProviderService {
     @Autowired
-    private ProviderRepository providerRepository;
+    private ProviderRepository repository;
 
+    public List<ProviderDTO> listAll(){
+        List<Provider> providers = repository.findAll();
+        List<ProviderDTO> dtos = new ArrayList<>();
 
-    public List<Provider> listAll(){
-       return providerRepository.findAll();
+        providers.forEach(p -> dtos.add(providerMapper(p)));
+
+        return dtos;
     }
 
-    public Optional<Provider> getById(Long id){
-        return providerRepository.findById(id);
+    public ProviderDTO getById(Integer id){
+        Optional<Provider> providerOptional = repository.findById(id);
+
+        return providerOptional.map(this::providerMapper).orElseGet(ProviderDTO::new);
     }
 
-    public Provider filterByLicenseNumber(String licenseNumber){
-      return  providerRepository.findByLicenseNumber(licenseNumber).orElse(null);
+    public ProviderDTO filterByLicenseNumber(String licenseNumber){
+        Optional<Provider> providerOptional = repository.findByLicenseNumber(licenseNumber);
+
+        return  providerOptional.map(this::providerMapper).orElseGet(ProviderDTO::new);
     }
-    public Provider save(Provider provider) {
-        return providerRepository.save(provider);
+
+    public ProviderDTO create(ProviderDTO provider) {
+        return providerMapper(repository.save(providerMapper(provider)));
     }
 
 
-    public ProviderDTO update(Long id, ProviderDTO updated) {
-        Optional<Provider> providerOptional = providerRepository.findById(id);
+    public ProviderDTO update(Integer id, ProviderDTO updated) {
+        Optional<Provider> providerOptional = repository.findById(id);
 
         if (providerOptional.isPresent()) {
-            Provider provider = providerOptional.get();
+            Provider provider1 = repository.save(providerMapper(updated));
 
-            Provider provider1 = providerRepository.save(mapDtoToProvider(updated));
-
-            provider1.setId(provider1.getId());
-
-            return mapProviderToDto(provider1);
+            return providerMapper(provider1);
         }
 
         return new ProviderDTO();
     }
 
-    private ProviderDTO mapProviderToDto(Provider provider) {
+    private ProviderDTO providerMapper(Provider provider) {
         ProviderDTO dto = new ProviderDTO();
 
         dto.setFirstName(provider.getFirstName());
@@ -64,7 +68,7 @@ public class ProviderService {
         return dto;
     }
 
-    private Provider mapDtoToProvider(ProviderDTO dto) {
+    private Provider providerMapper(ProviderDTO dto) {
         Provider provider = new Provider();
         Credentials credentials = new Credentials();
 
