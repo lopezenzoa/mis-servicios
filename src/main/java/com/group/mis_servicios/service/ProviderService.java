@@ -48,14 +48,14 @@ public class ProviderService {
         return providerMapper(repository.save(providerMapper(provider)));
     }
 
-    public List<ProviderDTO> filterByServices(String serviceName) {
+    public List<ProviderDTO> filterByServices(String facilityName) {
         List<ProviderDTO> providerDTOs = new ArrayList<>();
-        Optional<Facility> service = facilityRepository.findByName(serviceName);
+        Optional<Facility> facilityOptional = facilityRepository.findByName(facilityName);
 
-        if (service.isPresent()) {
+        if (facilityOptional.isPresent()) {
             List<Provider> providers = repository.findAll()
                     .stream()
-                    .filter(p -> p.getServices().contains(service.get().getName()))
+                    .filter(p -> p.getFacilities().contains(facilityOptional.get()))
                     .toList();
 
             providers.forEach(provider -> {
@@ -83,7 +83,7 @@ public class ProviderService {
 
         return repository.findAll()
                 .stream()
-                .filter(p -> p.getServices().contains(facilityOptional.get()))
+                .filter(p -> p.getFacilities().contains(facilityOptional.get()))
                 .map(this::providerMapper)
                 .toList();
     }

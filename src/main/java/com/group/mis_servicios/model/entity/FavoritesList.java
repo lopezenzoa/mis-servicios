@@ -12,8 +12,8 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "providers_list")
-public class ProvidersList {
+@Table(name = "favorites_list")
+public class FavoritesList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "list_id", nullable = false)
@@ -29,6 +29,12 @@ public class ProvidersList {
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
     private Customer customer;
 
-    @OneToMany(mappedBy = "list", cascade = {CascadeType.ALL})
-    private List<ProviderProvidersList> providers;
+    // JPA automatically creates service_provider junction table
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "favorites_list_provider",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "list_id")
+    )
+    private List<Provider> providers;
 }

@@ -16,7 +16,7 @@ public class Customer extends User {
     private List<Review> reviews;
 
     @OneToMany(mappedBy = "customer")
-    private List<ProvidersList> favorites;
+    private List<FavoritesList> favorites;
 
     @OneToMany(mappedBy = "customer")
     private List<Call> calls;
