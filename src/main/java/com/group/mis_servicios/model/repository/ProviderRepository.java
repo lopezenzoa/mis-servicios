@@ -1,16 +1,18 @@
 package com.group.mis_servicios.model.repository;
 
 import com.group.mis_servicios.model.entity.Provider;
+import org.hibernate.query.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public interface ProviderRepository extends JpaRepository<Provider, Integer> {
     Optional<Provider> findByLicenseNumber(String licenseNumber);
-    List<Provider> findByCategory_Nombre(String nombre);
 
     @Query("SELECT p FROM Provider p WHERE " +
             "(:firstName IS NULL OR p.firstName LIKE %:firstName%) AND " +
@@ -23,6 +25,4 @@ public interface ProviderRepository extends JpaRepository<Provider, Integer> {
             @Param("email") String email,
             @Param("licenseNumber") String licenseNumber
     );
-
-
 }

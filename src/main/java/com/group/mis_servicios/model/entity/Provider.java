@@ -15,7 +15,7 @@ public class Provider extends User {
     private String licenseNumber;
 
     @OneToMany(mappedBy = "provider", cascade = {CascadeType.ALL})
-    private List<ServiceProvider> services;
+    private List<FacilityProvider> services;
 
     @OneToMany(mappedBy = "provider")
     private List<Shift> shifts;

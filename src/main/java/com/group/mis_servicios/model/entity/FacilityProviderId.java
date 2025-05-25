@@ -13,7 +13,7 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @Embeddable
-public class ServiceProviderId implements Serializable {
+public class FacilityProviderId implements Serializable {
     @Column(name = "user_id", nullable = false)
     private Integer providerId;
     @Column(name = "service_id", nullable = false)
@@ -22,7 +22,7 @@ public class ServiceProviderId implements Serializable {
     @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
-        ServiceProviderId that = (ServiceProviderId) object;
+        FacilityProviderId that = (FacilityProviderId) object;
         return Objects.equals(providerId, that.providerId) && Objects.equals(serviceId, that.serviceId);
     }
 
