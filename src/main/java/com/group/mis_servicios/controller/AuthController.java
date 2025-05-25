@@ -1,6 +1,7 @@
 package com.group.mis_servicios.controller;
 
 
+import com.group.mis_servicios.view.dto.LoginDTO;
 import com.group.mis_servicios.view.dto.RegisterDTO;
 import com.group.mis_servicios.model.entity.User;
 import com.group.mis_servicios.service.AuthService;
@@ -28,4 +29,19 @@ public class AuthController {
     public ResponseEntity<List<User>> getAuthUsers() {
         return new ResponseEntity<>(service.getAuthUsers(), HttpStatus.OK);
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginDTO dto) {
+        boolean success = service.login(dto);
+        if (success) {
+            return ResponseEntity.ok("Login exitoso");
+        } else {
+            return ResponseEntity.status(401).body("Credenciales inválidas");
+        }
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        return ResponseEntity.ok("Sesión cerrada correctamente");
+    }
+
 }
