@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
+import { HttpClient, provideHttpClient, HttpClientModule } from '@angular/common/http';
+
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -17,10 +19,10 @@ export class LoginComponent {
   constructor(private http: HttpClient, private router: Router) {}
 
   onSubmit() {
-    const loginData = {
-      username: this.email,
-      password: this.password
-    };
+   const loginData = {
+     identificador: this.email,
+     password: this.password
+   };
 
     this.http.post('http://localhost:8080/auth/login', loginData, {
       responseType: 'text'
