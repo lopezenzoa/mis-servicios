@@ -34,6 +34,16 @@ public class ProviderService {
         return providerRepository.findAll();
     }
 
+    public List<ProviderResponseDTO> listAllProviders() {
+        List<Provider> providers = providerRepository.findAll();
+        List<ProviderResponseDTO> providerResponseDTOs = new ArrayList<>();
+
+        providers.forEach(provider -> {
+            providerResponseDTOs.add(mapToResponse(provider));
+        });
+        return providerResponseDTOs;
+    }
+
     public Optional<Provider> getById(Long id) {
         return providerRepository.findById(id);
     }
@@ -46,8 +56,8 @@ public class ProviderService {
         return providerRepository.save(provider);
     }
 
-    public List<ProviderDTO> filterByServices(String serviceName) {
-        List<ProviderDTO> providerDTOs = new ArrayList<>();
+    public List<ProviderResponseDTO> filterByServices(String serviceName) {
+        List<ProviderResponseDTO> providerResponseDTOS = new ArrayList<>();
         Optional<com.group.mis_servicios.entity.Service> service = serviceRepository.findByName(serviceName);
 
         if (service.isPresent()) {
@@ -57,11 +67,11 @@ public class ProviderService {
                     .toList();
 
             providers.forEach(provider -> {
-                providerDTOs.add(mapProviderToDto(provider));
+                providerResponseDTOS.add(mapToResponse(provider));
             });
         }
 
-        return providerDTOs;
+        return providerResponseDTOS;
     }
 
     public ProviderDTO update(Long id, ProviderDTO updated) {
