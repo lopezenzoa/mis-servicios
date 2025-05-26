@@ -15,7 +15,7 @@ public class Shift {
     private Long id;
     private LocalDateTime dateTime;
     private boolean available;
-
+    //private Duration duration; ?
     @ManyToOne
     @JoinColumn(name = "provider_id")
     private Provider provider;
