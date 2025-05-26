@@ -1,14 +1,15 @@
 package com.group.mis_servicios.controller;
 
 import com.group.mis_servicios.view.dto.CustomerDTO;
-import com.group.mis_servicios.model.entity.Customer;
 import com.group.mis_servicios.service.CustomerService;
+import com.group.mis_servicios.view.dto.CustomerResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/customers")
@@ -34,7 +35,13 @@ public class CustomerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CustomerDTO> updateProfile(@PathVariable Integer id, @RequestBody CustomerDTO dto) {
-        return new ResponseEntity<>(service.update(id, dto), HttpStatus.OK);
+    public ResponseEntity<?> updateProfile(@PathVariable Integer id, @RequestBody CustomerDTO dto) {
+        Optional<CustomerResponseDTO> customerOptional = service.update(id, dto);
+
+        if (customerOptional.isPresent())
+            return new ResponseEntity<>(customerOptional.get(), HttpStatus.OK);
+        else {
+            return new ResponseEntity<>("The customer has no been found with the ID: " + id, HttpStatus.NOT_FOUND);
+        }
     }
 }

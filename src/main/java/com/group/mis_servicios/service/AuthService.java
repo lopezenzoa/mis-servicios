@@ -27,6 +27,7 @@ public class AuthService {
         user.setLastName(dto.getLastName());
         user.setEmail(dto.getEmail());
         user.setAddress(dto.getAddress());
+        user.setPhoneNumber(dto.getPhoneNumber());
 
         credentials.setUsername(dto.getUsername());
         credentials.setPassword(encoder.encode(dto.getPassword()));

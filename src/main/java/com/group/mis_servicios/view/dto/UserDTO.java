@@ -24,6 +24,9 @@ public abstract class UserDTO {
     @NotBlank(message = "Your address name cannot be blank")
     private String address;
 
+    @NotBlank(message = "Your phone number cannot be blank")
+    private String phoneNumber;
+
     @NotBlank(message = "Your username cannot be blank")
     private String username;
 

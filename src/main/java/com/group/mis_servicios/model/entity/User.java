@@ -29,6 +29,9 @@ public class User {
     @Column(nullable = false, length = 40, unique = true)
     private String address;
 
+    @Column(name = "phone_number", nullable = false, length = 40, unique = true)
+    private String phoneNumber;
+
     @OneToOne
     @JoinColumn(name = "credential_id", referencedColumnName = "credential_id", insertable = false, updatable = false)
     private Credentials credentials;

@@ -4,7 +4,9 @@ import com.group.mis_servicios.model.entity.Credentials;
 import com.group.mis_servicios.view.dto.CustomerDTO;
 import com.group.mis_servicios.model.entity.Customer;
 import com.group.mis_servicios.model.repository.CustomerRepository;
+import com.group.mis_servicios.view.dto.CustomerResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,8 +18,47 @@ public class CustomerService {
     @Autowired
     private CustomerRepository repository;
 
-    public CustomerDTO create(CustomerDTO dto) {
-        return customerMapper(repository.save(customerMapper(dto)));
+    @Autowired
+    private BCryptPasswordEncoder encoder;
+
+    public Optional<CustomerResponseDTO> create(CustomerDTO dto) {
+        Customer customer = new Customer();
+        CustomerResponseDTO response = new CustomerResponseDTO();
+        Credentials credentials = new Credentials();
+
+        if (
+            dto.getFirstName().isEmpty()
+            || dto.getLastName().isEmpty()
+            || checkValidPhone(dto.getPhoneNumber())
+            || dto.getAddress().isEmpty()
+            || checkValidEmail(dto.getEmail())
+            || dto.getUsername().isEmpty()
+            || dto.getPassword().isEmpty()
+        ) {
+            return Optional.empty();
+        } else {
+            customer.setFirstName(dto.getFirstName());
+            customer.setLastName(dto.getLastName());
+            customer.setEmail(dto.getEmail());
+            customer.setAddress(dto.getAddress());
+            customer.setPhoneNumber(dto.getPhoneNumber());
+
+            credentials.setUsername(dto.getUsername());
+            credentials.setPassword(encoder.encode(dto.getPassword()));
+            credentials.setUser(customer);
+
+            customer.setCredentials(credentials);
+
+            Customer saved = repository.save(customer);
+
+            response.setId(saved.getId());
+            response.setFirstName(saved.getFirstName());
+            response.setLastName(saved.getLastName());
+            response.setEmail(saved.getEmail());
+            response.setAddress(saved.getAddress());
+        }
+
+        return Optional.of(response);
     }
 
     public List<CustomerDTO> getAll() {
@@ -41,16 +82,44 @@ public class CustomerService {
         return new CustomerDTO();
     }
 
-    public CustomerDTO update(Integer id, CustomerDTO updated) {
+    public Optional<CustomerResponseDTO> update(Integer id, CustomerDTO updated) {
         Optional<Customer> customerOptional = repository.findById(id);
 
         if (customerOptional.isPresent()) {
             Customer customerUpdated = repository.save(customerMapper(updated));
 
-            return customerMapper(customerUpdated);
-        }
+            if (
+                updated.getFirstName().isEmpty()
+                || updated.getLastName().isEmpty()
+                || checkValidPhone(updated.getPhoneNumber())
+                || updated.getAddress().isEmpty()
+                || checkValidEmail(updated.getEmail())
+                || updated.getUsername().isEmpty()
+                || updated.getPassword().isEmpty()
+            ) {
+                return Optional.empty();
+            } else {
+                customerUpdated.setFirstName(updated.getFirstName());
+                customerUpdated.setLastName(updated.getLastName());
+                customerUpdated.setEmail(updated.getEmail());
+                customerUpdated.setAddress(updated.getAddress());
+                customerUpdated.setPhoneNumber(updated.getPhoneNumber());
 
-        return new CustomerDTO();
+                Credentials credentials = new Credentials();
+
+                credentials.setUsername(updated.getUsername());
+                credentials.setPassword(encoder.encode(updated.getPassword()));
+                credentials.setUser(customerUpdated);
+
+                customerUpdated.setCredentials(credentials);
+
+                Customer saved = repository.save(customerUpdated);
+
+                return Optional.of(customerResponseMapper(saved));
+            }
+        } else {
+            return Optional.empty();
+        }
     }
 
     private CustomerDTO customerMapper(Customer customer) {
@@ -80,5 +149,30 @@ public class CustomerService {
         customer.setAddress(dto.getAddress());
 
         return customer;
+    }
+
+    private CustomerResponseDTO customerResponseMapper(Customer customer) {
+        CustomerResponseDTO response = new CustomerResponseDTO();
+
+        response.setId(customer.getId());
+        response.setFirstName(customer.getFirstName());
+        response.setLastName(customer.getLastName());
+        response.setEmail(customer.getEmail());
+        response.setAddress(customer.getAddress());
+        response.setPhoneNumber(customer.getPhoneNumber());
+
+        return response;
+    }
+
+    public boolean checkValidEmail(String email) {
+        return repository.findAll()
+                .stream()
+                .anyMatch(c -> c.getEmail().equals(email));
+    }
+
+    public boolean checkValidPhone(String phone) {
+        return repository.findAll()
+                .stream()
+                .anyMatch(c -> c.getPhoneNumber().equals(phone));
     }
 }
