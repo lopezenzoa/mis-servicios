@@ -1,8 +1,10 @@
 package com.group.mis_servicios.controller;
 
 import com.group.mis_servicios.model.entity.Shift;
+import com.group.mis_servicios.service.ProviderService;
 import com.group.mis_servicios.service.ShiftService;
 import com.group.mis_servicios.view.dto.CustomerResponseDTO;
+import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import com.group.mis_servicios.view.dto.ShiftDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,8 @@ import java.util.Optional;
 public class ShiftController {
     @Autowired
     private ShiftService service;
+    @Autowired
+    private ProviderService providerService;
 
     @GetMapping("/")
     public ResponseEntity<List<ShiftDTO>> getAll() {
@@ -41,9 +45,9 @@ public class ShiftController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> create(@RequestBody Shift shift) {
-        service.create(shift);
-        return new ResponseEntity<>("The provider has been created successfully", HttpStatus.OK);
+    public ResponseEntity<?> create(@RequestBody ShiftDTO shift) {
+        service.createShiftForProvider(shift);
+        return new ResponseEntity<>("The shift has been created successfully", HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
@@ -64,8 +68,13 @@ public class ShiftController {
     }
 
     @GetMapping("/availables/{providerId}")
-    public ResponseEntity<List<ShiftDTO>> getAvailableByProvider(@PathVariable Integer providerId) {
-        return new ResponseEntity<>(service.getAvailableByProvider(providerId), HttpStatus.OK);
+    public ResponseEntity<?> getAvailableByProvider(@PathVariable Integer providerId) {
+        Optional<ProviderResponseDTO> providerResponseDTO = providerService.getById(providerId);
+
+        if (providerResponseDTO.isPresent())
+            return new ResponseEntity<>(service.getAvailableByProvider(providerId), HttpStatus.OK);
+        else
+            return new ResponseEntity<>("The shift has no been found with the ID: " + providerId, HttpStatus.NOT_FOUND);
     }
 
     /*

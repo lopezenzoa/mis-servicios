@@ -96,6 +96,7 @@ public class ProviderService {
         dto.setPassword(provider.getCredentials().getPassword());
         dto.setEmail(provider.getEmail());
         dto.setAddress(provider.getAddress());
+        dto.setPhoneNumber(provider.getPhoneNumber());
         dto.setLicenseNumber(provider.getLicenseNumber());
         // dto.setCategoryId(provider.getCategory() != null ? provider.getCategory().getId() : null);
         return dto;
@@ -114,6 +115,7 @@ public class ProviderService {
         provider.setEmail(dto.getEmail());
         provider.setAddress(dto.getAddress());
         provider.setLicenseNumber(dto.getLicenseNumber());
+        provider.setPhoneNumber(dto.getPhoneNumber());
 
         /*
         if (dto.getCategoryId() != null) {

@@ -70,7 +70,7 @@ public class ShiftService {
     }
 
     public ShiftDTO createShiftForProvider(ShiftDTO dto) {
-        if (existsShiftAtSameTime(dto.getProviderId(), dto.getDateTime())) {
+        if (existsShiftAtSameTime(dto.getProviderId(), LocalDateTime.parse(dto.getDateTime()))) {
             throw new RuntimeException("Oops! There are another shift for that provider at that time");
         }
 
@@ -79,7 +79,7 @@ public class ShiftService {
 
         Shift shift = new Shift();
 
-        shift.setDateTime(dto.getDateTime());
+        shift.setDateTime(LocalDateTime.parse(dto.getDateTime()));
         shift.setAvailable(true);
         shift.setProvider(provider);
 
@@ -98,7 +98,7 @@ public class ShiftService {
         ShiftDTO dto = new ShiftDTO();
 
         dto.setProviderId(shift.getProvider().getId());
-        dto.setDateTime(shift.getDateTime());
+        dto.setDateTime(shift.getDateTime().toString());
         dto.setAvailable(shift.isAvailable());
 
         return dto;
