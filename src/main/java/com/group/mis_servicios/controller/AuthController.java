@@ -34,14 +34,13 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginDTO dto) {
         boolean success = service.login(dto);
         if (success) {
-            return ResponseEntity.ok("Login exitoso");
+            return ResponseEntity.ok("Logged in Successfully");
         } else {
-            return ResponseEntity.status(401).body("Credenciales inválidas");
+            return ResponseEntity.status(401).body("Invalid Credentials");
         }
     }
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
-        return ResponseEntity.ok("Sesión cerrada correctamente");
+        return ResponseEntity.ok("Logout Successfully");
     }
-
 }

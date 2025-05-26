@@ -24,6 +24,6 @@ public class Facility {
     private String description;
 
     // Simple Many-to-Many - JPA handles junction table
-    @ManyToMany(mappedBy = "facilities")
+    @OneToMany(mappedBy = "facility")
     private List<Provider> providers;
 }

@@ -1,16 +1,16 @@
 package com.group.mis_servicios.controller;
 
 import com.group.mis_servicios.view.dto.ProviderDTO;
-import com.group.mis_servicios.model.entity.Credentials;
+import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.group.mis_servicios.service.ProviderService;
-import com.group.mis_servicios.model.entity.Provider;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/providers")
@@ -23,13 +23,19 @@ public class ProviderController {
     private ProviderService service;
 
     @GetMapping("/")
-    public ResponseEntity<List<ProviderDTO>> listAll() {
+    public ResponseEntity<List<ProviderResponseDTO>> listAll() {
         return new ResponseEntity<>(service.listAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProviderDTO> getById(@PathVariable Integer id) {
-        return new ResponseEntity<>(service.getById(id), HttpStatus.OK);
+    public ResponseEntity<?> getById(@PathVariable Integer id) {
+        Optional<ProviderResponseDTO> providerOptional = service.getById(id);
+
+        if (providerOptional.isPresent())
+            return new ResponseEntity<>(providerOptional.get(), HttpStatus.OK);
+        else {
+            return new ResponseEntity<>("The provider has no been found with the ID: " + id, HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("/license/{licenseNumber}")
@@ -38,12 +44,12 @@ public class ProviderController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProviderDTO> updateProfile(@PathVariable Integer id, @RequestBody ProviderDTO updated) {
+    public ResponseEntity<ProviderResponseDTO> updateProfile(@PathVariable Integer id, @RequestBody ProviderDTO updated) {
         return new ResponseEntity<>(service.update(id, updated), HttpStatus.OK);
     }
-    @GetMapping("/{services}")
-    public ResponseEntity<List<ProviderDTO>> filterByServices(@PathVariable String services){
-        return ResponseEntity.ok(service.filterByServices(services));
+    @GetMapping("/services/{services}")
+    public ResponseEntity<List<ProviderResponseDTO>> filterByServices(@PathVariable String services){
+        return ResponseEntity.ok(service.filterByFacility(services));
     }
 
     @PostMapping("/create")
@@ -88,6 +94,7 @@ public class ProviderController {
     }
 
 
+
     @GetMapping("/por-categoria")
     public ResponseEntity<List<ProviderResponseDTO>> getPorCategoria(@RequestParam String nombreCategoria) {
         return ResponseEntity.ok(service.buscarPorNombreCategoria(nombreCategoria));
@@ -108,6 +115,13 @@ public class ProviderController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(service.listarPaginado(pageable));
+    }
+
+    // manejo de excecpciones
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        String errorMessage = "The parameter '" + ex.getName() + "' must be a valid number (Long).";
+        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
     }
 */
 }

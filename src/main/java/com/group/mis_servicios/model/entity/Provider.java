@@ -14,14 +14,12 @@ public class Provider extends User {
     @Column(name = "license_number", nullable = false, unique = true)
     private String licenseNumber;
 
-    // JPA automatically creates service_provider junction table
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "facility_provider",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "facility_id")
-    )
-    private List<Facility> facilities;
+    @Column(name = "facility_id", nullable = false)
+    private Integer facilityId;
+
+    @ManyToOne
+    @JoinColumn(name = "facility_id", referencedColumnName = "facility_id", insertable = false, updatable = false)
+    private Facility facility;
 
     @OneToMany(mappedBy = "provider")
     private List<Shift> shifts;

@@ -1,10 +1,15 @@
 package com.group.mis_servicios.service;
 
+import com.group.mis_servicios.dto.ShiftDTO;
+import com.group.mis_servicios.model.entity.Provider;
 import com.group.mis_servicios.model.entity.Shift;
 import com.group.mis_servicios.model.repository.ShiftRepository;
+import com.group.mis_servicios.model.repository.ProviderRepository;
+import com.group.mis_servicios.view.dto.FacilityDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,6 +17,8 @@ import java.util.Optional;
 public class ShiftService {
     @Autowired
     private ShiftRepository repository;
+    @Autowired
+    private ProviderRepository providerRepository;
 
     public List<Shift> getAll() {
         return repository.findAll();
@@ -54,4 +61,32 @@ public class ShiftService {
                 .filter(Shift::isAvailable)
                 .toList();
     }
+
+    public Shift createShiftForProvider(ShiftDTO dto) {
+        if (existsShiftAtSameTime(dto.getProviderId(), dto.getDateTime())) {
+            throw new RuntimeException("Oops! There are another shift for that provider at that time");
+        }
+
+        Provider provider = providerRepository.findById(dto.getProviderId())
+                .orElseThrow(() -> new RuntimeException("Provider not found"));
+
+        Shift shift = new Shift();
+
+        shift.setDateTime(dto.getDateTime());
+        shift.setAvailable(true);
+        shift.setProvider(provider);
+
+        return repository.save(shift);
+    }
+
+    public List<Shift> getAvailableByProvider(Integer providerId) {
+        return repository.findByProviderIdAndAvailableTrue(providerId);
+    }
+
+    public boolean existsShiftAtSameTime(Integer providerId, LocalDateTime dateTime) {
+        return repository.existsByProviderIdAndDateTime(providerId, dateTime);
+    }
+
+
+
 }

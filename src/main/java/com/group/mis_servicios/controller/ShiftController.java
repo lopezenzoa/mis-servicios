@@ -46,4 +46,21 @@ public class ShiftController {
         service.delete(id);
         return new ResponseEntity<>("The shift is not more in your list", HttpStatus.OK);
     }
+
+    @GetMapping("/availables/provider/{providerId}")
+    public ResponseEntity<List<Shift>> getAvailableByProvider(@PathVariable Integer providerId) {
+        return new ResponseEntity<>(service.getAvailableByProvider(providerId), HttpStatus.OK);
+    }
+
+    @PutMapping("/reserve/{id}")
+    public ResponseEntity<Shift> reserveShift(@PathVariable Integer id) {
+        Shift shift = service.getById(id);
+        if (!shift.isAvailable()) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT); // turno ya reservado
+        }
+        shift.setAvailable(false);
+        return new ResponseEntity<>(service.update(id, shift), HttpStatus.OK);
+    }
+
+
 }
