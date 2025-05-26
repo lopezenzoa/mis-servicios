@@ -1,6 +1,5 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.dto.ClienteDTO;
 import com.group.mis_servicios.dto.ProviderDTO;
 import com.group.mis_servicios.dto.ProviderResponseDTO;
 import com.group.mis_servicios.entity.Category;
@@ -8,24 +7,19 @@ import com.group.mis_servicios.entity.Credentials;
 import com.group.mis_servicios.entity.Provider;
 import com.group.mis_servicios.repository.CategoryRepository;
 import com.group.mis_servicios.repository.ProviderRepository;
-import com.group.mis_servicios.repository.ServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import com.group.mis_servicios.repository.ProviderRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ProviderService {
     @Autowired
     private ProviderRepository providerRepository;
-    @Autowired
-    private ServiceRepository serviceRepository;
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -44,8 +38,8 @@ public class ProviderService {
         return providerResponseDTOs;
     }
 
-    public Optional<Provider> getById(Long id) {
-        return providerRepository.findById(id);
+    public Optional<ProviderResponseDTO> getById(Long id) {
+        return providerRepository.findById(id).map(this::mapToResponse);
     }
 
     public Provider filterByLicenseNumber(String licenseNumber) {
@@ -56,14 +50,14 @@ public class ProviderService {
         return providerRepository.save(provider);
     }
 
-    public List<ProviderResponseDTO> filterByServices(String serviceName) {
+    public List<ProviderResponseDTO> filterByCategory(String categoryName) {
         List<ProviderResponseDTO> providerResponseDTOS = new ArrayList<>();
-        Optional<com.group.mis_servicios.entity.Service> service = serviceRepository.findByName(serviceName);
+        Optional<Category> category = categoryRepository.findByNombre(categoryName);
 
-        if (service.isPresent()) {
+        if (category.isPresent()) {
             List<Provider> providers = providerRepository.findAll()
                     .stream()
-                    .filter(p -> p.getServices().contains(service.get()))
+                    .filter(p -> p.getCategory().equals(category.get()))
                     .toList();
 
             providers.forEach(provider -> {
