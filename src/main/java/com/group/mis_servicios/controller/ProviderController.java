@@ -39,6 +39,10 @@ public class ProviderController {
         return ResponseEntity.ok(service.listAll());
     }
 
+    @GetMapping("/")
+    public ResponseEntity<List<ProviderResponseDTO>> listAllProviders() {
+        return ResponseEntity.ok(service.listAllProviders());
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Provider> getById(@PathVariable Long id) {
@@ -57,7 +61,7 @@ public class ProviderController {
         return new ResponseEntity<>(service.update(id, updated), HttpStatus.OK);
     }
     @GetMapping("/{services}")
-    public ResponseEntity<List<ProviderDTO>> filterByServices(@PathVariable String services){
+    public ResponseEntity<List<ProviderResponseDTO>> filterByServices(@PathVariable String services){
         return ResponseEntity.ok(service.filterByServices(services));
     }
 
