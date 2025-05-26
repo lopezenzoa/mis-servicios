@@ -45,4 +45,21 @@ public class ShiftController {
         shiftService.delete(id);
         return new ResponseEntity<>("El turno ha sido dado de baja!", HttpStatus.OK);
     }
+
+    @GetMapping("/availables/provider/{providerId}")
+    public ResponseEntity<List<Shift>> getAvailableByProvider(@PathVariable Long providerId) {
+        return new ResponseEntity<>(shiftService.getAvailableByProvider(providerId), HttpStatus.OK);
+    }
+
+    @PutMapping("/reserve/{id}")
+    public ResponseEntity<Shift> reserveShift(@PathVariable Long id) {
+        Shift shift = shiftService.getById(id);
+        if (!shift.isAvailable()) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT); // turno ya reservado
+        }
+        shift.setAvailable(false);
+        return new ResponseEntity<>(shiftService.update(id, shift), HttpStatus.OK);
+    }
+
+
 }
