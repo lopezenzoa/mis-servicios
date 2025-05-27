@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -20,7 +21,9 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegistroDTO dto) {
         authService.registrarUsuario(dto);
-        return ResponseEntity.ok("Usuario registrado");
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "Usuario registrado"));
     }
 
 
@@ -38,6 +41,7 @@ public class AuthController {
         } else {
             return ResponseEntity.status(401).body("Invalid Credentials");
         }
+
     }
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {

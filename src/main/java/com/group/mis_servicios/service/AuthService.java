@@ -4,13 +4,15 @@ import com.group.mis_servicios.dto.LoginDTO;
 import com.group.mis_servicios.dto.RegistroDTO;
 import com.group.mis_servicios.entity.Credentials;
 import com.group.mis_servicios.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
 import com.group.mis_servicios.repository.CredentialsRepository;
 import com.group.mis_servicios.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -18,6 +20,9 @@ public class AuthService {
     private UserRepository userRepository;
     @Autowired private CredentialsRepository credentialsRepository;
     @Autowired private BCryptPasswordEncoder encoder;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public void registrarUsuario(RegistroDTO dto) {
         User user = new User();
@@ -37,10 +42,21 @@ public class AuthService {
     }
 
     public boolean login(LoginDTO dto) {
-        return credentialsRepository.findByUsername(dto.getUsername())
-                .map(c -> encoder.matches(dto.getPassword(), c.getPassword()))
-                .orElse(false);
+        String identificador = dto.getIdentificador();
+        String password = dto.getPassword();
+
+        Optional<User> userOpt = identificador.contains("@") ?
+                userRepository.findByEmail(identificador) :
+                userRepository.findByUsername(identificador);
+
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            return passwordEncoder.matches(password, user.getCredentials().getPassword());
+        }
+
+        return false;
     }
+
 
     public List<User> obtenerUsuarios() {
         return userRepository.findAll();
