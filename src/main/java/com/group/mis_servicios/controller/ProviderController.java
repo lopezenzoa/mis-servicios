@@ -15,9 +15,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/providers")
@@ -45,10 +48,14 @@ public class ProviderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Provider> getById(@PathVariable Long id) {
-        return service.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+        Optional<ProviderResponseDTO> providerOptional = service.getById(id);
+
+        if (providerOptional.isPresent())
+            return new ResponseEntity<>(providerOptional.get(), HttpStatus.OK);
+        else {
+            return new ResponseEntity<>("The provider has no been found with the ID: " + id, HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("/license")
@@ -60,9 +67,10 @@ public class ProviderController {
     public ResponseEntity<ProviderDTO> updateProfile(@PathVariable Long id, @RequestBody ProviderDTO updated) {
         return new ResponseEntity<>(service.update(id, updated), HttpStatus.OK);
     }
-    @GetMapping("/{services}")
-    public ResponseEntity<List<ProviderResponseDTO>> filterByServices(@PathVariable String services){
-        return ResponseEntity.ok(service.filterByServices(services));
+
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<ProviderResponseDTO>> filterByCategory(@PathVariable String category){
+        return ResponseEntity.ok(service.filterByCategory(category));
     }
 
     @PostMapping("/register")
@@ -123,4 +131,10 @@ public class ProviderController {
         return ResponseEntity.ok(service.listarPaginado(pageable));
     }
 
+    // manejo de excecpciones
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        String errorMessage = "The parameter '" + ex.getName() + "' must be a valid number (Long).";
+        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+    }
 }
