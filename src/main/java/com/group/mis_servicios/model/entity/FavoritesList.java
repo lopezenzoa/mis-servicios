@@ -19,6 +19,9 @@ public class FavoritesList {
     @Column(name = "list_id", nullable = false)
     private Integer id;
 
+    @Column(length = 40, nullable = false, unique = true)
+    private String title;
+
     @Column(name = "creation_date", columnDefinition = "DATETIME")
     private LocalDateTime creationDate;
 
@@ -26,14 +29,14 @@ public class FavoritesList {
     private Integer ownerId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "owner_id", referencedColumnName = "user_id", insertable = false, updatable = false)
     private Customer customer;
 
     // JPA automatically creates service_provider junction table
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "favorites_list_provider",
-            joinColumns = @JoinColumn(name = "user_id"),
+            joinColumns = @JoinColumn(name = "provider_id"),
             inverseJoinColumns = @JoinColumn(name = "list_id")
     )
     private List<Provider> providers;

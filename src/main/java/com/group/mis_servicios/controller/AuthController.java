@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -20,9 +21,11 @@ public class AuthController {
     private AuthService service;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterDTO dto) {
+    public ResponseEntity<?> register(@RequestBody RegisterDTO dto) {
         service.register(dto);
-        return new ResponseEntity<>("The user has been registered succesfully!", HttpStatus.OK);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "The user has been registered successfully!"));
     }
 
     @GetMapping("/users")

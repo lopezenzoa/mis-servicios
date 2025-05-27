@@ -4,10 +4,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
-public class LoginDTO {
-    private String identificador;
-    private String password;
+public class FavoritesDTO {
+    private String title;
+    private Integer clientId;
 }

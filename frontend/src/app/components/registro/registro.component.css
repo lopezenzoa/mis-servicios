@@ -1,0 +1,90 @@
+
+* {
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: linear-gradient(to right, #0a0f2c, #1d2b64);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+.registro-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 80px;
+  text-align: center;
+}
+
+.registro-page h1 {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.registro-container {
+  background-color: #b9b9b9;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+input::placeholder {
+  color: #9aa3b0;
+  font-weight: 500;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-group input {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 30px;
+}
+
+.btn-registrarse {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(to right, #005aa7, #002f6c);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.btn-registrarse:hover {
+  background-color: #0056b3;
+}
+
+.link-login {
+  margin-top: 15px;
+}
+.link-login a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.link-login a:hover {
+  text-decoration: underline;
+}

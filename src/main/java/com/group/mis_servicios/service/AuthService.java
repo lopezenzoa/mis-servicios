@@ -4,13 +4,17 @@ import com.group.mis_servicios.view.dto.LoginDTO;
 import com.group.mis_servicios.view.dto.RegisterDTO;
 import com.group.mis_servicios.model.entity.Credentials;
 import com.group.mis_servicios.model.entity.User;
+import com.group.mis_servicios.model.repository.CredentialsRepository;
+import com.group.mis_servicios.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.group.mis_servicios.model.repository.CredentialsRepository;
 import com.group.mis_servicios.model.repository.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -18,6 +22,9 @@ public class AuthService {
     private UserRepository userRepository;
     @Autowired private CredentialsRepository credentialsRepository;
     @Autowired private BCryptPasswordEncoder encoder; // to encrypt the password
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public void register(RegisterDTO dto) {
         User user = new User();
@@ -33,14 +40,28 @@ public class AuthService {
         credentials.setPassword(encoder.encode(dto.getPassword()));
         credentials.setUser(user);
 
+        user.setCredentials(credentials);
+
         userRepository.save(user);
     }
 
     public boolean login(LoginDTO dto) {
-        return credentialsRepository.findByUsername(dto.getUsername())
-                .map(c -> encoder.matches(dto.getPassword(), c.getPassword()))
-                .orElse(false);
+        String identifier = dto.getIdentificador();
+        String password = dto.getPassword();
+
+        // by this way, the user can log in with your email or usrename
+        Optional<User> userOpt = identifier.contains("@") ?
+                userRepository.findByEmail(identifier) :
+                userRepository.findByCredentials(credentialsRepository.findByUsername(identifier).get());
+
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            return passwordEncoder.matches(password, user.getCredentials().getPassword());
+        }
+
+        return false;
     }
+
 
     public List<User> getAuthUsers() {
         return userRepository.findAll();
