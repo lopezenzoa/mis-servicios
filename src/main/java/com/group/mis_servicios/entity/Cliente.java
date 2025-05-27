@@ -1,5 +1,6 @@
 package com.group.mis_servicios.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,4 +21,8 @@ public class Cliente {
     private String email;
     private String direccion;
     private String telefono;
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<FavoritesList> favorites;
+
 }
