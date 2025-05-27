@@ -24,8 +24,8 @@ public class SecurityConfig {
                             .requestMatchers("/shifts/**").permitAll()
                             .requestMatchers("/auth/logout").permitAll()
                             .requestMatchers("/categorias/**").permitAll()
-
-
+                            .requestMatchers("/favorites-lists/**").permitAll()
+                            .requestMatchers("/favorites-lists/add-provider").permitAll()
                             .anyRequest().authenticated()
                     );
 
