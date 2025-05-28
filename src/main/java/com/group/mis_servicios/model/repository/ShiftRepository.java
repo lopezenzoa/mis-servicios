@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface ShiftRepository extends JpaRepository<Shift, Integer> {
-    List<Shift> findByProviderIdAndAvailableTrue(Integer providerId);
-    boolean existsByProviderIdAndDateTime(Integer providerId, LocalDateTime dateTime);
+public interface ShiftRepository extends JpaRepository<Shift, Long> {
+    List<Shift> findByProviderIdAndAvailableTrue(Long providerId);
+    boolean existsByProviderIdAndDateTime(Long providerId, LocalDateTime dateTime);
 }

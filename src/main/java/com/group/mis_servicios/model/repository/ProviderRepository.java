@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public interface ProviderRepository extends JpaRepository<Provider, Integer> {
+public interface ProviderRepository extends JpaRepository<Provider, Long> {
     Optional<Provider> findByLicenseNumber(String licenseNumber);
 
     @Query("SELECT p FROM Provider p WHERE " +

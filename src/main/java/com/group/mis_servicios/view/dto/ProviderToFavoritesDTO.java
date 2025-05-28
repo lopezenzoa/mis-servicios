@@ -7,5 +7,5 @@ import lombok.Setter;
 @Setter
 public class ProviderToFavoritesDTO {
     private Long favoritesListId;
-    private Integer providerId;
+    private Long providerId;
 }

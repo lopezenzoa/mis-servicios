@@ -16,7 +16,7 @@ public class Credentials {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "credential_id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @Column(length = 20, nullable = false, unique = true)
     private String username;

@@ -8,9 +8,9 @@ import java.util.List;
 @Getter
 @Setter
 public class FavoritesResponseDTO {
-    private Integer id;
+    private Long id;
     private String title;
     private LocalDateTime creationDate;
-    private Integer clientId;
+    private Long clientId;
     private List<ProviderResponseDTO> providers;
 }

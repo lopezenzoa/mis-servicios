@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class ShiftDTO {
-    private Integer providerId;
+    private Long providerId;
     private String dateTime;
     private boolean isAvailable;
 }

@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class ProviderResponseDTO {
-    private Integer id;
+    private Long id;
     private String firstName;
     private String lastName;
     private String email;

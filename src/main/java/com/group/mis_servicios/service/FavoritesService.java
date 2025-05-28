@@ -55,7 +55,7 @@ public class FavoritesService {
     }
 
 
-    public FavoritesResponseDTO addProviderToFavorites(Long favoritesListId, Integer providerId) {
+    public FavoritesResponseDTO addProviderToFavorites(Long favoritesListId, Long providerId) {
         FavoritesList list = favoritesListRepository.findById(favoritesListId)
                 .orElseThrow(() -> new RuntimeException("Favorties List not found"));
 
@@ -102,7 +102,7 @@ public class FavoritesService {
                 }).toList();
     }
 
-    public FavoritesResponseDTO removeProviderFromFavorites(Long favoritesListId, Integer providerId) {
+    public FavoritesResponseDTO removeProviderFromFavorites(Long favoritesListId, Long providerId) {
         FavoritesList list = favoritesListRepository.findById(favoritesListId)
                 .orElseThrow(() -> new RuntimeException("Favorties List not found"));
 

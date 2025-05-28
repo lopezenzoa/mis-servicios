@@ -22,15 +22,15 @@ public class FacilityService {
         return repository.findAll();
     }
 
-    public Optional<Facility> getById(Integer id) {
+    public Optional<Facility> getById(Long id) {
         return repository.findById(id);
     }
 
-    public void delete(Integer id) {
+    public void delete(Long id) {
         repository.deleteById(id);
     }
 
-    public Facility update(Integer id, Facility newFacility) {
+    public Facility update(Long id, Facility newFacility) {
         return repository.findById(id)
                 .map(f -> {
                     f.setName(newFacility.getName());

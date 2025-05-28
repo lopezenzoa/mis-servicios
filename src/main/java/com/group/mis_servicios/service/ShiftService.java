@@ -28,7 +28,7 @@ public class ShiftService {
                 .toList();
     }
 
-    public Optional<ShiftDTO> getById(Integer id) {
+    public Optional<ShiftDTO> getById(Long id) {
         Optional<Shift> shift = repository.findById(id);
 
         return shift.map(this::shiftMapper);
@@ -40,7 +40,7 @@ public class ShiftService {
         return optionalShift.map(this::shiftMapper);
     }
 
-    public Optional<ShiftDTO> update(Integer id, Shift updated) {
+    public Optional<ShiftDTO> update(Long id, Shift updated) {
         Optional<Shift> shiftOptional = repository.findById(id);
 
         if (shiftOptional.isPresent()) {
@@ -50,7 +50,7 @@ public class ShiftService {
         return Optional.empty();
     }
 
-    public boolean delete(Integer id) {
+    public boolean delete(Long id) {
         Optional<Shift> shiftOptional = repository.findById(id);
 
         if (shiftOptional.isPresent()) {
@@ -86,11 +86,11 @@ public class ShiftService {
         return shiftMapper(repository.save(shift));
     }
 
-    public List<ShiftDTO> getAvailableByProvider(Integer providerId) {
+    public List<ShiftDTO> getAvailableByProvider(Long providerId) {
         return repository.findByProviderIdAndAvailableTrue(providerId).stream().map(this::shiftMapper).toList();
     }
 
-    public boolean existsShiftAtSameTime(Integer providerId, LocalDateTime dateTime) {
+    public boolean existsShiftAtSameTime(Long providerId, LocalDateTime dateTime) {
         return repository.existsByProviderIdAndDateTime(providerId, dateTime);
     }
 

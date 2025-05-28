@@ -32,7 +32,7 @@ public class ProviderService {
         return dtos;
     }
 
-    public Optional<ProviderResponseDTO> getById(Integer id) {
+    public Optional<ProviderResponseDTO> getById(Long id) {
         return repository.findById(id).map(this::providerResponseMapper);
     }
 
@@ -64,7 +64,7 @@ public class ProviderService {
         return providerDTOs;
     }
 
-    public ProviderResponseDTO update(Integer id, ProviderDTO updated) {
+    public ProviderResponseDTO update(Long id, ProviderDTO updated) {
         Optional<Provider> providerOptional = repository.findById(id);
 
         if (providerOptional.isPresent()) {
@@ -76,15 +76,15 @@ public class ProviderService {
         return new ProviderResponseDTO();
     }
 
-    public List<ProviderDTO> getByCriterios(String firstName, String lastName, String email, String licenseNumber) {
+    public List<ProviderResponseDTO> filterByCriterios(String firstName, String lastName, String email, String licenseNumber) {
         List<Provider> providers = repository.findByCriterios(firstName, lastName, email, licenseNumber);
-        return providers.stream().map(this::providerMapper).toList();
+        return providers.stream().map(this::providerResponseMapper).toList();
     }
 
 
-    public Page<ProviderDTO> listPage(Pageable pageable) {
+    public Page<ProviderResponseDTO> listPage(Pageable pageable) {
         return repository.findAll(pageable)
-                .map(this::providerMapper);
+                .map(this::providerResponseMapper);
     }
 
     private ProviderDTO providerMapper(Provider provider) {

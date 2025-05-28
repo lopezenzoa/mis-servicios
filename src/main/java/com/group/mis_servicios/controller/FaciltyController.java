@@ -30,19 +30,19 @@ public class FaciltyController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Facility> getById(@PathVariable Integer id) {
+    public ResponseEntity<Facility> getById(@PathVariable Long id) {
         return service.getById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Facility> update(@PathVariable Integer id, @RequestBody Facility facility) {
+    public ResponseEntity<Facility> update(@PathVariable Long id, @RequestBody Facility facility) {
         return ResponseEntity.ok(service.update(id, facility));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

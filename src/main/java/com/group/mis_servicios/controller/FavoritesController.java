@@ -47,7 +47,7 @@ public class FavoritesController {
     public ResponseEntity<String> deleteFavoritesList(@PathVariable Long id) {
         boolean deleted = service.deleteFavoritesList(id);
         if (deleted) {
-            return ResponseEntity.ok("the Favorties List has been successfully deleted");
+            return ResponseEntity.ok("The Favorites List has been successfully deleted");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favorites List not found");
         }

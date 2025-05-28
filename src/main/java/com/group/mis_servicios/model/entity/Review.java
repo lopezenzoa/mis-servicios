@@ -14,13 +14,13 @@ public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @Column(length = 255, nullable = false)
     private String description;
 
     @Column(name = "user_id", nullable = false)
-    private Integer customerId;
+    private Long customerId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)

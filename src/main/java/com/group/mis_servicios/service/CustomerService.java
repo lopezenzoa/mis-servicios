@@ -70,7 +70,7 @@ public class CustomerService {
         return dtos;
     }
 
-    public CustomerDTO getById(Integer id) {
+    public CustomerDTO getById(Long id) {
         Optional<Customer> customerOptional = repository.findById(id);
 
         if (customerOptional.isPresent()) {
@@ -82,7 +82,7 @@ public class CustomerService {
         return new CustomerDTO();
     }
 
-    public Optional<CustomerResponseDTO> update(Integer id, CustomerDTO updated) {
+    public Optional<CustomerResponseDTO> update(Long id, CustomerDTO updated) {
         Optional<Customer> customerOptional = repository.findById(id);
 
         if (customerOptional.isPresent()) {

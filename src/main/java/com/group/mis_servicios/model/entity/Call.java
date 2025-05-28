@@ -16,7 +16,7 @@ public class Call {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "call_id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @Column(length = 255)
     private String description;
@@ -31,10 +31,10 @@ public class Call {
     private String state;
 
     @Column(name = "customer_id", nullable = false)
-    private Integer customerId;
+    private Long customerId;
 
     @Column(name = "provider_id", nullable = false)
-    private Integer providerId;
+    private Long providerId;
 
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "user_id", insertable = false, updatable = false)

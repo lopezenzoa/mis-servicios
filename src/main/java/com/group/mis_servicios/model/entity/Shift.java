@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class Shift {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "date", columnDefinition = "DATETIME", nullable = false, unique = true)
     private LocalDateTime dateTime;

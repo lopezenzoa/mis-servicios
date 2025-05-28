@@ -29,7 +29,7 @@ public class ShiftController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Integer id) {
+    public ResponseEntity<?> getById(@PathVariable Long id) {
         Optional<ShiftDTO> shiftOptional = service.getById(id);
 
         if (shiftOptional.isPresent())
@@ -51,7 +51,7 @@ public class ShiftController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody Shift updated) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Shift updated) {
         Optional<ShiftDTO> customerOptional = service.update(id, updated);
 
         if (customerOptional.isPresent())
@@ -62,13 +62,13 @@ public class ShiftController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Integer id) {
+    public ResponseEntity<String> delete(@PathVariable Long id) {
         service.delete(id);
         return new ResponseEntity<>("The shift is not more in your list", HttpStatus.OK);
     }
 
     @GetMapping("/availables/{providerId}")
-    public ResponseEntity<?> getAvailableByProvider(@PathVariable Integer providerId) {
+    public ResponseEntity<?> getAvailableByProvider(@PathVariable Long providerId) {
         Optional<ProviderResponseDTO> providerResponseDTO = providerService.getById(providerId);
 
         if (providerResponseDTO.isPresent())

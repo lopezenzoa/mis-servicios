@@ -15,7 +15,7 @@ public class Provider extends User {
     private String licenseNumber;
 
     @Column(name = "facility_id", nullable = false)
-    private Integer facilityId;
+    private Long facilityId;
 
     @ManyToOne
     @JoinColumn(name = "facility_id", referencedColumnName = "facility_id", insertable = false, updatable = false)

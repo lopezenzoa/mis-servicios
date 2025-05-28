@@ -17,7 +17,7 @@ public class FavoritesList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "list_id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @Column(length = 40, nullable = false, unique = true)
     private String title;
@@ -25,8 +25,8 @@ public class FavoritesList {
     @Column(name = "creation_date", columnDefinition = "DATETIME")
     private LocalDateTime creationDate;
 
-    @Column(name = "user_id", nullable = false)
-    private Integer ownerId;
+    @Column(name = "owner_id", nullable = false)
+    private Long ownerId;
 
     @ManyToOne
     @JoinColumn(name = "owner_id", referencedColumnName = "user_id", insertable = false, updatable = false)

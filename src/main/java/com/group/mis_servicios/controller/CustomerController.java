@@ -30,12 +30,12 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerDTO> showProfile(@PathVariable Integer id) {
+    public ResponseEntity<CustomerDTO> showProfile(@PathVariable Long id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProfile(@PathVariable Integer id, @RequestBody CustomerDTO dto) {
+    public ResponseEntity<?> updateProfile(@PathVariable Long id, @RequestBody CustomerDTO dto) {
         Optional<CustomerResponseDTO> customerOptional = service.update(id, dto);
 
         if (customerOptional.isPresent())
