@@ -32,10 +32,7 @@ public class User {
     @Column(name = "phone_number", nullable = false, length = 40, unique = true)
     private String phoneNumber;
 
-    @Column(name = "credential_id", nullable = false)
-    private Long credentialsId;
-
-    @OneToOne
-    @JoinColumn(name = "credential_id", referencedColumnName = "credential_id", insertable = false, updatable = false)
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "credential_id", nullable = false, unique = true)
     private Credentials credentials;
 }

@@ -19,7 +19,7 @@ public class FaciltyController {
     @Autowired
     private FacilityService service;
 
-    @PostMapping("/{id}")
+    @PostMapping("/")
     public ResponseEntity<Facility> create(@RequestBody Facility facility) {
         return new ResponseEntity<>(service.create(facility), HttpStatus.OK);
     }

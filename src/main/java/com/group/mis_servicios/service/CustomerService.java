@@ -45,7 +45,7 @@ public class CustomerService {
 
             credentials.setUsername(dto.getUsername());
             credentials.setPassword(encoder.encode(dto.getPassword()));
-            credentials.setUser(customer);
+            // credentials.setUser(customer);
 
             customer.setCredentials(credentials);
 
@@ -109,7 +109,7 @@ public class CustomerService {
 
                 credentials.setUsername(updated.getUsername());
                 credentials.setPassword(encoder.encode(updated.getPassword()));
-                credentials.setUser(customerUpdated);
+                // credentials.setUser(customerUpdated);
 
                 customerUpdated.setCredentials(credentials);
 

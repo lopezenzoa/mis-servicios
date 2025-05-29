@@ -36,7 +36,7 @@ public class AuthService {
 
         credentials.setUsername(dto.getUsername());
         credentials.setPassword(encoder.encode(dto.getPassword()));
-        credentials.setUser(user);
+        // credentials.setUser(user);
 
         user.setCredentials(credentials);
 

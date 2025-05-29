@@ -138,7 +138,7 @@ public class ProviderService {
         dto.setEmail(provider.getEmail());
         dto.setAddress(provider.getAddress());
         dto.setLicenseNumber(provider.getLicenseNumber());
-        dto.setFacility(provider.getFacility().getName());
+        dto.setFacility(provider.getFacility()==null?null:provider.getFacility().getName());
 
         return dto;
     }

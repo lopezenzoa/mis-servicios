@@ -16,15 +16,17 @@ public class Credentials {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "credential_id", nullable = false)
-    private Long id;
+    private Long id = 1L;
 
     @Column(length = 20, nullable = false, unique = true)
     private String username;
-    @Column(length = 20, nullable = false)
+    @Column(length = 100, nullable = false)
     private String password;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
+    /*
+    @OneToOne(mappedBy = "credentials", cascade = CascadeType.ALL)
     private User user;
+
+     */
 }
 
