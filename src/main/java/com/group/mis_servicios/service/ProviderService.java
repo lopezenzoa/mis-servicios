@@ -1,16 +1,16 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.dto.ProviderDTO;
-import com.group.mis_servicios.dto.ProviderResponseDTO;
-import com.group.mis_servicios.entity.Category;
-import com.group.mis_servicios.entity.Credentials;
-import com.group.mis_servicios.entity.Provider;
-import com.group.mis_servicios.repository.CategoryRepository;
-import com.group.mis_servicios.repository.ProviderRepository;
+import com.group.mis_servicios.model.entity.Facility;
+import com.group.mis_servicios.model.repository.FacilityRepository;
+import com.group.mis_servicios.view.dto.ProviderDTO;
+import com.group.mis_servicios.view.dto.ProviderResponseDTO;
+import com.group.mis_servicios.model.entity.Credentials;
+import com.group.mis_servicios.model.entity.Provider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import com.group.mis_servicios.model.repository.ProviderRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,69 +19,75 @@ import java.util.Optional;
 @Service
 public class ProviderService {
     @Autowired
-    private ProviderRepository providerRepository;
-
+    private ProviderRepository repository;
     @Autowired
-    private CategoryRepository categoryRepository;
+    private FacilityRepository facilityRepository;
 
-    public List<Provider> listAll() {
-        return providerRepository.findAll();
-    }
+    public List<ProviderResponseDTO> listAll() {
+        List<Provider> providers = repository.findAll();
+        List<ProviderResponseDTO> dtos = new ArrayList<>();
 
-    public List<ProviderResponseDTO> listAllProviders() {
-        List<Provider> providers = providerRepository.findAll();
-        List<ProviderResponseDTO> providerResponseDTOs = new ArrayList<>();
+        providers.forEach(p -> dtos.add(providerResponseMapper(p)));
 
-        providers.forEach(provider -> {
-            providerResponseDTOs.add(mapToResponse(provider));
-        });
-        return providerResponseDTOs;
+        return dtos;
     }
 
     public Optional<ProviderResponseDTO> getById(Long id) {
-        return providerRepository.findById(id).map(this::mapToResponse);
+        return repository.findById(id).map(this::providerResponseMapper);
     }
 
-    public Provider filterByLicenseNumber(String licenseNumber) {
-        return providerRepository.findByLicenseNumber(licenseNumber).orElse(null);
+    public ProviderDTO filterByLicenseNumber(String licenseNumber){
+        Optional<Provider> providerOptional = repository.findByLicenseNumber(licenseNumber);
+
+        return  providerOptional.map(this::providerMapper).orElseGet(ProviderDTO::new);
     }
 
-    public Provider save(Provider provider) {
-        return providerRepository.save(provider);
+    public ProviderDTO create(ProviderDTO provider) {
+        return providerMapper(repository.save(providerMapper(provider)));
     }
 
-    public List<ProviderResponseDTO> filterByCategory(String categoryName) {
-        List<ProviderResponseDTO> providerResponseDTOS = new ArrayList<>();
-        Optional<Category> category = categoryRepository.findByNombre(categoryName);
+    public List<ProviderResponseDTO> filterByFacility(String facilityName) {
+        List<ProviderResponseDTO> providerDTOs = new ArrayList<>();
+        Optional<Facility> facilityOptional = facilityRepository.findByName(facilityName);
 
-        if (category.isPresent()) {
-            List<Provider> providers = providerRepository.findAll()
+        if (facilityOptional.isPresent()) {
+            List<Provider> providers = repository.findAll()
                     .stream()
-                    .filter(p -> p.getCategory().equals(category.get()))
+                    .filter(p -> p.getFacility().equals(facilityOptional.get()))
                     .toList();
 
             providers.forEach(provider -> {
-                providerResponseDTOS.add(mapToResponse(provider));
+                providerDTOs.add(providerResponseMapper(provider));
             });
         }
 
-        return providerResponseDTOS;
+        return providerDTOs;
     }
 
-    public ProviderDTO update(Long id, ProviderDTO updated) {
-        Optional<Provider> providerOptional = providerRepository.findById(id);
+    public ProviderResponseDTO update(Long id, ProviderDTO updated) {
+        Optional<Provider> providerOptional = repository.findById(id);
 
         if (providerOptional.isPresent()) {
-            Provider provider = mapDtoToProvider(updated);
-            provider.setId(id);
-            providerRepository.save(provider);
-            return mapProviderToDto(provider);
+            Provider provider1 = repository.save(providerMapper(updated));
+
+            return providerResponseMapper(provider1);
         }
 
-        return new ProviderDTO();
+        return new ProviderResponseDTO();
     }
 
-    private ProviderDTO mapProviderToDto(Provider provider) {
+    public List<ProviderResponseDTO> filterByCriterios(String firstName, String lastName, String email, String licenseNumber) {
+        List<Provider> providers = repository.findByCriterios(firstName, lastName, email, licenseNumber);
+        return providers.stream().map(this::providerResponseMapper).toList();
+    }
+
+
+    public Page<ProviderResponseDTO> listPage(Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(this::providerResponseMapper);
+    }
+
+    private ProviderDTO providerMapper(Provider provider) {
         ProviderDTO dto = new ProviderDTO();
 
         dto.setFirstName(provider.getFirstName());
@@ -90,12 +96,13 @@ public class ProviderService {
         dto.setPassword(provider.getCredentials().getPassword());
         dto.setEmail(provider.getEmail());
         dto.setAddress(provider.getAddress());
+        dto.setPhoneNumber(provider.getPhoneNumber());
         dto.setLicenseNumber(provider.getLicenseNumber());
-        dto.setCategoryId(provider.getCategory() != null ? provider.getCategory().getId() : null);
+        // dto.setCategoryId(provider.getCategory() != null ? provider.getCategory().getId() : null);
         return dto;
     }
 
-    private Provider mapDtoToProvider(ProviderDTO dto) {
+    private Provider providerMapper(ProviderDTO dto) {
         Provider provider = new Provider();
         Credentials credentials = new Credentials();
 
@@ -108,51 +115,31 @@ public class ProviderService {
         provider.setEmail(dto.getEmail());
         provider.setAddress(dto.getAddress());
         provider.setLicenseNumber(dto.getLicenseNumber());
+        provider.setPhoneNumber(dto.getPhoneNumber());
 
+        /*
         if (dto.getCategoryId() != null) {
             Category category = categoryRepository.findById(dto.getCategoryId())
                     .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
             provider.setCategory(category);
         }
 
+         */
+
         return provider;
     }
 
-    public Provider crearProvider(ProviderDTO dto) {
-        Provider provider = mapDtoToProvider(dto);
-        return providerRepository.save(provider);
-    }
-
-    public List<ProviderResponseDTO> buscarPorNombreCategoria(String nombreCategoria) {
-        return providerRepository.findByCategory_Nombre(nombreCategoria)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
-    }
-
-    public List<ProviderResponseDTO> buscarPorCriterios(String firstName, String lastName, String email, String licenseNumber) {
-        List<Provider> providers = providerRepository.findByCriterios(firstName, lastName, email, licenseNumber);
-        return providers.stream().map(this::mapToResponse).toList();
-    }
-
-    public Page<ProviderResponseDTO> listarPaginado(Pageable pageable) {
-        return providerRepository.findAll(pageable)
-                .map(this::mapToResponse);
-    }
-
-    private ProviderResponseDTO mapToResponse(Provider provider) {
+    private ProviderResponseDTO providerResponseMapper(Provider provider) {
         ProviderResponseDTO dto = new ProviderResponseDTO();
+
         dto.setId(provider.getId());
         dto.setFirstName(provider.getFirstName());
         dto.setLastName(provider.getLastName());
         dto.setEmail(provider.getEmail());
         dto.setAddress(provider.getAddress());
         dto.setLicenseNumber(provider.getLicenseNumber());
-        dto.setCategoryName(provider.getCategory() != null ? provider.getCategory().getNombre() : null);
-        return dto;
-    }
+        dto.setFacility(provider.getFacility().getName());
 
-    public ProviderResponseDTO toResponseDTO(Provider provider) {
-        return mapToResponse(provider);
+        return dto;
     }
 }

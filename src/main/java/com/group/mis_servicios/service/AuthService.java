@@ -1,11 +1,11 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.dto.LoginDTO;
-import com.group.mis_servicios.dto.RegistroDTO;
-import com.group.mis_servicios.entity.Credentials;
-import com.group.mis_servicios.entity.User;
-import com.group.mis_servicios.repository.CredentialsRepository;
-import com.group.mis_servicios.repository.UserRepository;
+import com.group.mis_servicios.view.dto.LoginDTO;
+import com.group.mis_servicios.view.dto.RegisterDTO;
+import com.group.mis_servicios.model.entity.Credentials;
+import com.group.mis_servicios.model.entity.User;
+import com.group.mis_servicios.model.repository.CredentialsRepository;
+import com.group.mis_servicios.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,19 +19,21 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
     @Autowired private CredentialsRepository credentialsRepository;
-    @Autowired private BCryptPasswordEncoder encoder;
+    @Autowired private BCryptPasswordEncoder encoder; // to encrypt the password
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public void registrarUsuario(RegistroDTO dto) {
+    public void register(RegisterDTO dto) {
         User user = new User();
+        Credentials credentials = new Credentials();
+
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setEmail(dto.getEmail());
         user.setAddress(dto.getAddress());
+        user.setPhoneNumber(dto.getPhoneNumber());
 
-        Credentials credentials = new Credentials();
         credentials.setUsername(dto.getUsername());
         credentials.setPassword(encoder.encode(dto.getPassword()));
         credentials.setUser(user);
@@ -42,12 +44,13 @@ public class AuthService {
     }
 
     public boolean login(LoginDTO dto) {
-        String identificador = dto.getIdentificador();
+        String identifier = dto.getIdentifier();
         String password = dto.getPassword();
 
-        Optional<User> userOpt = identificador.contains("@") ?
-                userRepository.findByEmail(identificador) :
-                userRepository.findByUsername(identificador);
+        // by this way, the user can log in with your email or usrename
+        Optional<User> userOpt = identifier.contains("@") ?
+                userRepository.findByEmail(identifier) :
+                userRepository.findByCredentials(credentialsRepository.findByUsername(identifier).get());
 
         if (userOpt.isPresent()) {
             User user = userOpt.get();
@@ -58,7 +61,7 @@ public class AuthService {
     }
 
 
-    public List<User> obtenerUsuarios() {
+    public List<User> getAuthUsers() {
         return userRepository.findAll();
     }
 }
