@@ -18,9 +18,8 @@ public class SecurityConfig {
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/auth/register", "/auth/login").permitAll()
                             .requestMatchers("/auth/users").permitAll()
-                            .requestMatchers("/clientes/**").permitAll()
+                            .requestMatchers("/customers/**").permitAll()
                             .requestMatchers("/providers/**").permitAll()
-                            .requestMatchers("/users/**").permitAll()
                             .requestMatchers("/shifts/**").permitAll()
                             .requestMatchers("/auth/logout").permitAll()
                             .requestMatchers("/categorias/**").permitAll()

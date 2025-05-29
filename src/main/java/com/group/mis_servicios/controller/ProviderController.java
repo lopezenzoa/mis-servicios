@@ -1,13 +1,7 @@
 package com.group.mis_servicios.controller;
 
-import com.group.mis_servicios.dto.ProviderDTO;
-import com.group.mis_servicios.dto.ProviderResponseDTO;
-import com.group.mis_servicios.entity.Category;
-import com.group.mis_servicios.entity.Credentials;
-import com.group.mis_servicios.entity.Provider;
-import com.group.mis_servicios.repository.CategoryRepository;
-import com.group.mis_servicios.repository.ProviderRepository;
-import com.group.mis_servicios.service.ProviderService;
+import com.group.mis_servicios.view.dto.ProviderDTO;
+import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,55 +10,86 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import com.group.mis_servicios.service.ProviderService;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/providers")
+@CrossOrigin("*")
 public class ProviderController {
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Autowired
-    private ProviderRepository providerRepository;
-
     @Autowired
     private BCryptPasswordEncoder encoder;
 
     @Autowired
     private ProviderService service;
 
-    @GetMapping("/sin-paginacion")
-    public ResponseEntity<List<Provider>> listAll() {
-        return ResponseEntity.ok(service.listAll());
-    }
-
     @GetMapping("/")
-    public ResponseEntity<List<ProviderResponseDTO>> listAllProviders() {
-        return ResponseEntity.ok(service.listAllProviders());
+    public ResponseEntity<List<ProviderResponseDTO>> listAll() {
+        return new ResponseEntity<>(service.listAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Provider> getById(@PathVariable Long id) {
-        return service.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+        Optional<ProviderResponseDTO> providerOptional = service.getById(id);
+
+        if (providerOptional.isPresent())
+            return new ResponseEntity<>(providerOptional.get(), HttpStatus.OK);
+        else {
+            return new ResponseEntity<>("The provider has no been found with the ID: " + id, HttpStatus.NOT_FOUND);
+        }
     }
 
-    @GetMapping("/license")
-    public ResponseEntity<Provider> filterByLicenseNumber(@RequestParam String licenseNumber) {
-        return ResponseEntity.ok(service.filterByLicenseNumber(licenseNumber));
+    @GetMapping("/license/{licenseNumber}")
+    public ResponseEntity<ProviderDTO> filterByLicenseNumber(@PathVariable String licenseNumber) {
+        return new ResponseEntity<>(service.filterByLicenseNumber(licenseNumber), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProviderDTO> updateProfile(@PathVariable Long id, @RequestBody ProviderDTO updated) {
+    public ResponseEntity<ProviderResponseDTO> updateProfile(@PathVariable Long id, @RequestBody ProviderDTO updated) {
         return new ResponseEntity<>(service.update(id, updated), HttpStatus.OK);
     }
-    @GetMapping("/{services}")
-    public ResponseEntity<List<ProviderResponseDTO>> filterByServices(@PathVariable String services){
-        return ResponseEntity.ok(service.filterByServices(services));
+
+    @PostMapping("/create")
+    public ResponseEntity<String> create(@RequestBody ProviderDTO dto) {
+        service.create(dto);
+        return new ResponseEntity<>("The provider has been created successfully", HttpStatus.OK);
     }
 
+    @GetMapping("/facility/{facilityName}")
+    public ResponseEntity<List<ProviderResponseDTO>> getByFacility(@PathVariable String facilityName) {
+        return ResponseEntity.ok(service.filterByFacility(facilityName));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ProviderResponseDTO>> buscar(
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String licenseNumber
+    ) {
+        return ResponseEntity.ok(service.filterByCriterios(firstName, lastName, email, licenseNumber));
+    }
+
+    @GetMapping("/page")
+    public ResponseEntity<Page<ProviderResponseDTO>> listAllPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(service.listPage(pageable));
+    }
+
+    // manejo de excecpciones
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        String errorMessage = "The parameter '" + ex.getName() + "' must be a valid number (Long).";
+        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+    }
+
+    /*
     @PostMapping("/register")
     public ResponseEntity<ProviderResponseDTO> registerProvider(@RequestBody ProviderDTO dto) {
         Category categoria = categoryRepository.findById(dto.getCategoryId())
@@ -98,29 +123,5 @@ public class ProviderController {
 
         return ResponseEntity.ok(response);
     }
-
-
-
-    @GetMapping("/por-categoria")
-    public ResponseEntity<List<ProviderResponseDTO>> getPorCategoria(@RequestParam String nombreCategoria) {
-        return ResponseEntity.ok(service.buscarPorNombreCategoria(nombreCategoria));
-    }
-    @GetMapping("/buscar")
-    public ResponseEntity<List<ProviderResponseDTO>> buscar(
-            @RequestParam(required = false) String firstName,
-            @RequestParam(required = false) String lastName,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String licenseNumber
-    ) {
-        return ResponseEntity.ok(service.buscarPorCriterios(firstName, lastName, email, licenseNumber));
-    }
-    @GetMapping
-    public ResponseEntity<Page<ProviderResponseDTO>> listAllPaginado(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(service.listarPaginado(pageable));
-    }
-
+    */
 }
