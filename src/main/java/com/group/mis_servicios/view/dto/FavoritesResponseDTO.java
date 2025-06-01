@@ -11,6 +11,6 @@ public class FavoritesResponseDTO {
     private Long id;
     private String title;
     private LocalDateTime creationDate;
-    private Long clientId;
+    private Long customerId;
     private List<ProviderResponseDTO> providers;
 }

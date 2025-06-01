@@ -33,9 +33,11 @@ public class Customer {
     @Column(name = "phone_number", nullable = false, length = 40, unique = true)
     private String phoneNumber;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "credential_id", nullable = false, unique = true)
-    private Credentials credentials;
+    @Column(length = 20, nullable = false, unique = true)
+    private String username;
+
+    @Column(length = 100, nullable = false)
+    private String password;
 
     @OneToMany(mappedBy = "customer")
     private List<Review> reviews;

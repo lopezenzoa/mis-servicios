@@ -41,6 +41,6 @@ public class Call {
     private Customer customer;
 
     @ManyToOne
-    @JoinColumn(name = "provider_id", referencedColumnName = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "provider_id", referencedColumnName = "provider_id", insertable = false, updatable = false)
     private Provider provider;
 }

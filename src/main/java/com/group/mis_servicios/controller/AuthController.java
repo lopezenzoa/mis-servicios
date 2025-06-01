@@ -37,13 +37,19 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginDTO dto) {
         boolean success = service.login(dto);
         if (success) {
-            return ResponseEntity.ok("Logged in Successfully");
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(Map.of("message", "The user has been logged in successfully!"));
         } else {
-            return ResponseEntity.status(401).body("Invalid Credentials");
+            return ResponseEntity.status(401)
+                    .header("Content-Type", "application/json")
+                    .body(Map.of("message", "Invalid Credentials!"));
         }
     }
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
-        return ResponseEntity.ok("Logout Successfully");
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "The user has been logged out successfully!"));
     }
 }

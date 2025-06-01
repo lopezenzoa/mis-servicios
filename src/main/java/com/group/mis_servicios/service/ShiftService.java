@@ -69,21 +69,24 @@ public class ShiftService {
                 .toList();
     }
 
-    public ShiftDTO createShiftForProvider(ShiftDTO dto) {
+    public Optional<ShiftDTO> createShiftForProvider(ShiftDTO dto) {
         if (existsShiftAtSameTime(dto.getProviderId(), LocalDateTime.parse(dto.getDateTime()))) {
-            throw new RuntimeException("Oops! There are another shift for that provider at that time");
+            return Optional.empty();
         }
 
-        Provider provider = providerRepository.findById(dto.getProviderId())
-                .orElseThrow(() -> new RuntimeException("Provider not found"));
+        Optional<Provider> provider = providerRepository.findById(dto.getProviderId());
+
+        if (provider.isEmpty())
+            return Optional.empty();
 
         Shift shift = new Shift();
 
         shift.setDateTime(LocalDateTime.parse(dto.getDateTime()));
         shift.setAvailable(true);
-        shift.setProvider(provider);
+        shift.setProviderId(provider.get().getId());
+        shift.setProvider(provider.get());
 
-        return shiftMapper(repository.save(shift));
+        return Optional.of(shiftMapper(repository.save(shift)));
     }
 
     public List<ShiftDTO> getAvailableByProvider(Long providerId) {

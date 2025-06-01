@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/favorites-lists")
@@ -20,15 +21,20 @@ public class FavoritesController {
     private FavoritesService service;
 
     @PostMapping("/create")
-    public ResponseEntity<FavoritesList> createFavoritesList(@RequestBody FavoritesDTO dto) {
-        FavoritesList list = service.create(dto);
-        return ResponseEntity.ok(list);
+    public ResponseEntity<?> createFavoritesList(@RequestBody FavoritesDTO dto) {
+        service.create(dto);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "The favorites list has been registered successfully!"));
     }
 
     @PostMapping("/add-provider")
-    public ResponseEntity<FavoritesResponseDTO> addProvider(@RequestBody ProviderToFavoritesDTO dto) {
-        FavoritesResponseDTO response = service.addProviderToFavorites(dto.getFavoritesListId(), dto.getProviderId());
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> addProvider(@RequestBody ProviderToFavoritesDTO dto) {
+        service.addProviderToFavorites(dto.getFavoritesListId(), dto.getProviderId());
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "The provider has been added to the list successfully!"));
     }
 
     @GetMapping("/{favoritesListId}/providers")
@@ -38,18 +44,26 @@ public class FavoritesController {
     }
 
     @DeleteMapping("/remove-provider")
-    public ResponseEntity<FavoritesResponseDTO> removeProvider(@RequestBody ProviderToFavoritesDTO dto) {
-        FavoritesResponseDTO response = service.removeProviderFromFavorites(dto.getFavoritesListId(), dto.getProviderId());
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> removeProvider(@RequestBody ProviderToFavoritesDTO dto) {
+        service.removeProviderFromFavorites(dto.getFavoritesListId(), dto.getProviderId());
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "The provider has been added to the list successfully!"));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteFavoritesList(@PathVariable Long id) {
+    public ResponseEntity<?> deleteFavoritesList(@PathVariable Long id) {
         boolean deleted = service.deleteFavoritesList(id);
+
         if (deleted) {
-            return ResponseEntity.ok("The Favorites List has been successfully deleted");
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(Map.of("message", "The favorites list has been deleted successfully!"));
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favorites List not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .header("Content-Type", "application/json")
+                    .body(Map.of("message", "The favorites list has been deleted successfully!"));
         }
     }
 

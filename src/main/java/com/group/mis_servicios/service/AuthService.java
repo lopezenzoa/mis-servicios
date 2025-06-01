@@ -26,19 +26,14 @@ public class AuthService {
 
     public void register(RegisterDTO dto) {
         User user = new User();
-        Credentials credentials = new Credentials();
 
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setEmail(dto.getEmail());
         user.setAddress(dto.getAddress());
         user.setPhoneNumber(dto.getPhoneNumber());
-
-        credentials.setUsername(dto.getUsername());
-        credentials.setPassword(encoder.encode(dto.getPassword()));
-        // credentials.setUser(user);
-
-        user.setCredentials(credentials);
+        user.setUsername(dto.getUsername());
+        user.setPassword(encoder.encode(dto.getPassword()));
 
         userRepository.save(user);
     }
@@ -47,14 +42,14 @@ public class AuthService {
         String identifier = dto.getIdentifier();
         String password = dto.getPassword();
 
-        // by this way, the user can log in with your email or usrename
+        // by this way, the user can log in with your email or username
         Optional<User> userOpt = identifier.contains("@") ?
                 userRepository.findByEmail(identifier) :
-                userRepository.findByCredentials(credentialsRepository.findByUsername(identifier).get());
+                userRepository.findByUsername(identifier);
 
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            return passwordEncoder.matches(password, user.getCredentials().getPassword());
+            return passwordEncoder.matches(password, user.getPassword());
         }
 
         return false;

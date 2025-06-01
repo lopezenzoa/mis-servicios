@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -24,14 +25,25 @@ public class CustomerController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> create(@RequestBody CustomerDTO dto) {
+    public ResponseEntity<?> create(@RequestBody CustomerDTO dto) {
         service.create(dto);
-        return new ResponseEntity<>("The customer has been created successfully", HttpStatus.OK);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "The customer has been registered successfully!"));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerDTO> showProfile(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getById(id));
+    public ResponseEntity<?> showProfile(@PathVariable Long id) {
+        Optional<CustomerDTO> customer = service.getById(id);
+
+        if (customer.isPresent())
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(customer.get());
+
+        return ResponseEntity.status(404)
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "The customer hasn't been found"));
     }
 
     @PutMapping("/{id}")
@@ -39,9 +51,12 @@ public class CustomerController {
         Optional<CustomerResponseDTO> customerOptional = service.update(id, dto);
 
         if (customerOptional.isPresent())
-            return new ResponseEntity<>(customerOptional.get(), HttpStatus.OK);
-        else {
-            return new ResponseEntity<>("The customer has no been found with the ID: " + id, HttpStatus.NOT_FOUND);
-        }
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(Map.of("message", "The customer has been updated successfully!"));
+
+        return ResponseEntity.status(404)
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "The customer hasn't been found"));
     }
 }

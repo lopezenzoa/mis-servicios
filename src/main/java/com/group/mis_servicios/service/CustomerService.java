@@ -43,11 +43,9 @@ public class CustomerService {
             customer.setAddress(dto.getAddress());
             customer.setPhoneNumber(dto.getPhoneNumber());
 
-            credentials.setUsername(dto.getUsername());
-            credentials.setPassword(encoder.encode(dto.getPassword()));
+            customer.setUsername(dto.getUsername());
+            customer.setPassword(encoder.encode(dto.getPassword()));
             // credentials.setUser(customer);
-
-            customer.setCredentials(credentials);
 
             Customer saved = repository.save(customer);
 
@@ -70,50 +68,46 @@ public class CustomerService {
         return dtos;
     }
 
-    public CustomerDTO getById(Long id) {
+    public Optional<CustomerDTO> getById(Long id) {
         Optional<Customer> customerOptional = repository.findById(id);
 
         if (customerOptional.isPresent()) {
             Customer customer = customerOptional.get();
 
-            return customerMapper(customer);
+            return Optional.of(customerMapper(customer));
         }
 
-        return new CustomerDTO();
+        return Optional.empty();
     }
 
     public Optional<CustomerResponseDTO> update(Long id, CustomerDTO updated) {
         Optional<Customer> customerOptional = repository.findById(id);
 
         if (customerOptional.isPresent()) {
-            Customer customerUpdated = repository.save(customerMapper(updated));
+            Customer customer = customerOptional.get();
 
             if (
                 updated.getFirstName().isEmpty()
                 || updated.getLastName().isEmpty()
-                || checkValidPhone(updated.getPhoneNumber())
+                || checkValidPhone(customer.getId(), updated.getPhoneNumber())
                 || updated.getAddress().isEmpty()
-                || checkValidEmail(updated.getEmail())
+                || checkValidEmail(customer.getId(), updated.getEmail())
                 || updated.getUsername().isEmpty()
                 || updated.getPassword().isEmpty()
             ) {
                 return Optional.empty();
             } else {
-                customerUpdated.setFirstName(updated.getFirstName());
-                customerUpdated.setLastName(updated.getLastName());
-                customerUpdated.setEmail(updated.getEmail());
-                customerUpdated.setAddress(updated.getAddress());
-                customerUpdated.setPhoneNumber(updated.getPhoneNumber());
+                customer.setFirstName(updated.getFirstName());
+                customer.setLastName(updated.getLastName());
+                customer.setEmail(updated.getEmail());
+                customer.setAddress(updated.getAddress());
+                customer.setPhoneNumber(updated.getPhoneNumber());
 
-                Credentials credentials = new Credentials();
-
-                credentials.setUsername(updated.getUsername());
-                credentials.setPassword(encoder.encode(updated.getPassword()));
+                customer.setUsername(updated.getUsername());
+                customer.setPassword(encoder.encode(updated.getPassword()));
                 // credentials.setUser(customerUpdated);
 
-                customerUpdated.setCredentials(credentials);
-
-                Customer saved = repository.save(customerUpdated);
+                Customer saved = repository.save(customer);
 
                 return Optional.of(customerResponseMapper(saved));
             }
@@ -125,28 +119,28 @@ public class CustomerService {
     private CustomerDTO customerMapper(Customer customer) {
         CustomerDTO dto = new CustomerDTO();
 
-        dto.setUsername(customer.getCredentials().getUsername());
-        dto.setPassword(customer.getCredentials().getPassword());
+        dto.setUsername(customer.getUsername());
+        dto.setPassword(customer.getPassword());
         dto.setFirstName(customer.getFirstName());
         dto.setLastName(customer.getLastName());
         dto.setEmail(customer.getEmail());
         dto.setAddress(customer.getAddress());
+        dto.setPhoneNumber(customer.getPhoneNumber());
 
         return dto;
     }
 
     private Customer customerMapper(CustomerDTO dto) {
         Customer customer = new Customer();
-        Credentials credentials = new Credentials();
 
-        credentials.setUsername(dto.getUsername());
-        credentials.setPassword(dto.getPassword());
+        customer.setUsername(dto.getUsername());
+        customer.setPassword(dto.getPassword());
 
-        customer.setCredentials(credentials);
         customer.setFirstName(dto.getFirstName());
         customer.setLastName(dto.getLastName());
         customer.setEmail(dto.getEmail());
         customer.setAddress(dto.getAddress());
+        customer.setPhoneNumber(dto.getPhoneNumber());
 
         return customer;
     }
@@ -154,7 +148,7 @@ public class CustomerService {
     private CustomerResponseDTO customerResponseMapper(Customer customer) {
         CustomerResponseDTO response = new CustomerResponseDTO();
 
-        response.setId(customer.getId());
+        // response.setId(customer.getId());
         response.setFirstName(customer.getFirstName());
         response.setLastName(customer.getLastName());
         response.setEmail(customer.getEmail());
@@ -164,6 +158,22 @@ public class CustomerService {
         return response;
     }
 
+    // These two validation methods are used for updating (that's why I'm requesting the id)
+    public boolean checkValidEmail(Long id, String email) {
+        return repository.findAll()
+                .stream()
+                .filter(c -> !c.getId().equals(id))
+                .anyMatch(c -> c.getEmail().equals(email));
+    }
+
+    public boolean checkValidPhone(Long id, String phone) {
+        return repository.findAll()
+                .stream()
+                .filter(c -> !c.getId().equals(id))
+                .anyMatch(c -> c.getPhoneNumber().equals(phone));
+    }
+
+    // These two validation methods are used for creating
     public boolean checkValidEmail(String email) {
         return repository.findAll()
                 .stream()

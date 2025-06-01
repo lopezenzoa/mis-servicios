@@ -29,13 +29,14 @@ public class FavoritesService {
     private ProviderRepository providerRepository;
 
     public FavoritesList create(FavoritesDTO favoritesDTO) {
-        Optional<Customer> customerOpt = customerRepository.findById(favoritesDTO.getClientId());
+        Optional<Customer> customerOpt = customerRepository.findById(favoritesDTO.getCustomerId());
         if (customerOpt.isEmpty()) {
             throw new RuntimeException("Customer not found!");
         }
 
         FavoritesList list = new FavoritesList();
         list.setCustomer(customerOpt.get());
+        list.setOwnerId(favoritesDTO.getCustomerId());
         list.setTitle(favoritesDTO.getTitle());
         list.setCreationDate(LocalDateTime.now());
 
@@ -57,10 +58,10 @@ public class FavoritesService {
 
     public FavoritesResponseDTO addProviderToFavorites(Long favoritesListId, Long providerId) {
         FavoritesList list = favoritesListRepository.findById(favoritesListId)
-                .orElseThrow(() -> new RuntimeException("Favorties List not found"));
+                .orElseThrow(() -> new RuntimeException("Favorites List not found"));
 
         Provider provider = providerRepository.findById(providerId)
-                .orElseThrow(() -> new RuntimeException("Proveedor no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Provider not found"));
 
         if (!list.getProviders().contains(provider)) {
             list.getProviders().add(provider);
@@ -78,7 +79,7 @@ public class FavoritesService {
         dto.setId(saved.getId());
         dto.setTitle(saved.getTitle());
         dto.setCreationDate(saved.getCreationDate());
-        dto.setClientId(saved.getCustomer().getId());
+        dto.setCustomerId(saved.getCustomer().getId());
         dto.setProviders(providersDto);
 
         return dto;
@@ -116,7 +117,7 @@ public class FavoritesService {
         dto.setId(updatedList.getId());
         dto.setTitle(updatedList.getTitle());
         dto.setCreationDate(updatedList.getCreationDate());
-        dto.setClientId(updatedList.getCustomer().getId());
+        dto.setCustomerId(updatedList.getCustomer().getId());
 
         List<ProviderResponseDTO> providerDTOs = updatedList.getProviders().stream()
                 .map(this::mapToProviderDTO)

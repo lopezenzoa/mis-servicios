@@ -9,5 +9,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class FavoritesDTO {
     private String title;
-    private Long clientId;
+    private Long customerId;
 }

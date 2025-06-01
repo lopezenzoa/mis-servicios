@@ -14,7 +14,7 @@ import java.util.List;
 public class Provider {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "provider_id", nullable = false)
     private Long id;
 
     @Column(name = "first_name", nullable = false, length = 20)
@@ -32,9 +32,11 @@ public class Provider {
     @Column(name = "phone_number", nullable = false, length = 40, unique = true)
     private String phoneNumber;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "credential_id", nullable = false, unique = true)
-    private Credentials credentials;
+    @Column(length = 20, nullable = false, unique = true)
+    private String username;
+
+    @Column(length = 100, nullable = false)
+    private String password;
 
     @Column(name = "license_number", nullable = false, unique = true)
     private String licenseNumber;
