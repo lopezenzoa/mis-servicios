@@ -30,6 +30,7 @@ public class FavoritesService {
 
     public FavoritesList create(FavoritesDTO favoritesDTO) {
         Optional<Customer> customerOpt = customerRepository.findById(favoritesDTO.getClientId());
+        
         if (customerOpt.isEmpty()) {
             throw new RuntimeException("Customer not found!");
         }

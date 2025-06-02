@@ -4,6 +4,7 @@ package com.group.mis_servicios.controller;
 
 import com.group.mis_servicios.model.entity.Facility;
 import com.group.mis_servicios.service.FacilityService;
+import com.group.mis_servicios.view.dto.FacilityDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,24 +21,24 @@ public class FaciltyController {
     private FacilityService service;
 
     @PostMapping("/{id}")
-    public ResponseEntity<Facility> create(@RequestBody Facility facility) {
+    public ResponseEntity<?> create(@RequestBody FacilityDTO facility) {
         return new ResponseEntity<>(service.create(facility), HttpStatus.OK);
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<Facility>> listAll() {
+    public ResponseEntity<List<FacilityDTO>> listAll() {
         return ResponseEntity.ok(service.listAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Facility> getById(@PathVariable Long id) {
+    public ResponseEntity<?> getById(@PathVariable Long id) {
         return service.getById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Facility> update(@PathVariable Long id, @RequestBody Facility facility) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody FacilityDTO facility) {
         return ResponseEntity.ok(service.update(id, facility));
     }
 

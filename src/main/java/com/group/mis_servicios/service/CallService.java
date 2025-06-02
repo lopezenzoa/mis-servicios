@@ -3,10 +3,12 @@ package com.group.mis_servicios.service;
 import ch.qos.logback.classic.spi.CallerData;
 import com.group.mis_servicios.model.entity.Call;
 import com.group.mis_servicios.model.repository.CallRepository;
+import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.view.dto.CallDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,22 +18,30 @@ public class CallService {
 
     @Autowired
     private CallRepository repository;
+    @Autowired
+    private ProviderRepository providerRepository;
 
+    public Optional<CallDTO> create(CallDTO call) {
+        boolean valid = checkCallValidity(call);
 
+        if (valid) {
+            Call saved = repository.save(callMapper(call));
+            return Optional.of(callMapper(saved));
+        }
 
-    public CallDTO create(CallDTO call) {
-        return callMapper(repository.save(callMapper(call)));
+        return Optional.empty();
     }
 
-    public CallDTO update(Long id, CallDTO updatedCall) {
+    public Optional<CallDTO> update(Long id, CallDTO updatedCall) {
         Optional<Call> optionalCall = repository.findById(id);
-        if ( optionalCall.isPresent()){
+
+        if (optionalCall.isPresent()){
             Call call= repository.save(callMapper(updatedCall));
-            return callMapper(call);
-        } else {
-            System.out.println("The id " + id + " does not exist");
+            return Optional.of(callMapper(call));
         }
-        return null; // deberiamos manejar el error (je) y no retornar null
+
+
+        return Optional.empty();
     }
 
     public Optional<CallDTO> findById(Long id) {
@@ -45,18 +55,16 @@ public class CallService {
                 .collect(Collectors.toList());
     }
 
-    public void deleteById(Long id) {
-
-        if(repository.existsById(id)){
+    public boolean deleteById(Long id) {
+        if (repository.existsById(id)) {
             repository.deleteById(id);
-            System.out.println("The id " + id + " has been deleted");
-        }else {
-            System.out.println("The id " + id + " does not exist");
+            return true;
         }
-        // tambien manejar la exception
+
+        return false;
     }
 
-    private CallDTO callMapper (Call call) {
+    private CallDTO callMapper(Call call) {
         CallDTO callDTO = new CallDTO();
 
         callDTO.setId(call.getId());
@@ -80,4 +88,14 @@ public class CallService {
         return call;
     }
 
+    private boolean checkCallValidity(CallDTO dto) {
+        return !dto.getDate().isBefore(LocalDateTime.now())
+                && !dto.getAddress().isBlank()
+                && !dto.getState().isBlank()
+                && providerExists(dto.getProviderId());
+    }
+
+    private boolean providerExists(Long providerId) {
+        return providerRepository.existsById(providerId);
+    }
 }

@@ -30,20 +30,28 @@ public class AuthController {
 
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAuthUsers() {
-        return new ResponseEntity<>(service.getAuthUsers(), HttpStatus.OK);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(service.getAuthUsers());
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO dto) {
         boolean success = service.login(dto);
         if (success) {
-            return ResponseEntity.ok("Logged in Successfully");
-        } else {
-            return ResponseEntity.status(401).body("Invalid Credentials");
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body("Logged in successfully!");
         }
+
+        return ResponseEntity.status(401)
+                .header("Content-Type", "application/json")
+                .body("Oops :( Invalid credentials");
     }
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
-        return ResponseEntity.ok("Logout Successfully");
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body("Logged out successfully!");
     }
 }

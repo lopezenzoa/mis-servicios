@@ -25,29 +25,33 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     public void register(RegisterDTO dto) {
-        User user = new User();
-        Credentials credentials = new Credentials();
+        boolean isValid = checkRegisterValidity(dto);
 
-        user.setFirstName(dto.getFirstName());
-        user.setLastName(dto.getLastName());
-        user.setEmail(dto.getEmail());
-        user.setAddress(dto.getAddress());
-        user.setPhoneNumber(dto.getPhoneNumber());
+        if (isValid) {
+            User user = new User();
+            Credentials credentials = new Credentials();
 
-        credentials.setUsername(dto.getUsername());
-        credentials.setPassword(encoder.encode(dto.getPassword()));
-        // credentials.setUser(user);
+            user.setFirstName(dto.getFirstName());
+            user.setLastName(dto.getLastName());
+            user.setEmail(dto.getEmail());
+            user.setAddress(dto.getAddress());
+            user.setPhoneNumber(dto.getPhoneNumber());
 
-        user.setCredentials(credentials);
+            credentials.setUsername(dto.getUsername());
+            credentials.setPassword(encoder.encode(dto.getPassword()));
+            // credentials.setUser(user);
 
-        userRepository.save(user);
+            user.setCredentials(credentials);
+
+            userRepository.save(user);
+        }
     }
 
     public boolean login(LoginDTO dto) {
         String identifier = dto.getIdentifier();
         String password = dto.getPassword();
 
-        // by this way, the user can log in with your email or usrename
+        // by this way, the user can log in with your email or username
         Optional<User> userOpt = identifier.contains("@") ?
                 userRepository.findByEmail(identifier) :
                 userRepository.findByCredentials(credentialsRepository.findByUsername(identifier).get());
@@ -63,5 +67,18 @@ public class AuthService {
 
     public List<User> getAuthUsers() {
         return userRepository.findAll();
+    }
+
+    private boolean checkRegisterValidity(RegisterDTO dto) {
+        // checks if the username is unique
+        boolean isUsernameUnique = getAuthUsers()
+                .stream()
+                .anyMatch(user -> user.getCredentials().getUsername().equals(dto.getUsername()));
+
+        boolean isEmailUnique = getAuthUsers()
+                .stream()
+                .anyMatch(user -> user.getCredentials().getUsername().equals(dto.getEmail()));
+
+        return isEmailUnique && isUsernameUnique;
     }
 }
