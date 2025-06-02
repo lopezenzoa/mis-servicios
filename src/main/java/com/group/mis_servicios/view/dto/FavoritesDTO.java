@@ -1,5 +1,8 @@
 package com.group.mis_servicios.view.dto;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,7 +11,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class FavoritesDTO {
+    @NotBlank(message = "The title cannot be in blank")
     private String title;
+
+    @Positive
+    @NotBlank(message = "The customer cannot be in blank")
     private Long clientId;
 
     public String getTitle() {
