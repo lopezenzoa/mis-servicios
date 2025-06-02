@@ -15,4 +15,12 @@ public class ProviderDTO extends UserDTO {
     @NotBlank(message = "The license number cannot be blank")
     @Pattern(regexp = "\\d{5,10}", message = "The license must contain at least 5 numbers")
     private String licenseNumber;
+
+    public String getLicenseNumber() {
+        return licenseNumber;
+    }
+
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
+    }
 }

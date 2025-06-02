@@ -26,4 +26,36 @@ public class Facility {
     // Simple Many-to-Many - JPA handles junction table
     @OneToMany(mappedBy = "facility")
     private List<Provider> providers;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<Provider> getProviders() {
+        return providers;
+    }
+
+    public void setProviders(List<Provider> providers) {
+        this.providers = providers;
+    }
 }
