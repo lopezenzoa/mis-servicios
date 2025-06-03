@@ -11,7 +11,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "user")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,9 +32,74 @@ public class User {
     @Column(name = "phone_number", nullable = false, length = 40, unique = true)
     private String phoneNumber;
 
-    @Column(length = 20, nullable = false, unique = true)
-    private String username;
+    @Column(name = "credential_id", nullable = false)
+    private Long credentialsId;
 
-    @Column(length = 100, nullable = false)
-    private String password;
+    @OneToOne
+    @JoinColumn(name = "credential_id", referencedColumnName = "credential_id", insertable = false, updatable = false)
+    private Credentials credentials;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public Long getCredentialsId() {
+        return credentialsId;
+    }
+
+    public void setCredentialsId(Long credentialsId) {
+        this.credentialsId = credentialsId;
+    }
+
+    public Credentials getCredentials() {
+        return credentials;
+    }
+
+    public void setCredentials(Credentials credentials) {
+        this.credentials = credentials;
+    }
 }

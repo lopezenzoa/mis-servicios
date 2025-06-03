@@ -22,7 +22,7 @@ public class SecurityConfig {
                             .requestMatchers("/providers/**").permitAll()
                             .requestMatchers("/shifts/**").permitAll()
                             .requestMatchers("/auth/logout").permitAll()
-                            .requestMatchers("/facilities/**").permitAll()
+                            .requestMatchers("/calls/**").permitAll()
                             .requestMatchers("/favorites-lists/**").permitAll()
                             .requestMatchers("/favorites-lists/add-provider").permitAll()
                             .anyRequest().authenticated()

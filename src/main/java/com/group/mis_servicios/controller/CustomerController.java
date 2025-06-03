@@ -25,25 +25,24 @@ public class CustomerController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody CustomerDTO dto) {
+    public ResponseEntity<String> create(@RequestBody CustomerDTO dto) {
         service.create(dto);
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json")
-                .body(Map.of("message", "The customer has been registered successfully!"));
+        return new ResponseEntity<>("The customer has been created successfully", HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> showProfile(@PathVariable Long id) {
-        Optional<CustomerDTO> customer = service.getById(id);
+        Optional<CustomerDTO> customerOptional = service.getById(id);
 
-        if (customer.isPresent())
+        if (customerOptional.isPresent()) {
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
-                    .body(customer.get());
+                    .body(customerOptional.get());
+        }
 
         return ResponseEntity.status(404)
                 .header("Content-Type", "application/json")
-                .body(Map.of("message", "The customer hasn't been found"));
+                .body(Map.of("message", "The call has no been found with the ID: " + id));
     }
 
     @PutMapping("/{id}")
@@ -51,12 +50,9 @@ public class CustomerController {
         Optional<CustomerResponseDTO> customerOptional = service.update(id, dto);
 
         if (customerOptional.isPresent())
-            return ResponseEntity.ok()
-                    .header("Content-Type", "application/json")
-                    .body(Map.of("message", "The customer has been updated successfully!"));
-
-        return ResponseEntity.status(404)
-                .header("Content-Type", "application/json")
-                .body(Map.of("message", "The customer hasn't been found"));
+            return new ResponseEntity<>(customerOptional.get(), HttpStatus.OK);
+        else {
+            return new ResponseEntity<>("The customer has no been found with the ID: " + id, HttpStatus.NOT_FOUND);
+        }
     }
 }

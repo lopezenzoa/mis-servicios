@@ -30,7 +30,9 @@ public class AuthController {
 
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAuthUsers() {
-        return new ResponseEntity<>(service.getAuthUsers(), HttpStatus.OK);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(service.getAuthUsers());
     }
 
     @PostMapping("/login")
@@ -39,17 +41,17 @@ public class AuthController {
         if (success) {
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
-                    .body(Map.of("message", "The user has been logged in successfully!"));
-        } else {
-            return ResponseEntity.status(401)
-                    .header("Content-Type", "application/json")
-                    .body(Map.of("message", "Invalid Credentials!"));
+                    .body("Logged in successfully!");
         }
+
+        return ResponseEntity.status(401)
+                .header("Content-Type", "application/json")
+                .body("Oops :( Invalid credentials");
     }
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json")
-                .body(Map.of("message", "The user has been logged out successfully!"));
+                .body("Logged out successfully!");
     }
 }

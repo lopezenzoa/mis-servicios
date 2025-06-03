@@ -61,7 +61,7 @@ public class ProviderController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProfile(@PathVariable Long id, @RequestBody ProviderDTO dto) {
-        Optional<ProviderDTO> providerDTO = service.update(id, dto);
+        Optional<ProviderResponseDTO> providerDTO = service.update(id, dto);
 
         if (providerDTO.isPresent())
             return ResponseEntity.ok()

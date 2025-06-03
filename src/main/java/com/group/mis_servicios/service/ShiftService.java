@@ -34,17 +34,22 @@ public class ShiftService {
         return shift.map(this::shiftMapper);
     }
 
-    public Optional<ShiftDTO> create(Shift shift) {
-        Optional<Shift> optionalShift = Optional.of(repository.save(shift));
+    public Optional<ShiftDTO> create(ShiftDTO shift) {
+        Optional<Shift> optionalShift = Optional.of(repository.save(shiftMapper(shift)));
 
         return optionalShift.map(this::shiftMapper);
     }
 
-    public Optional<ShiftDTO> update(Long id, Shift updated) {
+    public Optional<ShiftDTO> update(Long id, ShiftDTO updated) {
         Optional<Shift> shiftOptional = repository.findById(id);
 
-        if (shiftOptional.isPresent()) {
-            return Optional.of(shiftMapper(repository.save(updated)));
+        if (shiftOptional.isPresent()
+                && checkProvider(updated.getProviderId())
+                && !existsShiftAtSameTime(updated.getProviderId(), LocalDateTime.parse(updated.getDateTime()))
+        ) {
+            Shift saved = repository.save(shiftMapper(updated));
+
+            return Optional.of(shiftMapper(saved));
         }
 
         return Optional.empty();
@@ -69,26 +74,6 @@ public class ShiftService {
                 .toList();
     }
 
-    public Optional<ShiftDTO> createShiftForProvider(ShiftDTO dto) {
-        if (existsShiftAtSameTime(dto.getProviderId(), LocalDateTime.parse(dto.getDateTime()))) {
-            return Optional.empty();
-        }
-
-        Optional<Provider> provider = providerRepository.findById(dto.getProviderId());
-
-        if (provider.isEmpty())
-            return Optional.empty();
-
-        Shift shift = new Shift();
-
-        shift.setDateTime(LocalDateTime.parse(dto.getDateTime()));
-        shift.setAvailable(true);
-        shift.setProviderId(provider.get().getId());
-        shift.setProvider(provider.get());
-
-        return Optional.of(shiftMapper(repository.save(shift)));
-    }
-
     public List<ShiftDTO> getAvailableByProvider(Long providerId) {
         return repository.findByProviderIdAndAvailableTrue(providerId).stream().map(this::shiftMapper).toList();
     }
@@ -105,5 +90,26 @@ public class ShiftService {
         dto.setAvailable(shift.isAvailable());
 
         return dto;
+    }
+
+    public Shift shiftMapper(ShiftDTO dto) {
+        Shift shift = new Shift();
+        Optional<Provider> provider = providerRepository.findById(dto.getProviderId());
+
+        if (provider.isPresent()) {
+            shift.setDateTime(LocalDateTime.parse(dto.getDateTime()));
+            shift.setAvailable(dto.isAvailable());
+            shift.setProviderId(dto.getProviderId());
+            shift.setProvider(provider.get());
+        }
+
+        return shift;
+    }
+
+    // checks if the provider exists given his id
+    private boolean checkProvider(Long providerId) {
+        return providerRepository.findAll()
+                .stream()
+                .anyMatch(p -> p.getId().equals(providerId));
     }
 }

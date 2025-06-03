@@ -56,7 +56,7 @@ public class ShiftController {
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody ShiftDTO shift) {
-        Optional<ShiftDTO> shiftOptional = service.createShiftForProvider(shift);
+        Optional<ShiftDTO> shiftOptional = service.create(shift);
 
         if (shiftOptional.isPresent())
             return ResponseEntity.ok()
@@ -70,7 +70,7 @@ public class ShiftController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Shift updated) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ShiftDTO updated) {
         Optional<ShiftDTO> customerOptional = service.update(id, updated);
 
         if (customerOptional.isPresent())
