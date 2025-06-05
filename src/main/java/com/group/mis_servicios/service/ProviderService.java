@@ -2,6 +2,7 @@ package com.group.mis_servicios.service;
 
 import com.group.mis_servicios.model.entity.Customer;
 import com.group.mis_servicios.model.entity.Facility;
+import com.group.mis_servicios.model.repository.CredentialsRepository;
 import com.group.mis_servicios.model.repository.FacilityRepository;
 import com.group.mis_servicios.view.dto.FacilityDTO;
 import com.group.mis_servicios.view.dto.ProviderDTO;
@@ -26,6 +27,8 @@ public class ProviderService {
     private ProviderRepository repository;
     @Autowired
     private FacilityRepository facilityRepository;
+    @Autowired
+    private CredentialsRepository credentialsRepository;
     @Autowired
     private BCryptPasswordEncoder encoder;
 
@@ -52,10 +55,10 @@ public class ProviderService {
 
     public Optional<ProviderResponseDTO> create(ProviderDTO dto) {
         boolean isValid = checkValidity(dto);
-        
+
         if (!isValid)
             return Optional.empty();
-        
+
         Provider provider = repository.save(providerMapper(dto));
         
         return Optional.of(providerResponseMapper(provider));
@@ -140,14 +143,17 @@ public class ProviderService {
         credentials.setUsername(dto.getUsername());
         credentials.setPassword(dto.getPassword());
 
-        provider.setCredentials(credentials);
+        Credentials saved = credentialsRepository.save(credentials);
 
+        provider.setCredentials(credentials);
+        provider.setCredentialsId(saved.getId());
         provider.setFirstName(dto.getFirstName());
         provider.setLastName(dto.getLastName());
         provider.setEmail(dto.getEmail());
         provider.setAddress(dto.getAddress());
         provider.setLicenseNumber(dto.getLicenseNumber());
         provider.setPhoneNumber(dto.getPhoneNumber());
+        provider.setFacilityId(dto.getFacilityId());
 
         /*
         if (dto.getCategoryId() != null) {
@@ -232,11 +238,11 @@ public class ProviderService {
     private boolean checkValidity(ProviderDTO dto) {
         return !dto.getFirstName().isEmpty()
                 && !dto.getLastName().isEmpty()
-                && checkValidPhone(dto.getPhoneNumber())
+                && !checkValidPhone(dto.getPhoneNumber())
                 && !dto.getAddress().isEmpty()
-                && checkValidEmail(dto.getEmail())
+                && !checkValidEmail(dto.getEmail())
                 && !dto.getUsername().isEmpty()
-                && checkValidUsername(dto.getUsername())
+                && !checkValidUsername(dto.getUsername())
                 && !dto.getPassword().isEmpty();
     }
 }

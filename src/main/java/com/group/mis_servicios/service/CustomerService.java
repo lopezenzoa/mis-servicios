@@ -1,6 +1,7 @@
 package com.group.mis_servicios.service;
 
 import com.group.mis_servicios.model.entity.Credentials;
+import com.group.mis_servicios.model.repository.CredentialsRepository;
 import com.group.mis_servicios.view.dto.CustomerDTO;
 import com.group.mis_servicios.model.entity.Customer;
 import com.group.mis_servicios.model.repository.CustomerRepository;
@@ -17,6 +18,8 @@ import java.util.Optional;
 public class CustomerService {
     @Autowired
     private CustomerRepository repository;
+    @Autowired
+    private CredentialsRepository credentialsRepository;
 
     @Autowired
     private BCryptPasswordEncoder encoder;
@@ -86,11 +89,15 @@ public class CustomerService {
         credentials.setUsername(dto.getUsername());
         credentials.setPassword(dto.getPassword());
 
+        Credentials saved = credentialsRepository.save(credentials);
+
         customer.setCredentials(credentials);
+        customer.setCredentialsId(saved.getId());
         customer.setFirstName(dto.getFirstName());
         customer.setLastName(dto.getLastName());
         customer.setEmail(dto.getEmail());
         customer.setAddress(dto.getAddress());
+        customer.setPhoneNumber(dto.getPhoneNumber());
 
         return customer;
     }

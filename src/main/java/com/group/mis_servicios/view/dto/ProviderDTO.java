@@ -16,6 +16,8 @@ public class ProviderDTO extends UserDTO {
     @Pattern(regexp = "\\d{5,10}", message = "The license must contain at least 5 numbers")
     private String licenseNumber;
 
+    private Long facilityId;
+
     public String getLicenseNumber() {
         return licenseNumber;
     }
