@@ -22,6 +22,7 @@ public class Provider {
     @JoinColumn(name = "facility_id", referencedColumnName = "facility_id", insertable = false, updatable = false)
     private Facility facility;
 
+
     @OneToMany(mappedBy = "provider")
     private List<Shift> shifts;
 
@@ -48,12 +49,12 @@ public class Provider {
     @Column(name = "phone_number", nullable = false, length = 40, unique = true)
     private String phoneNumber;
 
-    @Column(name = "credential_id", nullable = false)
-    private Long credentialsId;
-
-    @OneToOne
-    @JoinColumn(name = "credential_id", referencedColumnName = "credential_id", insertable = false, updatable = false)
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "credential_id", referencedColumnName = "credential_id", nullable = false)
     private Credentials credentials;
+
+    @Column(name = "whatsapp_number")
+    private String whatsappNumber;
 
     public Long getId() {
         return id;
@@ -103,13 +104,6 @@ public class Provider {
         this.phoneNumber = phoneNumber;
     }
 
-    public Long getCredentialsId() {
-        return credentialsId;
-    }
-
-    public void setCredentialsId(Long credentialsId) {
-        this.credentialsId = credentialsId;
-    }
 
     public Credentials getCredentials() {
         return credentials;
