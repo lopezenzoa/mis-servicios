@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,6 +27,9 @@ public class Review {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
     private Customer customer;
+
+    @Column (name="date_time", nullable = false)
+    private LocalDateTime dateTime;
 
     public Long getId() {
         return id;
