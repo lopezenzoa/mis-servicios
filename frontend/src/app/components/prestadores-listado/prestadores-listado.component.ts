@@ -1,14 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PrestadorService } from '../services/prestador.service';
-import { CategoryService } from '../services/category.service';
-
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface Categoria {
-  id: number;
-  nombre: string;
-}
 
 @Component({
   selector: 'app-prestadores-listado',
@@ -21,18 +14,13 @@ export class PrestadoresListadoComponent implements OnInit {
   prestadores: any[] = [];
   filtroCategoria = '';
   filtroUbicacion = '';
-  categorias: string[] = [];
 
   constructor(
-    private prestadorService: PrestadorService,
-    private categoryService: CategoryService
+    private prestadorService: PrestadorService
   ) {}
 
   ngOnInit(): void {
     this.aplicarFiltros();
-    this.categoryService.getCategorias().subscribe((data: Categoria[]) => {
-      this.categorias = data.map((c: Categoria) => c.nombre);
-    });
   }
 
   aplicarFiltros(): void {

@@ -24,6 +24,8 @@ public class SecurityConfig {
                             .requestMatchers("/shifts/**").permitAll()
                             .requestMatchers("/auth/logout").permitAll()
                             .requestMatchers("/categorias/**").permitAll()
+                            .requestMatchers("/servicios/**").permitAll()
+
 
 
                             .anyRequest().authenticated()

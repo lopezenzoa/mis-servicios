@@ -1,15 +1,10 @@
 <div class="filtros">
-  <select [(ngModel)]="filtroCategoria">
-    <option value="">Todas las categorías</option>
-    <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
-  </select>
 
   <input type="text" [(ngModel)]="filtroUbicacion" placeholder="Ubicación" />
 
   <button (click)="aplicarFiltros()">
     <i class="fas fa-search"></i> Aplicar filtros
   </button>
-
 </div>
 
 <hr />
@@ -20,7 +15,7 @@
     <p><strong>Email:</strong> {{ p.email }}</p>
     <p><strong>Dirección:</strong> {{ p.address }}</p>
     <p><strong>Licencia:</strong> {{ p.licenseNumber }}</p>
-    <p><strong>Categoría:</strong> {{ p.categoryName }}</p>
+    <p><strong>Servicio:</strong> {{ p.serviceName }}</p>
   </div>
 </div>
 

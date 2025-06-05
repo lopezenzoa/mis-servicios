@@ -1,0 +1,12 @@
+<h2>Listado de Servicios</h2>
+
+<select [(ngModel)]="servicioSeleccionado">
+  <option value="" disabled selected>Seleccioná un servicio</option>
+  <option *ngFor="let servicio of servicios" [value]="servicio.description">
+    {{ servicio.description }}
+  </option>
+</select>
+
+<div *ngIf="servicioSeleccionado">
+  <p> Servicio seleccionado: <strong>{{ servicioSeleccionado }}</strong></p>
+</div>
