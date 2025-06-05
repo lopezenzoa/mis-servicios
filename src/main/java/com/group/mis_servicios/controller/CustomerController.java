@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -30,8 +31,18 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerDTO> showProfile(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getById(id));
+    public ResponseEntity<?> showProfile(@PathVariable Long id) {
+        Optional<CustomerDTO> customerOptional = service.getById(id);
+
+        if (customerOptional.isPresent()) {
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(customerOptional.get());
+        }
+
+        return ResponseEntity.status(404)
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "The call has no been found with the ID: " + id));
     }
 
     @PutMapping("/{id}")

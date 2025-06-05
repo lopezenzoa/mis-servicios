@@ -1,48 +1,39 @@
-package com.group.mis_servicios.model.entity;
+package com.group.mis_servicios.view.dto;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.parameters.P;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity
-@Table(name = "calls")
-public class Call {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "call_id", nullable = false)
+public class CallDTO {
     private Long id;
 
-    @Column(length = 255)
+    @Max(180)
     private String description;
 
-    @Column(columnDefinition = "DATETIME", nullable = false)
+    @Future(message = "The date must be in the future")
+    @NotBlank(message = "The date cannot be in blank")
     private LocalDateTime date;
 
-    @Column(length = 40, nullable = false)
+    @NotBlank(message = "The address cannot be in blank")
     private String address;
 
-    @Column(length = 15, nullable = false)
+    @NotBlank(message = "The state cannot be in blank")
     private String state;
 
-    @Column(name = "customer_id", nullable = false)
+    @Positive
+    @NotBlank(message = "The customer cannot be in blank")
     private Long customerId;
 
-    @Column(name = "provider_id", nullable = false)
+    @Positive
+    @NotBlank(message = "The provider cannot be in blank")
     private Long providerId;
-
-    @ManyToOne
-    @JoinColumn(name = "customer_id", referencedColumnName = "user_id", insertable = false, updatable = false)
-    private Customer customer;
-
-    @ManyToOne
-    @JoinColumn(name = "provider_id", referencedColumnName = "provider_id", insertable = false, updatable = false)
-    private Provider provider;
 
     public Long getId() {
         return id;
@@ -98,21 +89,5 @@ public class Call {
 
     public void setProviderId(Long providerId) {
         this.providerId = providerId;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
-
-    public Provider getProvider() {
-        return provider;
-    }
-
-    public void setProvider(Provider provider) {
-        this.provider = provider;
     }
 }

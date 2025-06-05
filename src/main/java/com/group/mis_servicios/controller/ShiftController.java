@@ -4,6 +4,7 @@ import com.group.mis_servicios.model.entity.Shift;
 import com.group.mis_servicios.service.ProviderService;
 import com.group.mis_servicios.service.ShiftService;
 import com.group.mis_servicios.view.dto.CustomerResponseDTO;
+import com.group.mis_servicios.view.dto.ProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import com.group.mis_servicios.view.dto.ShiftDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -25,7 +27,9 @@ public class ShiftController {
 
     @GetMapping("/")
     public ResponseEntity<List<ShiftDTO>> getAll() {
-        return new ResponseEntity<>(service.getAll(), HttpStatus.OK);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(service.getAll());
     }
 
     @GetMapping("/{id}")
@@ -33,25 +37,40 @@ public class ShiftController {
         Optional<ShiftDTO> shiftOptional = service.getById(id);
 
         if (shiftOptional.isPresent())
-            return new ResponseEntity<>(shiftOptional.get(), HttpStatus.OK);
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(shiftOptional.get());
         else {
-            return new ResponseEntity<>("The shift has no been found with the ID: " + id, HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(404)
+                    .header("Content-Type", "application/json")
+                    .body(Map.of("message", "The provider hasn't been found"));
         }
     }
 
     @GetMapping("/availables")
     public ResponseEntity<List<ShiftDTO>> getAvailables() {
-        return new ResponseEntity<>(service.getAvailables(), HttpStatus.OK);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(service.getAvailables());
     }
 
-    @PostMapping("/")
+    @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody ShiftDTO shift) {
-        service.createShiftForProvider(shift);
-        return new ResponseEntity<>("The shift has been created successfully", HttpStatus.OK);
+        Optional<ShiftDTO> shiftOptional = service.create(shift);
+
+        if (shiftOptional.isPresent())
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(Map.of("message", "The shift has been registered successfully!"));
+        else {
+            return ResponseEntity.status(404)
+                    .header("Content-Type", "application/json")
+                    .body(Map.of("message", "The provider hasn't been found"));
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Shift updated) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ShiftDTO updated) {
         Optional<ShiftDTO> customerOptional = service.update(id, updated);
 
         if (customerOptional.isPresent())
@@ -69,7 +88,7 @@ public class ShiftController {
 
     @GetMapping("/availables/{providerId}")
     public ResponseEntity<?> getAvailableByProvider(@PathVariable Long providerId) {
-        Optional<ProviderResponseDTO> providerResponseDTO = providerService.getById(providerId);
+        Optional<ProviderDTO> providerResponseDTO = providerService.getById(providerId);
 
         if (providerResponseDTO.isPresent())
             return new ResponseEntity<>(service.getAvailableByProvider(providerId), HttpStatus.OK);

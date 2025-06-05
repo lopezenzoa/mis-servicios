@@ -22,6 +22,12 @@
     <p><strong>Licencia:</strong> {{ p.licenseNumber }}</p>
     <p><strong>Categoría:</strong> {{ p.categoryName }}</p>
   </div>
+  <p *ngIf="p.whatsappNumber">
+    <strong>WhatsApp:</strong> {{ p.whatsappNumber }}
+  </p>
+  <button *ngIf="p.whatsappNumber" (click)="contactarPorWhatsApp(p.whatsappNumber)">
+    Contactar por WhatsApp
+  </button>
 </div>
 
 <ng-template #sinResultados>

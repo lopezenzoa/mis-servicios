@@ -1,16 +1,18 @@
 package com.group.mis_servicios.service;
 
+import com.group.mis_servicios.model.entity.Credentials;
 import com.group.mis_servicios.model.entity.Facility;
+import com.group.mis_servicios.model.entity.Provider;
+import com.group.mis_servicios.model.repository.CredentialsRepository;
 import com.group.mis_servicios.model.repository.FacilityRepository;
+import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.view.dto.ProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
-import com.group.mis_servicios.model.entity.Credentials;
-import com.group.mis_servicios.model.entity.Provider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.group.mis_servicios.model.repository.ProviderRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,58 +24,107 @@ public class ProviderService {
     private ProviderRepository repository;
     @Autowired
     private FacilityRepository facilityRepository;
+    @Autowired
+    private BCryptPasswordEncoder encoder;
+    @Autowired
+    private CredentialsRepository credentialsRepository;
 
-    public List<ProviderResponseDTO> listAll() {
-        List<Provider> providers = repository.findAll();
-        List<ProviderResponseDTO> dtos = new ArrayList<>();
+    public List<ProviderDTO> listAll() {
+        List<ProviderDTO> providers = new ArrayList<>();
 
-        providers.forEach(p -> dtos.add(providerResponseMapper(p)));
+        repository.findAll()
+                .forEach(p -> providers.add(providerMapper(p)));
 
-        return dtos;
+        return providers;
     }
 
-    public Optional<ProviderResponseDTO> getById(Long id) {
-        return repository.findById(id).map(this::providerResponseMapper);
+    public Optional<ProviderDTO> getById(Long id) {
+        Optional<Provider> provider = repository.findById(id);
+
+        return provider.map(this::providerMapper);
     }
 
-    public ProviderDTO filterByLicenseNumber(String licenseNumber){
+    public Optional<ProviderDTO> filterByLicenseNumber(String licenseNumber){
         Optional<Provider> providerOptional = repository.findByLicenseNumber(licenseNumber);
 
-        return  providerOptional.map(this::providerMapper).orElseGet(ProviderDTO::new);
+        return providerOptional.map(this::providerMapper);
     }
 
-    public ProviderDTO create(ProviderDTO provider) {
-        return providerMapper(repository.save(providerMapper(provider)));
+    public Optional<ProviderResponseDTO> create(ProviderDTO dto) {
+        boolean isValid = checkValidity(dto);
+
+        if (!isValid)
+            return Optional.empty();
+
+        if (dto.getWhatsappNumber() != null && !dto.getWhatsappNumber().matches("\\d{10,15}")) {
+            throw new IllegalArgumentException("Número de WhatsApp inválido");
+        }
+
+
+        Credentials credentials = new Credentials();
+        credentials.setUsername(dto.getUsername());
+        credentials.setPassword(encoder.encode(dto.getPassword()));
+
+
+        Provider provider = providerMapper(dto);
+
+
+        provider.setCredentials(credentials);
+
+
+        facilityRepository.findById(dto.getFacilityId())
+                .ifPresent(provider::setFacility);
+        Provider saved = repository.save(provider);
+
+        return Optional.of(providerResponseMapper(saved));
     }
 
-    public List<ProviderResponseDTO> filterByFacility(String facilityName) {
-        List<ProviderResponseDTO> providerDTOs = new ArrayList<>();
+
+
+    public List<ProviderDTO> filterByFacility(String facilityName) {
+        List<ProviderDTO> providerDTOs = new ArrayList<>();
         Optional<Facility> facilityOptional = facilityRepository.findByName(facilityName);
 
         if (facilityOptional.isPresent()) {
             List<Provider> providers = repository.findAll()
                     .stream()
+                    .filter(p -> p.getFacility() != null)
                     .filter(p -> p.getFacility().equals(facilityOptional.get()))
                     .toList();
 
             providers.forEach(provider -> {
-                providerDTOs.add(providerResponseMapper(provider));
+                providerDTOs.add(providerMapper(provider));
             });
         }
 
         return providerDTOs;
     }
 
-    public ProviderResponseDTO update(Long id, ProviderDTO updated) {
+    public boolean addFacility(Long id, Long facilityId) {
+        Optional<Facility> facilityOptional = facilityRepository.findById(facilityId);
         Optional<Provider> providerOptional = repository.findById(id);
 
-        if (providerOptional.isPresent()) {
-            Provider provider1 = repository.save(providerMapper(updated));
+        if (facilityOptional.isPresent() && providerOptional.isPresent()) {
+            Provider provider = providerOptional.get();
 
-            return providerResponseMapper(provider1);
+            provider.setFacility(facilityOptional.get());
+
+            return true;
         }
 
-        return new ProviderResponseDTO();
+        return false;
+    }
+
+    public Optional<ProviderResponseDTO> update(Long id, ProviderDTO updated) {
+        Optional<Provider> providerOptional = repository.findById(id);
+
+        if (providerOptional.isPresent() && checkValidity(updated)) {
+            Provider saved = repository.save(providerMapper(updated));
+
+            return Optional.of(providerResponseMapper(saved));
+        }
+
+        return Optional.empty();
     }
 
     public List<ProviderResponseDTO> filterByCriterios(String firstName, String lastName, String email, String licenseNumber) {
@@ -97,25 +148,28 @@ public class ProviderService {
         dto.setEmail(provider.getEmail());
         dto.setAddress(provider.getAddress());
         dto.setPhoneNumber(provider.getPhoneNumber());
+        dto.setWhatsappNumber(provider.getWhatsappNumber());
         dto.setLicenseNumber(provider.getLicenseNumber());
+
+
         // dto.setCategoryId(provider.getCategory() != null ? provider.getCategory().getId() : null);
         return dto;
     }
 
     private Provider providerMapper(ProviderDTO dto) {
         Provider provider = new Provider();
-        Credentials credentials = new Credentials();
-
-        credentials.setUsername(dto.getUsername());
-        credentials.setPassword(dto.getPassword());
 
         provider.setFirstName(dto.getFirstName());
         provider.setLastName(dto.getLastName());
-        provider.setCredentials(credentials);
         provider.setEmail(dto.getEmail());
         provider.setAddress(dto.getAddress());
         provider.setLicenseNumber(dto.getLicenseNumber());
         provider.setPhoneNumber(dto.getPhoneNumber());
+        provider.setWhatsappNumber(dto.getWhatsappNumber());
+        provider.setFacilityId(dto.getFacilityId());
+
+
+
 
         /*
         if (dto.getCategoryId() != null) {
@@ -138,8 +192,76 @@ public class ProviderService {
         dto.setEmail(provider.getEmail());
         dto.setAddress(provider.getAddress());
         dto.setLicenseNumber(provider.getLicenseNumber());
-        dto.setFacility(provider.getFacility().getName());
-
+        dto.setFacility(provider.getFacility()==null?null:provider.getFacility().getName());
+        dto.setWhatsappNumber(provider.getWhatsappNumber());
         return dto;
     }
+
+    // These two validation methods are used for updating (that's why I'm requesting the id)
+    public boolean checkValidEmail(Long id, String email) {
+        return repository.findAll()
+                .stream()
+                .filter(c -> !c.getId().equals(id))
+                .anyMatch(c -> c.getEmail().equals(email));
+    }
+
+    public boolean checkValidPhone(Long id, String phone) {
+        return repository.findAll()
+                .stream()
+                .filter(c -> !c.getId().equals(id))
+                .anyMatch(c -> c.getPhoneNumber().equals(phone));
+    }
+
+    public boolean checkValidUsername(Long id, String username) {
+        return repository.findAll()
+                .stream()
+                .filter(c -> !c.getId().equals(id))
+                .anyMatch(c -> c.getCredentials().getUsername().equals(username));
+    }
+
+    // These two validation methods are used for creating
+    public boolean checkValidEmail(String email) {
+        return repository.findAll()
+                .stream()
+                .anyMatch(c -> c.getEmail().equals(email));
+    }
+
+    public boolean checkValidPhone(String phone) {
+        return repository.findAll()
+                .stream()
+                .anyMatch(c -> c.getPhoneNumber().equals(phone));
+    }
+    
+    public boolean checkValidUsername(String username) {
+        return repository.findAll()
+                .stream()
+                .anyMatch(c -> c.getCredentials().getUsername().equals(username));
+    }
+    
+    // this method is used when updating (notice I'm adding the providerId to the params)
+    private boolean checkValidity(Long providerId, ProviderDTO dto) {
+        return !dto.getFirstName().isEmpty()
+                && !dto.getLastName().isEmpty()
+                && checkValidPhone(providerId, dto.getPhoneNumber())
+                && !dto.getAddress().isEmpty()
+                && checkValidEmail(providerId, dto.getEmail())
+                && !dto.getUsername().isEmpty()
+                && checkValidUsername(providerId, dto.getUsername())
+                && !dto.getPassword().isEmpty()
+                && (dto.getWhatsappNumber() == null || dto.getWhatsappNumber().matches("\\d{10,15}"));
+    }
+
+    // this method is used when creating
+    private boolean checkValidity(ProviderDTO dto) {
+        return !dto.getFirstName().isEmpty()
+                && !dto.getLastName().isEmpty()
+                && checkValidPhone(dto.getPhoneNumber())
+                && !dto.getAddress().isEmpty()
+                && checkValidEmail(dto.getEmail())
+                && !dto.getUsername().isEmpty()
+                && checkValidUsername(dto.getUsername())
+                && !dto.getPassword().isEmpty();
+    }
+
+
 }

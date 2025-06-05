@@ -42,4 +42,9 @@ export class PrestadoresListadoComponent implements OnInit {
         this.prestadores = data;
       });
   }
+contactarPorWhatsApp(numero: string): void {
+  const url = `https://wa.me/${numero.replace(/\D/g, '')}`;
+  window.open(url, '_blank');
+}
+
 }
