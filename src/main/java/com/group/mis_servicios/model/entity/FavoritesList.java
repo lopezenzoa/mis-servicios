@@ -39,6 +39,7 @@ public class FavoritesList {
             joinColumns = @JoinColumn(name = "provider_id"),
             inverseJoinColumns = @JoinColumn(name = "list_id")
     )
+
     private List<Provider> providers;
 
     public Long getId() {

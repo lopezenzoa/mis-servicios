@@ -15,7 +15,7 @@ public class Provider {
     @Column(name = "license_number", nullable = false, unique = true)
     private String licenseNumber;
 
-    @Column(name = "facility_id", nullable = false)
+    @Column(name = "facility_id")
     private Long facilityId;
 
     @ManyToOne

@@ -16,6 +16,8 @@ public class ProviderDTO extends UserDTO {
     private String whatsappNumber;
     private Long facilityId;
 
+    private Long facilityId;
+
     public String getLicenseNumber() {
         return licenseNumber;
     }
