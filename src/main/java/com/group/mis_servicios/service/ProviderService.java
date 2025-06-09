@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ProviderService {
+public class ProviderService implements I_Service<ProviderDTO> {
     @Autowired
     private ProviderRepository repository;
     @Autowired
@@ -32,7 +32,8 @@ public class ProviderService {
     @Autowired
     private BCryptPasswordEncoder encoder;
 
-    public List<ProviderDTO> listAll() {
+    @Override
+    public List<ProviderDTO> getAll() {
         List<ProviderDTO> providers = new ArrayList<>();
 
         repository.findAll()
@@ -41,10 +42,46 @@ public class ProviderService {
         return providers;
     }
 
+    @Override
     public Optional<ProviderDTO> getById(Long id) {
         Optional<Provider> provider = repository.findById(id);
 
         return provider.map(this::providerMapper);
+    }
+
+    @Override
+    public Optional<ProviderResponseDTO> create(ProviderDTO dto) {
+        boolean isValid = checkValidity(dto);
+
+        if (!isValid)
+            return Optional.empty();
+
+        Provider provider = repository.save(providerMapper(dto));
+
+        return Optional.of(providerResponseMapper(provider));
+    }
+
+    @Override
+    public Optional<ProviderResponseDTO> update(Long id, ProviderDTO updated) {
+        Optional<Provider> providerOptional = repository.findById(id);
+
+        if (providerOptional.isPresent() && checkValidity(updated)) {
+            Provider saved = repository.save(providerMapper(updated));
+
+            return Optional.of(providerResponseMapper(saved));
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean delete(Long id) {
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return true;
+        }
+
+        return false;
     }
 
     public Optional<ProviderDTO> filterByLicenseNumber(String licenseNumber){
@@ -53,27 +90,16 @@ public class ProviderService {
         return providerOptional.map(this::providerMapper);
     }
 
-    public Optional<ProviderResponseDTO> create(ProviderDTO dto) {
-        boolean isValid = checkValidity(dto);
-
-        if (!isValid)
-            return Optional.empty();
-
-        Provider provider = repository.save(providerMapper(dto));
-        
-        return Optional.of(providerResponseMapper(provider));
-    }
-
     public List<ProviderDTO> filterByFacility(String facilityName) {
         List<ProviderDTO> providerDTOs = new ArrayList<>();
         Optional<Facility> facilityOptional = facilityRepository.findByName(facilityName);
 
         if (facilityOptional.isPresent()) {
-            List<Provider> providers = repository.findAll()
+            List<Provider> providers = /*repository.findAll()
                     .stream()
                     .filter(p -> p.getFacility() != null)
                     .filter(p -> p.getFacility().equals(facilityOptional.get()))
-                    .toList();
+                    .toList() */ new ArrayList<>();
 
             providers.forEach(provider -> {
                 providerDTOs.add(providerMapper(provider));
@@ -90,24 +116,12 @@ public class ProviderService {
         if (facilityOptional.isPresent() && providerOptional.isPresent()) {
             Provider provider = providerOptional.get();
 
-            provider.setFacility(facilityOptional.get());
+            // provider.setFacility(facilityOptional.get());
 
             return true;
         }
 
         return false;
-    }
-
-    public Optional<ProviderResponseDTO> update(Long id, ProviderDTO updated) {
-        Optional<Provider> providerOptional = repository.findById(id);
-
-        if (providerOptional.isPresent() && checkValidity(updated)) {
-            Provider saved = repository.save(providerMapper(updated));
-
-            return Optional.of(providerResponseMapper(saved));
-        }
-
-        return Optional.empty();
     }
 
     public List<ProviderResponseDTO> filterByCriterios(String firstName, String lastName, String email, String licenseNumber) {
@@ -146,14 +160,14 @@ public class ProviderService {
         Credentials saved = credentialsRepository.save(credentials);
 
         provider.setCredentials(credentials);
-        provider.setCredentialsId(saved.getId());
+        // provider.setCredentialsId(saved.getId());
         provider.setFirstName(dto.getFirstName());
         provider.setLastName(dto.getLastName());
         provider.setEmail(dto.getEmail());
         provider.setAddress(dto.getAddress());
         provider.setLicenseNumber(dto.getLicenseNumber());
         provider.setPhoneNumber(dto.getPhoneNumber());
-        provider.setFacilityId(dto.getFacilityId());
+        // provider.setFacilityId(dto.getFacilityId());
 
         /*
         if (dto.getCategoryId() != null) {
@@ -176,7 +190,7 @@ public class ProviderService {
         dto.setEmail(provider.getEmail());
         dto.setAddress(provider.getAddress());
         dto.setLicenseNumber(provider.getLicenseNumber());
-        dto.setFacility(provider.getFacility()==null?null:provider.getFacility().getName());
+        // dto.setFacility(provider.getFacility()==null?null:provider.getFacility().getName());
 
         return dto;
     }

@@ -12,17 +12,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class FacilityService {
+public class FacilityService implements I_Service<FacilityDTO> {
     @Autowired
     private FacilityRepository repository;
 
-    public FacilityDTO create(FacilityDTO dto) {
-        Facility saved = repository.save(facilityMapper(dto));
-
-        return facilityMapper(saved);
-    }
-
-    public List<FacilityDTO> listAll() {
+    @Override
+    public List<FacilityDTO> getAll() {
         List<FacilityDTO> facilites = new ArrayList<>();
 
         repository.findAll().forEach(facility -> facilites.add(facilityMapper(facility)));
@@ -30,6 +25,7 @@ public class FacilityService {
         return facilites;
     }
 
+    @Override
     public Optional<FacilityDTO> getById(Long id) {
         Optional<Facility> facility = repository.findById(id);
 
@@ -37,15 +33,14 @@ public class FacilityService {
 
     }
 
-    public boolean delete(Long id) {
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
-            return true;
-        }
+    @Override
+    public Optional<FacilityDTO> create(FacilityDTO dto) {
+        Facility saved = repository.save(facilityMapper(dto));
 
-         return false;
+        return Optional.of(facilityMapper(saved));
     }
 
+    @Override
     public Optional<FacilityDTO> update(Long id, FacilityDTO newFacility) {
         Optional<Facility> facility = repository.findById(id);
 
@@ -57,6 +52,17 @@ public class FacilityService {
         return Optional.empty();
     }
 
+    @Override
+    public boolean delete(Long id) {
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return true;
+        }
+
+         return false;
+    }
+
+    /* Los mappers deberian ser abstraidos */
     private Facility facilityMapper(FacilityDTO dto) {
         Facility facility = new Facility();
 

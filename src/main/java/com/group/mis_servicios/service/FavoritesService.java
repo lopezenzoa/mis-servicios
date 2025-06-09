@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class FavoritesService {
+public class FavoritesService implements I_Service<FavoritesDTO> {
 
     @Autowired
     private FavoritesRepository favoritesListRepository;
@@ -28,6 +28,7 @@ public class FavoritesService {
     @Autowired
     private ProviderRepository providerRepository;
 
+    @Override
     public Optional<FavoritesDTO> create(FavoritesDTO favoritesDTO) {
         Optional<Customer> customerOpt = customerRepository.findById(favoritesDTO.getCustomerId());
         
@@ -39,20 +40,25 @@ public class FavoritesService {
         return Optional.of(listMapper(saved));
     }
 
-    private ProviderResponseDTO mapToProviderDTO(Provider provider) {
-        ProviderResponseDTO dto = new ProviderResponseDTO();
-
-        dto.setId(provider.getId());
-        dto.setFirstName(provider.getFirstName());
-        dto.setLastName(provider.getLastName());
-        dto.setEmail(provider.getEmail());
-        dto.setAddress(provider.getAddress());
-        dto.setLicenseNumber(provider.getLicenseNumber());
-        dto.setFacility(provider.getFacility().getName());
-
-        return dto;
+    @Override
+    public List<FavoritesDTO> getAll() {
+        return null;
     }
 
+    @Override
+    public Optional<FavoritesDTO> getById(Long id) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<?> update(Long id, FavoritesDTO newType) {
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean delete(Long id) {
+        return false;
+    }
 
     public Optional<FavoritesResponseDTO> addProviderToFavorites(Long favoritesListId, Long providerId) {
         Optional<FavoritesList> list = favoritesListRepository.findById(favoritesListId);
@@ -130,6 +136,20 @@ public class FavoritesService {
         return false;
     }
 
+    private ProviderResponseDTO mapToProviderDTO(Provider provider) {
+        ProviderResponseDTO dto = new ProviderResponseDTO();
+
+        dto.setId(provider.getId());
+        dto.setFirstName(provider.getFirstName());
+        dto.setLastName(provider.getLastName());
+        dto.setEmail(provider.getEmail());
+        dto.setAddress(provider.getAddress());
+        dto.setLicenseNumber(provider.getLicenseNumber());
+        // dto.setFacility(provider.getFacility().getName());
+
+        return dto;
+    }
+
     private FavoritesList listMapper(FavoritesDTO dto) {
         Customer customer = customerRepository.getReferenceById(dto.getCustomerId());
 
@@ -146,7 +166,7 @@ public class FavoritesService {
         FavoritesDTO dto = new FavoritesDTO();
 
         dto.setTitle(list.getTitle());
-        dto.setCustomerId(list.getOwnerId());
+        // dto.setCustomerId(list.getOwnerId());
         dto.setCreationDate(list.getCreationDate());
 
         return dto;

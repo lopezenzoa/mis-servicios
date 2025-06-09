@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CustomerService {
+public class CustomerService implements I_Service<CustomerDTO> {
     @Autowired
     private CustomerRepository repository;
     @Autowired
@@ -24,17 +24,7 @@ public class CustomerService {
     @Autowired
     private BCryptPasswordEncoder encoder;
 
-    public Optional<CustomerResponseDTO> create(CustomerDTO dto) {
-        boolean isValid = checkValidity(dto);
-
-        if (!isValid)
-            return Optional.empty();
-
-        Customer saved = repository.save(customerMapper(dto));
-
-        return Optional.of(customerResponseMapper(saved));
-    }
-
+    @Override
     public List<CustomerDTO> getAll() {
         List<CustomerDTO> customers = new ArrayList<>();
 
@@ -44,6 +34,7 @@ public class CustomerService {
         return customers;
     }
 
+    @Override
     public Optional<CustomerDTO> getById(Long id) {
         Optional<Customer> customerOptional = repository.findById(id);
 
@@ -56,6 +47,19 @@ public class CustomerService {
         return Optional.empty();
     }
 
+    @Override
+    public Optional<CustomerResponseDTO> create(CustomerDTO dto) {
+        boolean isValid = checkValidity(dto);
+
+        if (!isValid)
+            return Optional.empty();
+
+        Customer saved = repository.save(customerMapper(dto));
+
+        return Optional.of(customerResponseMapper(saved));
+    }
+
+    @Override
     public Optional<CustomerResponseDTO> update(Long id, CustomerDTO updated) {
         Optional<Customer> customerOptional = repository.findById(id);
 
@@ -69,6 +73,17 @@ public class CustomerService {
         return Optional.empty();
     }
 
+    @Override
+    public boolean delete(Long id) {
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return true;
+        }
+
+        return false;
+    }
+
+    /* Los mappers deberian ser abstraidos */
     private CustomerDTO customerMapper(Customer customer) {
         CustomerDTO dto = new CustomerDTO();
 
@@ -92,7 +107,7 @@ public class CustomerService {
         Credentials saved = credentialsRepository.save(credentials);
 
         customer.setCredentials(credentials);
-        customer.setCredentialsId(saved.getId());
+        // customer.setCredentialsId(saved.getId());
         customer.setFirstName(dto.getFirstName());
         customer.setLastName(dto.getLastName());
         customer.setEmail(dto.getEmail());

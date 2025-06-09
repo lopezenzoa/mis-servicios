@@ -15,12 +15,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ShiftService {
+public class ShiftService implements I_Service<ShiftDTO> {
     @Autowired
     private ShiftRepository repository;
     @Autowired
     private ProviderRepository providerRepository;
 
+    @Override
     public List<ShiftDTO> getAll() {
         return repository.findAll()
                 .stream()
@@ -28,18 +29,21 @@ public class ShiftService {
                 .toList();
     }
 
+    @Override
     public Optional<ShiftDTO> getById(Long id) {
         Optional<Shift> shift = repository.findById(id);
 
         return shift.map(this::shiftMapper);
     }
 
+    @Override
     public Optional<ShiftDTO> create(ShiftDTO shift) {
         Optional<Shift> optionalShift = Optional.of(repository.save(shiftMapper(shift)));
 
         return optionalShift.map(this::shiftMapper);
     }
 
+    @Override
     public Optional<ShiftDTO> update(Long id, ShiftDTO updated) {
         Optional<Shift> shiftOptional = repository.findById(id);
 
@@ -55,6 +59,7 @@ public class ShiftService {
         return Optional.empty();
     }
 
+    @Override
     public boolean delete(Long id) {
         Optional<Shift> shiftOptional = repository.findById(id);
 
@@ -99,7 +104,7 @@ public class ShiftService {
         if (provider.isPresent()) {
             shift.setDateTime(LocalDateTime.parse(dto.getDateTime()));
             shift.setAvailable(dto.isAvailable());
-            shift.setProviderId(dto.getProviderId());
+            // shift.setProviderId(dto.getProviderId());
             shift.setProvider(provider.get());
         }
 

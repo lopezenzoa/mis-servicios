@@ -14,13 +14,27 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class CallService {
+public class CallService implements I_Service<CallDTO> {
 
     @Autowired
     private CallRepository repository;
     @Autowired
     private ProviderRepository providerRepository;
 
+    @Override
+    public List<CallDTO> getAll() {
+        return repository.findAll()
+                .stream()
+                .map(this::callMapper)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<CallDTO> getById(Long id) {
+        return repository.findById(id).map(this::callMapper);
+    }
+
+    @Override
     public Optional<CallDTO> create(CallDTO call) {
         boolean valid = checkCallValidity(call);
 
@@ -32,6 +46,7 @@ public class CallService {
         return Optional.empty();
     }
 
+    @Override
     public Optional<CallDTO> update(Long id, CallDTO updatedCall) {
         Optional<Call> optionalCall = repository.findById(id);
 
@@ -44,18 +59,8 @@ public class CallService {
         return Optional.empty();
     }
 
-    public Optional<CallDTO> findById(Long id) {
-        return repository.findById(id).map(this::callMapper);
-    }
-
-    public List<CallDTO> listAll() {
-        return repository.findAll()
-                .stream()
-                .map(this::callMapper)
-                .collect(Collectors.toList());
-    }
-
-    public boolean deleteById(Long id) {
+    @Override
+    public boolean delete(Long id) {
         if (repository.existsById(id)) {
             repository.deleteById(id);
             return true;
@@ -64,6 +69,7 @@ public class CallService {
         return false;
     }
 
+    /* Los mappers deberian ser abstraidos */
     private CallDTO callMapper(Call call) {
         CallDTO callDTO = new CallDTO();
 
@@ -71,8 +77,8 @@ public class CallService {
         callDTO.setDescription(call.getDescription());
         callDTO.setDate(call.getDate());
         callDTO.setState(call.getState());
-        callDTO.setCustomerId(call.getCustomerId());
-        callDTO.setProviderId(call.getProviderId());
+        // callDTO.setCustomerId(call.getCustomerId());
+        // callDTO.setProviderId(call.getProviderId());
 
         return callDTO;
     }
@@ -83,8 +89,8 @@ public class CallService {
         call.setDescription(callDTO.getDescription());
         call.setDate(callDTO.getDate());
         call.setState(callDTO.getState());
-        call.setCustomerId(callDTO.getCustomerId());
-        call.setProviderId(callDTO.getProviderId());
+        // call.setCustomerId(callDTO.getCustomerId());
+        // call.setProviderId(callDTO.getProviderId());
         return call;
     }
 
