@@ -2,6 +2,8 @@ package com.group.mis_servicios.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,7 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,19 +26,18 @@ public class User {
     private String lastName;
 
     @Column(nullable = false, length = 40, unique = true)
+    @Email(message = "The email is not valid")
     private String email;
 
     @Column(nullable = false, length = 40, unique = true)
     private String address;
 
     @Column(name = "phone_number", nullable = false, length = 40, unique = true)
+    @Max(value = 10, message = "The phone must contain less than 10 numbers")
     private String phoneNumber;
 
-    @Column(name = "credential_id", nullable = false)
-    private Long credentialsId;
-
     @OneToOne
-    @JoinColumn(name = "credential_id", referencedColumnName = "credential_id", insertable = false, updatable = false)
+    @JoinColumn(name = "credential_id")
     private Credentials credentials;
 
     public Long getId() {
@@ -85,14 +86,6 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
-    }
-
-    public Long getCredentialsId() {
-        return credentialsId;
-    }
-
-    public void setCredentialsId(Long credentialsId) {
-        this.credentialsId = credentialsId;
     }
 
     public Credentials getCredentials() {

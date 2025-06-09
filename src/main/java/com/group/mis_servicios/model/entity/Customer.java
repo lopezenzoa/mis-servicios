@@ -1,6 +1,7 @@
 package com.group.mis_servicios.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +16,7 @@ import java.util.List;
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "customer_id", nullable = false)
     private Long id;
 
     @Column(name = "first_name", nullable = false, length = 20)
@@ -25,6 +26,7 @@ public class Customer {
     private String lastName;
 
     @Column(nullable = false, length = 40, unique = true)
+    @Email(message = "The email is not valid")
     private String email;
 
     @Column(nullable = false, length = 40, unique = true)
@@ -33,18 +35,15 @@ public class Customer {
     @Column(name = "phone_number", nullable = false, length = 40, unique = true)
     private String phoneNumber;
 
-    @Column(name = "credential_id", nullable = false)
-    private Long credentialsId;
-
     @OneToOne
-    @JoinColumn(name = "credential_id", referencedColumnName = "credential_id", insertable = false, updatable = false)
+    @JoinColumn(name = "credential_id")
     private Credentials credentials;
 
     @OneToMany(mappedBy = "customer")
     private List<Review> reviews;
 
-    @OneToMany(mappedBy = "customer")
-    private List<FavoritesList> favorites;
+    @OneToOne(mappedBy = "customer")
+    private FavoritesList favorites;
 
     @OneToMany(mappedBy = "customer")
     private List<Call> calls;
@@ -97,14 +96,6 @@ public class Customer {
         this.phoneNumber = phoneNumber;
     }
 
-    public Long getCredentialsId() {
-        return credentialsId;
-    }
-
-    public void setCredentialsId(Long credentialsId) {
-        this.credentialsId = credentialsId;
-    }
-
     public Credentials getCredentials() {
         return credentials;
     }
@@ -121,11 +112,11 @@ public class Customer {
         this.reviews = reviews;
     }
 
-    public List<FavoritesList> getFavorites() {
+    public FavoritesList getFavorites() {
         return favorites;
     }
 
-    public void setFavorites(List<FavoritesList> favorites) {
+    public void setFavorites(FavoritesList favorites) {
         this.favorites = favorites;
     }
 

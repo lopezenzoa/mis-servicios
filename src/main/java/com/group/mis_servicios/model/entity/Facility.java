@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "facility")
+@Table(name = "facilities")
 public class Facility {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +24,7 @@ public class Facility {
     private String description;
 
     // Simple Many-to-Many - JPA handles junction table
-    @OneToMany(mappedBy = "facility")
+    @ManyToMany(mappedBy = "facilities")  // La relación mapea a la propiedad 'servicios' en la clase Prestador
     private List<Provider> providers;
 
     public Long getId() {

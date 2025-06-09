@@ -12,23 +12,6 @@ import java.util.List;
 @Entity
 @Table(name = "providers")
 public class Provider {
-    @Column(name = "license_number", nullable = false, unique = true)
-    private String licenseNumber;
-
-    @Column(name = "facility_id")
-    private Long facilityId;
-
-    @ManyToOne
-    @JoinColumn(name = "facility_id", referencedColumnName = "facility_id", insertable = false, updatable = false)
-    private Facility facility;
-
-
-    @OneToMany(mappedBy = "provider")
-    private List<Shift> shifts;
-
-    @OneToMany(mappedBy = "provider")
-    private List<Call> calls;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "provider_id", nullable = false)
@@ -49,12 +32,36 @@ public class Provider {
     @Column(name = "phone_number", nullable = false, length = 40, unique = true)
     private String phoneNumber;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "credential_id", referencedColumnName = "credential_id", nullable = false)
+    @OneToOne
+    @JoinColumn(name = "credential_id")
     private Credentials credentials;
 
     @Column(name = "whatsapp_number")
     private String whatsappNumber;
+
+    @Column(name = "license_number", nullable = false, unique = true)
+    private String licenseNumber;
+    @ManyToMany
+    @JoinTable(
+            name = "facility_provider",  // Nombre de la tabla intermedia
+            joinColumns = @JoinColumn(name = "provider_id"),  // FK que referencia a la tabla Prestador
+            inverseJoinColumns = @JoinColumn(name = "facility_id")  // FK que referencia a la tabla Servicio
+    )
+    private List<Facility> facilities;
+
+    @OneToMany(mappedBy = "provider")  // Relación inversa, donde "prestador" es el campo en la entidad Turno
+    private List<Shift> shifts;
+
+    @OneToMany(mappedBy = "provider")
+    private List<Call> calls;
+
+    public String getWhatsappNumber() {
+        return whatsappNumber;
+    }
+
+    public void setWhatsappNumber(String whatsappNumber) {
+        this.whatsappNumber = whatsappNumber;
+    }
 
     public Long getId() {
         return id;
@@ -119,22 +126,6 @@ public class Provider {
 
     public void setLicenseNumber(String licenseNumber) {
         this.licenseNumber = licenseNumber;
-    }
-
-    public Long getFacilityId() {
-        return facilityId;
-    }
-
-    public void setFacilityId(Long facilityId) {
-        this.facilityId = facilityId;
-    }
-
-    public Facility getFacility() {
-        return facility;
-    }
-
-    public void setFacility(Facility facility) {
-        this.facility = facility;
     }
 
     public List<Shift> getShifts() {

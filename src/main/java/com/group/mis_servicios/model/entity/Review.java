@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "review")
+@Table(name = "reviews")
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,11 +19,8 @@ public class Review {
     @Column(length = 255, nullable = false)
     private String description;
 
-    @Column(name = "user_id", nullable = false)
-    private Long customerId;
-
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "customer_id", insertable = false, updatable = false)
     private Customer customer;
 
     public Long getId() {
@@ -40,14 +37,6 @@ public class Review {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Long getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
     }
 
     public Customer getCustomer() {
