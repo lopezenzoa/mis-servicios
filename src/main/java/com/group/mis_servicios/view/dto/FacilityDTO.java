@@ -12,7 +12,6 @@ import lombok.Setter;
 public class FacilityDTO {
     @NotBlank(message = "The facility name cannot be in blank")
     private String name;
-
     @Max(180)
     private String description;
 

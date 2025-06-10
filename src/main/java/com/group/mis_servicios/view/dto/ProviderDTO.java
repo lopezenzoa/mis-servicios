@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,9 +16,7 @@ public class ProviderDTO extends UserDTO {
     @Pattern(regexp = "\\d{5,10}", message = "The license must contain at least 5 numbers")
     private String licenseNumber;
     private String whatsappNumber;
-    private Long facilityId;
-
-    private Long facilityId;
+    private List<String> facilities;
 
     public String getLicenseNumber() {
         return licenseNumber;
@@ -24,5 +24,21 @@ public class ProviderDTO extends UserDTO {
 
     public void setLicenseNumber(String licenseNumber) {
         this.licenseNumber = licenseNumber;
+    }
+
+    public String getWhatsappNumber() {
+        return whatsappNumber;
+    }
+
+    public void setWhatsappNumber(String whatsappNumber) {
+        this.whatsappNumber = whatsappNumber;
+    }
+
+    public List<String> getFacilities() {
+        return facilities;
+    }
+
+    public void setFacilities(List<String> facilities) {
+        this.facilities = facilities;
     }
 }

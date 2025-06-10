@@ -1,5 +1,6 @@
 package com.group.mis_servicios.view.dto;
 
+import com.group.mis_servicios.enums.States;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CallDTO {
     private Long id;
-
     @Max(180)
     private String description;
 
@@ -25,7 +25,7 @@ public class CallDTO {
     private String address;
 
     @NotBlank(message = "The state cannot be in blank")
-    private String state;
+    private States state;
 
     @Positive
     @NotBlank(message = "The customer cannot be in blank")
@@ -67,11 +67,11 @@ public class CallDTO {
         this.address = address;
     }
 
-    public String getState() {
+    public States getState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(States state) {
         this.state = state;
     }
 
