@@ -1,13 +1,20 @@
 package com.group.mis_servicios.service;
 
 import ch.qos.logback.classic.spi.CallerData;
+import com.group.mis_servicios.enums.States;
 import com.group.mis_servicios.model.entity.Call;
+import com.group.mis_servicios.model.entity.Customer;
+import com.group.mis_servicios.model.entity.Provider;
 import com.group.mis_servicios.model.repository.CallRepository;
+import com.group.mis_servicios.model.repository.CustomerRepository;
 import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.view.dto.CallDTO;
+import com.group.mis_servicios.view.dto.CustomerResponseDTO;
+import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.plaf.nimbus.State;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -15,11 +22,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class CallService implements I_Service<CallDTO> {
-
     @Autowired
     private CallRepository repository;
     @Autowired
-    private ProviderRepository providerRepository;
+    private ProviderRepository providerRepo;
+    @Autowired
+    private CustomerRepository customerRepo;
 
     @Override
     public List<CallDTO> getAll() {
@@ -76,32 +84,38 @@ public class CallService implements I_Service<CallDTO> {
         callDTO.setId(call.getId());
         callDTO.setDescription(call.getDescription());
         callDTO.setDate(call.getDate());
-        callDTO.setState(call.getState());
-        // callDTO.setCustomerId(call.getCustomerId());
-        // callDTO.setProviderId(call.getProviderId());
+        callDTO.setState(States.valueOf(call.getState()));
+        callDTO.setCustomerId(call.getCustomer().getId());
+        callDTO.setProviderId(call.getCustomer().getId());
 
         return callDTO;
     }
 
     private Call callMapper (CallDTO callDTO) {
         Call call = new Call();
-        call.setId(callDTO.getId());
-        call.setDescription(callDTO.getDescription());
-        call.setDate(callDTO.getDate());
-        call.setState(callDTO.getState());
-        // call.setCustomerId(callDTO.getCustomerId());
-        // call.setProviderId(callDTO.getProviderId());
+        Optional<Customer> customerOpt = customerRepo.findById(callDTO.getCustomerId());
+        Optional<Provider> providerOpt = providerRepo.findById(callDTO.getProviderId());
+
+        if (customerOpt.isPresent() && providerOpt.isPresent()) {
+            call.setId(callDTO.getId());
+            call.setDescription(callDTO.getDescription());
+            call.setDate(callDTO.getDate());
+            call.setState(callDTO.getState().toString());
+            call.setCustomer(customerOpt.get());
+            call.setProvider(providerOpt.get());
+        }
+
         return call;
     }
 
     private boolean checkCallValidity(CallDTO dto) {
         return !dto.getDate().isBefore(LocalDateTime.now())
                 && !dto.getAddress().isBlank()
-                && !dto.getState().isBlank()
+                && !dto.getState().toString().isBlank()
                 && providerExists(dto.getProviderId());
     }
 
     private boolean providerExists(Long providerId) {
-        return providerRepository.existsById(providerId);
+        return providerRepo.existsById(providerId);
     }
 }

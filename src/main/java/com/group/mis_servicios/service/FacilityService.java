@@ -2,7 +2,10 @@ package com.group.mis_servicios.service;
 
 
 import com.group.mis_servicios.model.entity.Facility;
+import com.group.mis_servicios.model.entity.Provider;
+import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.view.dto.FacilityDTO;
+import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.group.mis_servicios.model.repository.FacilityRepository;
@@ -15,14 +18,16 @@ import java.util.Optional;
 public class FacilityService implements I_Service<FacilityDTO> {
     @Autowired
     private FacilityRepository repository;
+    @Autowired
+    private ProviderRepository providerRepo;
 
     @Override
     public List<FacilityDTO> getAll() {
-        List<FacilityDTO> facilites = new ArrayList<>();
+        List<FacilityDTO> facilities = new ArrayList<>();
 
-        repository.findAll().forEach(facility -> facilites.add(facilityMapper(facility)));
+        repository.findAll().forEach(facility -> facilities.add(facilityMapper(facility)));
 
-        return facilites;
+        return facilities;
     }
 
     @Override
@@ -65,9 +70,19 @@ public class FacilityService implements I_Service<FacilityDTO> {
     /* Los mappers deberian ser abstraidos */
     private Facility facilityMapper(FacilityDTO dto) {
         Facility facility = new Facility();
+        Optional<Facility> facility1 = repository.findByName(dto.getName());
 
-        facility.setName(dto.getName());
-        facility.setDescription(dto.getDescription());
+        if (facility1.isPresent()) {
+            // fetching all providers with the facility given
+            List<Provider> providers = providerRepo.findAll()
+                    .stream()
+                    .filter(p -> p.getFacilities().contains(facility1.get()))
+                    .toList();
+
+            facility.setName(dto.getName());
+            facility.setDescription(dto.getDescription());
+            facility.setProviders(providers); // the filtered list of providers with the facility
+        }
 
         return facility;
     }

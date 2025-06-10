@@ -51,4 +51,20 @@ public class FavoritesDTO {
     public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public List<ProviderResponseDTO> getProviders() {
+        return providers;
+    }
+
+    public void setProviders(List<ProviderResponseDTO> providers) {
+        this.providers = providers;
+    }
 }

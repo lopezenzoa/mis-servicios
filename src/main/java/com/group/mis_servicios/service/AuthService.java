@@ -1,5 +1,6 @@
 package com.group.mis_servicios.service;
 
+import com.group.mis_servicios.enums.Roles;
 import com.group.mis_servicios.view.dto.LoginDTO;
 import com.group.mis_servicios.view.dto.RegisterDTO;
 import com.group.mis_servicios.model.entity.Credentials;
@@ -39,7 +40,8 @@ public class AuthService {
 
             credentials.setUsername(dto.getUsername());
             credentials.setPassword(encoder.encode(dto.getPassword()));
-            // credentials.setUser(user);
+            credentials.setRole(Roles.USER);
+            credentials.setUser(user);
 
             user.setCredentials(credentials);
 
@@ -75,6 +77,7 @@ public class AuthService {
                 .stream()
                 .anyMatch(user -> user.getCredentials().getUsername().equals(dto.getUsername()));
 
+        // checks if the email is unique
         boolean isEmailUnique = getAuthUsers()
                 .stream()
                 .anyMatch(user -> user.getCredentials().getUsername().equals(dto.getEmail()));

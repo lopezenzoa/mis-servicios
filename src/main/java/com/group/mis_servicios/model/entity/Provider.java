@@ -143,4 +143,12 @@ public class Provider {
     public void setCalls(List<Call> calls) {
         this.calls = calls;
     }
+
+    public List<Facility> getFacilities() {
+        return facilities;
+    }
+
+    public void setFacilities(List<Facility> facilities) {
+        this.facilities = facilities;
+    }
 }

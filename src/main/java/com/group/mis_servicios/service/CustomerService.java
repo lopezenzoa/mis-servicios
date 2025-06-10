@@ -19,7 +19,7 @@ public class CustomerService implements I_Service<CustomerDTO> {
     @Autowired
     private CustomerRepository repository;
     @Autowired
-    private CredentialsRepository credentialsRepository;
+    private CredentialsRepository credentialsRepo;
 
     @Autowired
     private BCryptPasswordEncoder encoder;
@@ -93,6 +93,7 @@ public class CustomerService implements I_Service<CustomerDTO> {
         dto.setLastName(customer.getLastName());
         dto.setEmail(customer.getEmail());
         dto.setAddress(customer.getAddress());
+        dto.setPhoneNumber(customer.getPhoneNumber());
 
         return dto;
     }
@@ -104,10 +105,9 @@ public class CustomerService implements I_Service<CustomerDTO> {
         credentials.setUsername(dto.getUsername());
         credentials.setPassword(dto.getPassword());
 
-        Credentials saved = credentialsRepository.save(credentials);
+        Credentials saved = credentialsRepo.save(credentials);
 
-        customer.setCredentials(credentials);
-        // customer.setCredentialsId(saved.getId());
+        customer.setCredentials(saved);
         customer.setFirstName(dto.getFirstName());
         customer.setLastName(dto.getLastName());
         customer.setEmail(dto.getEmail());
