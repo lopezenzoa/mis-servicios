@@ -23,8 +23,10 @@ public class SecurityConfig {
                             .requestMatchers("/shifts/**").permitAll()
                             .requestMatchers("/auth/logout").permitAll()
                             .requestMatchers("/calls/**").permitAll()
+                            .requestMatchers("/facilities/**").permitAll()
                             .requestMatchers("/favorites-lists/**").permitAll()
                             .requestMatchers("/favorites-lists/add-provider").permitAll()
+                            .requestMatchers("/flagged-providers/**").permitAll()
                             .anyRequest().authenticated()
                     );
 
