@@ -1,6 +1,7 @@
 package com.group.mis_servicios.service;
 
 import com.group.mis_servicios.enums.Roles;
+import com.group.mis_servicios.service.validators.AuthValidator;
 import com.group.mis_servicios.view.dto.LoginDTO;
 import com.group.mis_servicios.view.dto.RegisterDTO;
 import com.group.mis_servicios.model.entity.Credentials;
@@ -26,7 +27,7 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     public void register(RegisterDTO dto) {
-        boolean isValid = checkRegisterValidity(dto);
+        boolean isValid = AuthValidator.checkRegisterValidity(dto);
 
         if (isValid) {
             User user = new User();
@@ -69,19 +70,5 @@ public class AuthService {
 
     public List<User> getAuthUsers() {
         return userRepository.findAll();
-    }
-
-    private boolean checkRegisterValidity(RegisterDTO dto) {
-        // checks if the username is unique
-        boolean isUsernameUnique = getAuthUsers()
-                .stream()
-                .anyMatch(user -> user.getCredentials().getUsername().equals(dto.getUsername()));
-
-        // checks if the email is unique
-        boolean isEmailUnique = getAuthUsers()
-                .stream()
-                .anyMatch(user -> user.getCredentials().getUsername().equals(dto.getEmail()));
-
-        return isEmailUnique && isUsernameUnique;
     }
 }

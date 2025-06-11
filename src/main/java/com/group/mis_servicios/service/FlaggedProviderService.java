@@ -59,7 +59,7 @@ public class FlaggedProviderService {
             dto.setProviderFirstName(f.getProvider().getFirstName());
             dto.setProviderLastName((f.getProvider().getLastName()));
             dto.setReason(f.getReason());
-            dto.setFecha(f.getReportDate());
+            dto.setDate(f.getReportDate());
             return dto;
         }).toList();
     }

@@ -1,5 +1,9 @@
 package com.group.mis_servicios.service;
 
+import com.group.mis_servicios.service.mappers.FacilityMapper;
+import com.group.mis_servicios.service.mappers.FavoritesMapper;
+import com.group.mis_servicios.service.mappers.ProviderMapper;
+import com.group.mis_servicios.service.validators.FavoritesValidator;
 import com.group.mis_servicios.view.dto.FavoritesDTO;
 import com.group.mis_servicios.model.entity.Customer;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
@@ -39,12 +43,12 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
     public Optional<FavoritesDTO> create(FavoritesDTO favoritesDTO) {
         Optional<Customer> customerOpt = customerRepository.findById(favoritesDTO.getCustomerId());
 
-        if (customerOpt.isEmpty() || checkValidity(favoritesDTO))
+        if (customerOpt.isEmpty() || FavoritesValidator.checkValidity(favoritesDTO))
             return Optional.empty();
 
-        FavoritesList saved = favoritesListRepository.save(listMapper(favoritesDTO));
+        FavoritesList saved = favoritesListRepository.save(FavoritesMapper.toFavoritesList(favoritesDTO));
 
-        return Optional.of(listMapper(saved));
+        return Optional.of(FavoritesMapper.toDTO(saved));
     }
 
     @Override
@@ -71,7 +75,7 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
 
         // Conversión de providers a DTO response
         List<ProviderResponseDTO> providersDto = saved.getProviders().stream()
-                .map(this::mapToProviderDTO)
+                .map(ProviderMapper::toResponeDTO)
                 .toList();
 
         // Se crea y devuelve el DTO de la lista de favoritos
@@ -91,7 +95,7 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
 
         return list.map(favoritesList -> favoritesList.getProviders()
                 .stream()
-                .map(this::mapToProviderDTO)
+                .map(ProviderMapper::toResponeDTO)
                 .toList());
     }
 
@@ -114,7 +118,7 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
         dto.setCustomerId(updatedList.getCustomer().getId());
 
         List<ProviderResponseDTO> providerDTOs = updatedList.getProviders().stream()
-                .map(this::mapToProviderDTO)
+                .map(ProviderMapper::toResponeDTO)
                 .toList();
 
         dto.setProviders(providerDTOs);
@@ -131,52 +135,5 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
         }
 
         return false;
-    }
-
-    private ProviderResponseDTO mapToProviderDTO(Provider provider) {
-        ProviderResponseDTO dto = new ProviderResponseDTO();
-
-        dto.setId(provider.getId());
-        dto.setFirstName(provider.getFirstName());
-        dto.setLastName(provider.getLastName());
-        dto.setEmail(provider.getEmail());
-        dto.setAddress(provider.getAddress());
-        dto.setLicenseNumber(provider.getLicenseNumber());
-        // dto.setFacility(provider.getFacility().getName());
-
-        return dto;
-    }
-
-    private FavoritesList listMapper(FavoritesDTO dto) {
-        Customer customer = customerRepository.getReferenceById(dto.getCustomerId());
-
-        FavoritesList list = new FavoritesList();
-
-        list.setCustomer(customer);
-        list.setTitle(dto.getTitle());
-        list.setCreationDate(dto.getCreationDate());
-
-        return list;
-    }
-
-    private FavoritesDTO listMapper(FavoritesList list) {
-        FavoritesDTO dto = new FavoritesDTO();
-
-        dto.setTitle(list.getTitle());
-        // dto.setCustomerId(list.getOwnerId());
-        dto.setCreationDate(list.getCreationDate());
-
-        return dto;
-    }
-
-    private boolean checkValidity(FavoritesDTO dto) {
-        // checking that the title is unique for the customer's list
-        boolean isTitleUnique = favoritesListRepository.findAll()
-                .stream()
-                .filter(l -> l.getCustomer().getId().equals(dto.getCustomerId()))
-                .anyMatch(l -> l.getTitle().equals(dto.getTitle()));
-
-
-        return !dto.getTitle().isBlank() && isTitleUnique;
     }
 }
