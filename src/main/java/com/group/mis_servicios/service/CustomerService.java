@@ -1,5 +1,6 @@
 package com.group.mis_servicios.service;
 
+import com.group.mis_servicios.service.mappers.AuthMapper;
 import com.group.mis_servicios.service.mappers.CustomerMapper;
 import com.group.mis_servicios.model.repository.CredentialsRepository;
 import com.group.mis_servicios.service.validators.CustomerValidator;
@@ -20,7 +21,7 @@ public class CustomerService implements I_Service<CustomerDTO> {
     @Autowired
     private CustomerRepository repository;
     @Autowired
-    private CredentialsRepository credentialsRepo;
+    private AuthService authService;
 
     @Autowired
     private BCryptPasswordEncoder encoder;
@@ -56,6 +57,7 @@ public class CustomerService implements I_Service<CustomerDTO> {
             return Optional.empty();
 
         Customer saved = repository.save(CustomerMapper.toCustomer(dto));
+        authService.register(AuthMapper.toRegisterDTO(dto)); // inserting the customer into the users table
 
         return Optional.of(CustomerMapper.toResponseDTO(saved));
     }

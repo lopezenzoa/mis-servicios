@@ -24,12 +24,12 @@ public class CallController {
     public ResponseEntity<List<CallDTO>> listAll() {
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json")
-                .body(service.listAll());
+                .body(service.getAll());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
-        Optional<CallDTO> optionalCall = service.findById(id);
+        Optional<CallDTO> optionalCall = service.getById(id);
 
         if (optionalCall.isPresent()) {
             return ResponseEntity.ok()
@@ -72,7 +72,7 @@ public class CallController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteById(@PathVariable Long id) {
-        if (service.deleteById(id))
+        if (service.delete(id))
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
                     .body(Map.of("message", "The call was successfully deleted"));
