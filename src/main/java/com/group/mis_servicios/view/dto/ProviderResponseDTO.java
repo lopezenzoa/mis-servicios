@@ -1,11 +1,8 @@
 package com.group.mis_servicios.view.dto;
 
-import com.group.mis_servicios.model.entity.Facility;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -18,6 +15,8 @@ public class ProviderResponseDTO {
     private String address;
     private String licenseNumber;
     private String facility;
+    private String whatsappNumber;
+
 
     public Long getId() {
         return id;

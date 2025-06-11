@@ -1,21 +1,18 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.model.entity.Customer;
+import com.group.mis_servicios.model.entity.Credentials;
 import com.group.mis_servicios.model.entity.Facility;
+
 import com.group.mis_servicios.model.repository.CredentialsRepository;
 import com.group.mis_servicios.model.repository.FacilityRepository;
-import com.group.mis_servicios.view.dto.FacilityDTO;
+import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.view.dto.ProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
-import com.group.mis_servicios.model.entity.Credentials;
-import com.group.mis_servicios.model.entity.Provider;
-import org.apache.catalina.valves.JsonErrorReportValve;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.group.mis_servicios.model.repository.ProviderRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +28,8 @@ public class ProviderService {
     private CredentialsRepository credentialsRepository;
     @Autowired
     private BCryptPasswordEncoder encoder;
+    @Autowired
+    private CredentialsRepository credentialsRepository;
 
     public List<ProviderDTO> listAll() {
         List<ProviderDTO> providers = new ArrayList<>();
@@ -59,10 +58,25 @@ public class ProviderService {
         if (!isValid)
             return Optional.empty();
 
-        Provider provider = repository.save(providerMapper(dto));
-        
-        return Optional.of(providerResponseMapper(provider));
-    }
+if (dto.getWhatsappNumber() != null && !dto.getWhatsappNumber().matches("\\d{10,15}")) {
+    throw new IllegalArgumentException("Número de WhatsApp inválido");
+}
+
+Credentials credentials = new Credentials();
+credentials.setUsername(dto.getUsername());
+credentials.setPassword(encoder.encode(dto.getPassword()));
+
+Provider provider = providerMapper(dto);
+provider.setCredentials(credentials);
+
+facilityRepository.findById(dto.getFacilityId())
+        .ifPresent(provider::setFacility);
+
+Provider savedProvider = repository.save(provider);
+return Optional.of(providerResponseMapper(savedProvider));
+
+
+
 
     public List<ProviderDTO> filterByFacility(String facilityName) {
         List<ProviderDTO> providerDTOs = new ArrayList<>();
@@ -131,19 +145,21 @@ public class ProviderService {
         dto.setEmail(provider.getEmail());
         dto.setAddress(provider.getAddress());
         dto.setPhoneNumber(provider.getPhoneNumber());
+        dto.setWhatsappNumber(provider.getWhatsappNumber());
         dto.setLicenseNumber(provider.getLicenseNumber());
+
+
         // dto.setCategoryId(provider.getCategory() != null ? provider.getCategory().getId() : null);
         return dto;
     }
 
-    private Provider providerMapper(ProviderDTO dto) {
-        Provider provider = new Provider();
-        Credentials credentials = new Credentials();
+  Provider provider = new Provider();
 
-        credentials.setUsername(dto.getUsername());
-        credentials.setPassword(dto.getPassword());
+Credentials credentials = new Credentials();
+credentials.setUsername(dto.getUsername());
+credentials.setPassword(dto.getPassword());
 
-        Credentials saved = credentialsRepository.save(credentials);
+Credentials saved = credentialsRepository.save(credentials);
 
         provider.setCredentials(credentials);
         provider.setCredentialsId(saved.getId());
@@ -153,7 +169,9 @@ public class ProviderService {
         provider.setAddress(dto.getAddress());
         provider.setLicenseNumber(dto.getLicenseNumber());
         provider.setPhoneNumber(dto.getPhoneNumber());
-        provider.setFacilityId(dto.getFacilityId());
+provider.setWhatsappNumber(dto.getWhatsappNumber());
+provider.setFacilityId(dto.getFacilityId());
+
 
         /*
         if (dto.getCategoryId() != null) {
@@ -177,7 +195,7 @@ public class ProviderService {
         dto.setAddress(provider.getAddress());
         dto.setLicenseNumber(provider.getLicenseNumber());
         dto.setFacility(provider.getFacility()==null?null:provider.getFacility().getName());
-
+        dto.setWhatsappNumber(provider.getWhatsappNumber());
         return dto;
     }
 
@@ -230,8 +248,9 @@ public class ProviderService {
                 && !dto.getAddress().isEmpty()
                 && checkValidEmail(providerId, dto.getEmail())
                 && !dto.getUsername().isEmpty()
-                && checkValidUsername(dto.getUsername())
-                && !dto.getPassword().isEmpty();
+                && checkValidUsername(providerId, dto.getUsername())
+                && !dto.getPassword().isEmpty()
+                && (dto.getWhatsappNumber() == null || dto.getWhatsappNumber().matches("\\d{10,15}"));
     }
 
     // this method is used when creating
@@ -245,4 +264,6 @@ public class ProviderService {
                 && !checkValidUsername(dto.getUsername())
                 && !dto.getPassword().isEmpty();
     }
+
+
 }
