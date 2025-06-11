@@ -1,6 +1,9 @@
 package com.group.mis_servicios.controller;
 
-import com.group.mis_servicios.view.dto.*;
+import com.group.mis_servicios.service.ProviderService;
+import com.group.mis_servicios.view.dto.FacilityToProviderDTO;
+import com.group.mis_servicios.view.dto.ProviderDTO;
+import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -9,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import com.group.mis_servicios.service.ProviderService;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
@@ -26,7 +28,7 @@ public class ProviderController {
     @Autowired
     private ProviderService service;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<ProviderDTO>> listAll() {
         return ResponseEntity.ok(service.listAll());
     }

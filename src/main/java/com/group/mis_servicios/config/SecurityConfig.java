@@ -27,7 +27,7 @@ public class SecurityConfig {
                             .requestMatchers("/favorites-lists/**").permitAll()
                             .requestMatchers("/favorites-lists/add-provider").permitAll()
                             .requestMatchers("/flagged-providers/**").permitAll()
-                            .anyRequest().authenticated()
+                            .anyRequest().permitAll()
                     );
 
             return http.build();

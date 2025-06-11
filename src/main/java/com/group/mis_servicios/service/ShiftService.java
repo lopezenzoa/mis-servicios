@@ -1,15 +1,13 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.view.dto.ShiftDTO;
 import com.group.mis_servicios.model.entity.Provider;
 import com.group.mis_servicios.model.entity.Shift;
-import com.group.mis_servicios.model.repository.ShiftRepository;
 import com.group.mis_servicios.model.repository.ProviderRepository;
-import com.group.mis_servicios.view.dto.FacilityDTO;
+import com.group.mis_servicios.model.repository.ShiftRepository;
+import com.group.mis_servicios.view.dto.ShiftDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +25,13 @@ public class ShiftService {
                 .map(this::shiftMapper)
                 .toList();
     }
+    public List<ShiftDTO> getAllByProvider(Long providerId) {
+        return repository.findByProviderId(providerId)
+                .stream()
+                .map(this::shiftMapper)
+                .toList();
+    }
+
 
     public Optional<ShiftDTO> getById(Long id) {
         Optional<Shift> shift = repository.findById(id);
@@ -93,18 +98,24 @@ public class ShiftService {
     }
 
     public Shift shiftMapper(ShiftDTO dto) {
-        Shift shift = new Shift();
-        Optional<Provider> provider = providerRepository.findById(dto.getProviderId());
+        Provider provider = providerRepository.findById(dto.getProviderId())
+                .orElseThrow(() -> new RuntimeException("Provider not found with ID: " + dto.getProviderId()));
 
-        if (provider.isPresent()) {
-            shift.setDateTime(LocalDateTime.parse(dto.getDateTime()));
-            shift.setAvailable(dto.isAvailable());
-            shift.setProviderId(dto.getProviderId());
-            shift.setProvider(provider.get());
+        LocalDateTime dateTime;
+        try {
+            dateTime = LocalDateTime.parse(dto.getDateTime());
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid date format: " + dto.getDateTime() + ". Use yyyy-MM-ddTHH:mm:ss");
         }
+
+        Shift shift = new Shift();
+        shift.setProvider(provider);
+        shift.setAvailable(dto.isAvailable());
+        shift.setDateTime(dateTime);
 
         return shift;
     }
+
 
     // checks if the provider exists given his id
     private boolean checkProvider(Long providerId) {

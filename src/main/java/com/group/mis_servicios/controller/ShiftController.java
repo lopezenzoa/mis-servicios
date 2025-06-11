@@ -1,11 +1,8 @@
 package com.group.mis_servicios.controller;
 
-import com.group.mis_servicios.model.entity.Shift;
 import com.group.mis_servicios.service.ProviderService;
 import com.group.mis_servicios.service.ShiftService;
-import com.group.mis_servicios.view.dto.CustomerResponseDTO;
 import com.group.mis_servicios.view.dto.ProviderDTO;
-import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import com.group.mis_servicios.view.dto.ShiftDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +16,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/shifts")
 @CrossOrigin("*")
+
 public class ShiftController {
     @Autowired
     private ShiftService service;
@@ -94,6 +92,11 @@ public class ShiftController {
             return new ResponseEntity<>(service.getAvailableByProvider(providerId), HttpStatus.OK);
         else
             return new ResponseEntity<>("The shift has no been found with the ID: " + providerId, HttpStatus.NOT_FOUND);
+    }
+    @GetMapping("/provider/{providerId}")
+    public ResponseEntity<List<ShiftDTO>> getShiftsByProvider(@PathVariable Long providerId) {
+        List<ShiftDTO> shifts = service.getAllByProvider(providerId);
+        return ResponseEntity.ok(shifts);
     }
 
     /*

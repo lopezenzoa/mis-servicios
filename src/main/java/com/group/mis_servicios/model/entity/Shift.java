@@ -21,11 +21,8 @@ public class Shift {
     @Column(columnDefinition = "TINYINT", nullable = false)
     private boolean available;
 
-    @Column(name = "provider_id", nullable = false)
-    private Long providerId;
-
     @ManyToOne
-    @JoinColumn(name = "provider_id", referencedColumnName = "provider_id", insertable = false, updatable = false)
+    @JoinColumn(name = "provider_id", nullable = false)
     private Provider provider;
 
     public Long getId() {
