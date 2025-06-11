@@ -1,83 +1,141 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.dto.ClienteDTO;
-import com.group.mis_servicios.dto.ProviderDTO;
-import com.group.mis_servicios.dto.ProviderResponseDTO;
-import com.group.mis_servicios.entity.Category;
-import com.group.mis_servicios.entity.Credentials;
-import com.group.mis_servicios.entity.Provider;
-import com.group.mis_servicios.repository.CategoryRepository;
-import com.group.mis_servicios.repository.ProviderRepository;
-import com.group.mis_servicios.repository.ServiceRepository;
+import com.group.mis_servicios.model.entity.Credentials;
+import com.group.mis_servicios.model.entity.Facility;
+
+import com.group.mis_servicios.model.repository.CredentialsRepository;
+import com.group.mis_servicios.model.repository.FacilityRepository;
+import com.group.mis_servicios.model.repository.ProviderRepository;
+import com.group.mis_servicios.view.dto.ProviderDTO;
+import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.group.mis_servicios.repository.ProviderRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ProviderService {
     @Autowired
-    private ProviderRepository providerRepository;
+    private ProviderRepository repository;
     @Autowired
-    private ServiceRepository serviceRepository;
-
+    private FacilityRepository facilityRepository;
     @Autowired
-    private CategoryRepository categoryRepository;
+    private CredentialsRepository credentialsRepository;
+    @Autowired
+    private BCryptPasswordEncoder encoder;
+    @Autowired
+    private CredentialsRepository credentialsRepository;
 
-    public List<Provider> listAll() {
-        return providerRepository.findAll();
+    public List<ProviderDTO> listAll() {
+        List<ProviderDTO> providers = new ArrayList<>();
+
+        repository.findAll()
+                .forEach(p -> providers.add(providerMapper(p)));
+
+        return providers;
     }
 
-    public Optional<Provider> getById(Long id) {
-        return providerRepository.findById(id);
+    public Optional<ProviderDTO> getById(Long id) {
+        Optional<Provider> provider = repository.findById(id);
+
+        return provider.map(this::providerMapper);
     }
 
-    public Provider filterByLicenseNumber(String licenseNumber) {
-        return providerRepository.findByLicenseNumber(licenseNumber).orElse(null);
+    public Optional<ProviderDTO> filterByLicenseNumber(String licenseNumber){
+        Optional<Provider> providerOptional = repository.findByLicenseNumber(licenseNumber);
+
+        return providerOptional.map(this::providerMapper);
     }
 
-    public Provider save(Provider provider) {
-        return providerRepository.save(provider);
-    }
+    public Optional<ProviderResponseDTO> create(ProviderDTO dto) {
+        boolean isValid = checkValidity(dto);
 
-    public List<ProviderDTO> filterByServices(String serviceName) {
+        if (!isValid)
+            return Optional.empty();
+
+if (dto.getWhatsappNumber() != null && !dto.getWhatsappNumber().matches("\\d{10,15}")) {
+    throw new IllegalArgumentException("Número de WhatsApp inválido");
+}
+
+Credentials credentials = new Credentials();
+credentials.setUsername(dto.getUsername());
+credentials.setPassword(encoder.encode(dto.getPassword()));
+
+Provider provider = providerMapper(dto);
+provider.setCredentials(credentials);
+
+facilityRepository.findById(dto.getFacilityId())
+        .ifPresent(provider::setFacility);
+
+Provider savedProvider = repository.save(provider);
+return Optional.of(providerResponseMapper(savedProvider));
+
+
+
+
+    public List<ProviderDTO> filterByFacility(String facilityName) {
         List<ProviderDTO> providerDTOs = new ArrayList<>();
-        Optional<com.group.mis_servicios.entity.Service> service = serviceRepository.findByName(serviceName);
+        Optional<Facility> facilityOptional = facilityRepository.findByName(facilityName);
 
-        if (service.isPresent()) {
-            List<Provider> providers = providerRepository.findAll()
+        if (facilityOptional.isPresent()) {
+            List<Provider> providers = repository.findAll()
                     .stream()
-                    .filter(p -> p.getServices().contains(service.get()))
+                    .filter(p -> p.getFacility() != null)
+                    .filter(p -> p.getFacility().equals(facilityOptional.get()))
                     .toList();
 
             providers.forEach(provider -> {
-                providerDTOs.add(mapProviderToDto(provider));
+                providerDTOs.add(providerMapper(provider));
             });
         }
 
         return providerDTOs;
     }
 
-    public ProviderDTO update(Long id, ProviderDTO updated) {
-        Optional<Provider> providerOptional = providerRepository.findById(id);
+    public boolean addFacility(Long id, Long facilityId) {
+        Optional<Facility> facilityOptional = facilityRepository.findById(facilityId);
+        Optional<Provider> providerOptional = repository.findById(id);
 
-        if (providerOptional.isPresent()) {
-            Provider provider = mapDtoToProvider(updated);
-            provider.setId(id);
-            providerRepository.save(provider);
-            return mapProviderToDto(provider);
+        if (facilityOptional.isPresent() && providerOptional.isPresent()) {
+            Provider provider = providerOptional.get();
+
+            provider.setFacility(facilityOptional.get());
+
+            return true;
         }
 
-        return new ProviderDTO();
+        return false;
     }
 
-    private ProviderDTO mapProviderToDto(Provider provider) {
+    public Optional<ProviderResponseDTO> update(Long id, ProviderDTO updated) {
+        Optional<Provider> providerOptional = repository.findById(id);
+
+        if (providerOptional.isPresent() && checkValidity(updated)) {
+            Provider saved = repository.save(providerMapper(updated));
+
+            return Optional.of(providerResponseMapper(saved));
+        }
+
+        return Optional.empty();
+    }
+
+    public List<ProviderResponseDTO> filterByCriterios(String firstName, String lastName, String email, String licenseNumber) {
+        List<Provider> providers = repository.findByCriterios(firstName, lastName, email, licenseNumber);
+        return providers.stream().map(this::providerResponseMapper).toList();
+    }
+
+
+    public Page<ProviderResponseDTO> listPage(Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(this::providerResponseMapper);
+    }
+
+    private ProviderDTO providerMapper(Provider provider) {
         ProviderDTO dto = new ProviderDTO();
 
         dto.setFirstName(provider.getFirstName());
@@ -86,69 +144,126 @@ public class ProviderService {
         dto.setPassword(provider.getCredentials().getPassword());
         dto.setEmail(provider.getEmail());
         dto.setAddress(provider.getAddress());
+        dto.setPhoneNumber(provider.getPhoneNumber());
+        dto.setWhatsappNumber(provider.getWhatsappNumber());
         dto.setLicenseNumber(provider.getLicenseNumber());
-        dto.setCategoryId(provider.getCategory() != null ? provider.getCategory().getId() : null);
+
+
+        // dto.setCategoryId(provider.getCategory() != null ? provider.getCategory().getId() : null);
         return dto;
     }
 
-    private Provider mapDtoToProvider(ProviderDTO dto) {
-        Provider provider = new Provider();
-        Credentials credentials = new Credentials();
+  Provider provider = new Provider();
 
-        credentials.setUsername(dto.getUsername());
-        credentials.setPassword(dto.getPassword());
+Credentials credentials = new Credentials();
+credentials.setUsername(dto.getUsername());
+credentials.setPassword(dto.getPassword());
 
+Credentials saved = credentialsRepository.save(credentials);
+
+        provider.setCredentials(credentials);
+        provider.setCredentialsId(saved.getId());
         provider.setFirstName(dto.getFirstName());
         provider.setLastName(dto.getLastName());
-        provider.setCredentials(credentials);
         provider.setEmail(dto.getEmail());
         provider.setAddress(dto.getAddress());
         provider.setLicenseNumber(dto.getLicenseNumber());
+        provider.setPhoneNumber(dto.getPhoneNumber());
+provider.setWhatsappNumber(dto.getWhatsappNumber());
+provider.setFacilityId(dto.getFacilityId());
 
+
+        /*
         if (dto.getCategoryId() != null) {
             Category category = categoryRepository.findById(dto.getCategoryId())
                     .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
             provider.setCategory(category);
         }
 
+         */
+
         return provider;
     }
 
-    public Provider crearProvider(ProviderDTO dto) {
-        Provider provider = mapDtoToProvider(dto);
-        return providerRepository.save(provider);
-    }
-
-    public List<ProviderResponseDTO> buscarPorNombreCategoria(String nombreCategoria) {
-        return providerRepository.findByCategory_Nombre(nombreCategoria)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
-    }
-
-    public List<ProviderResponseDTO> buscarPorCriterios(String firstName, String lastName, String email, String licenseNumber) {
-        List<Provider> providers = providerRepository.findByCriterios(firstName, lastName, email, licenseNumber);
-        return providers.stream().map(this::mapToResponse).toList();
-    }
-
-    public Page<ProviderResponseDTO> listarPaginado(Pageable pageable) {
-        return providerRepository.findAll(pageable)
-                .map(this::mapToResponse);
-    }
-
-    private ProviderResponseDTO mapToResponse(Provider provider) {
+    private ProviderResponseDTO providerResponseMapper(Provider provider) {
         ProviderResponseDTO dto = new ProviderResponseDTO();
+
         dto.setId(provider.getId());
         dto.setFirstName(provider.getFirstName());
         dto.setLastName(provider.getLastName());
         dto.setEmail(provider.getEmail());
         dto.setAddress(provider.getAddress());
         dto.setLicenseNumber(provider.getLicenseNumber());
-        dto.setCategoryName(provider.getCategory() != null ? provider.getCategory().getNombre() : null);
+        dto.setFacility(provider.getFacility()==null?null:provider.getFacility().getName());
+        dto.setWhatsappNumber(provider.getWhatsappNumber());
         return dto;
     }
 
-    public ProviderResponseDTO toResponseDTO(Provider provider) {
-        return mapToResponse(provider);
+    // These two validation methods are used for updating (that's why I'm requesting the id)
+    public boolean checkValidEmail(Long id, String email) {
+        return repository.findAll()
+                .stream()
+                .filter(c -> !c.getId().equals(id))
+                .anyMatch(c -> c.getEmail().equals(email));
     }
+
+    public boolean checkValidPhone(Long id, String phone) {
+        return repository.findAll()
+                .stream()
+                .filter(c -> !c.getId().equals(id))
+                .anyMatch(c -> c.getPhoneNumber().equals(phone));
+    }
+
+    public boolean checkValidUsername(Long id, String username) {
+        return repository.findAll()
+                .stream()
+                .filter(c -> !c.getId().equals(id))
+                .anyMatch(c -> c.getCredentials().getUsername().equals(username));
+    }
+
+    // These two validation methods are used for creating
+    public boolean checkValidEmail(String email) {
+        return repository.findAll()
+                .stream()
+                .anyMatch(c -> c.getEmail().equals(email));
+    }
+
+    public boolean checkValidPhone(String phone) {
+        return repository.findAll()
+                .stream()
+                .anyMatch(c -> c.getPhoneNumber().equals(phone));
+    }
+    
+    public boolean checkValidUsername(String username) {
+        return repository.findAll()
+                .stream()
+                .anyMatch(c -> c.getCredentials().getUsername().equals(username));
+    }
+    
+    // this method is used when updating (notice I'm adding the providerId to the params)
+    private boolean checkValidity(Long providerId, ProviderDTO dto) {
+        return !dto.getFirstName().isEmpty()
+                && !dto.getLastName().isEmpty()
+                && checkValidPhone(providerId, dto.getPhoneNumber())
+                && !dto.getAddress().isEmpty()
+                && checkValidEmail(providerId, dto.getEmail())
+                && !dto.getUsername().isEmpty()
+                && checkValidUsername(providerId, dto.getUsername())
+                && !dto.getPassword().isEmpty()
+                && (dto.getWhatsappNumber() == null || dto.getWhatsappNumber().matches("\\d{10,15}"));
+    }
+
+    // this method is used when creating
+    private boolean checkValidity(ProviderDTO dto) {
+        return !dto.getFirstName().isEmpty()
+                && !dto.getLastName().isEmpty()
+                && !checkValidPhone(dto.getPhoneNumber())
+                && !dto.getAddress().isEmpty()
+                && !checkValidEmail(dto.getEmail())
+                && !dto.getUsername().isEmpty()
+                && !checkValidUsername(dto.getUsername())
+                && !dto.getPassword().isEmpty();
+    }
+
+
 }

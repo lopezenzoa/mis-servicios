@@ -1,48 +1,84 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.dto.LoginDTO;
-import com.group.mis_servicios.dto.RegistroDTO;
-import com.group.mis_servicios.entity.Credentials;
-import com.group.mis_servicios.entity.User;
+import com.group.mis_servicios.view.dto.LoginDTO;
+import com.group.mis_servicios.view.dto.RegisterDTO;
+import com.group.mis_servicios.model.entity.Credentials;
+import com.group.mis_servicios.model.entity.User;
+import com.group.mis_servicios.model.repository.CredentialsRepository;
+import com.group.mis_servicios.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.group.mis_servicios.repository.CredentialsRepository;
-import com.group.mis_servicios.repository.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AuthService {
     @Autowired
     private UserRepository userRepository;
     @Autowired private CredentialsRepository credentialsRepository;
-    @Autowired private BCryptPasswordEncoder encoder;
+    @Autowired private BCryptPasswordEncoder encoder; // to encrypt the password
 
-    public void registrarUsuario(RegistroDTO dto) {
-        User user = new User();
-        user.setFirstName(dto.getFirstName());
-        user.setLastName(dto.getLastName());
-        user.setEmail(dto.getEmail());
-        user.setAddress(dto.getAddress());
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-        Credentials credentials = new Credentials();
-        credentials.setUsername(dto.getUsername());
-        credentials.setPassword(encoder.encode(dto.getPassword()));
-        credentials.setUser(user);
+    public void register(RegisterDTO dto) {
+        boolean isValid = checkRegisterValidity(dto);
 
-        user.setCredentials(credentials);
+        if (isValid) {
+            User user = new User();
+            Credentials credentials = new Credentials();
 
-        userRepository.save(user);
+            user.setFirstName(dto.getFirstName());
+            user.setLastName(dto.getLastName());
+            user.setEmail(dto.getEmail());
+            user.setAddress(dto.getAddress());
+            user.setPhoneNumber(dto.getPhoneNumber());
+
+            credentials.setUsername(dto.getUsername());
+            credentials.setPassword(encoder.encode(dto.getPassword()));
+            // credentials.setUser(user);
+
+            user.setCredentials(credentials);
+
+            userRepository.save(user);
+        }
     }
 
     public boolean login(LoginDTO dto) {
-        return credentialsRepository.findByUsername(dto.getUsername())
-                .map(c -> encoder.matches(dto.getPassword(), c.getPassword()))
-                .orElse(false);
+        String identifier = dto.getIdentifier();
+        String password = dto.getPassword();
+
+        // by this way, the user can log in with your email or username
+        Optional<User> userOpt = identifier.contains("@") ?
+                userRepository.findByEmail(identifier) :
+                userRepository.findByCredentials(credentialsRepository.findByUsername(identifier).get());
+
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            return passwordEncoder.matches(password, user.getCredentials().getPassword());
+        }
+
+        return false;
     }
 
-    public List<User> obtenerUsuarios() {
+
+    public List<User> getAuthUsers() {
         return userRepository.findAll();
+    }
+
+    private boolean checkRegisterValidity(RegisterDTO dto) {
+        // checks if the username is unique
+        boolean isUsernameUnique = getAuthUsers()
+                .stream()
+                .anyMatch(user -> user.getCredentials().getUsername().equals(dto.getUsername()));
+
+        boolean isEmailUnique = getAuthUsers()
+                .stream()
+                .anyMatch(user -> user.getCredentials().getUsername().equals(dto.getEmail()));
+
+        return isEmailUnique && isUsernameUnique;
     }
 }

@@ -1,13 +1,9 @@
 package com.group.mis_servicios.controller;
 
-import com.group.mis_servicios.dto.ProviderDTO;
-import com.group.mis_servicios.dto.ProviderResponseDTO;
-import com.group.mis_servicios.entity.Category;
-import com.group.mis_servicios.entity.Credentials;
-import com.group.mis_servicios.entity.Provider;
-import com.group.mis_servicios.repository.CategoryRepository;
-import com.group.mis_servicios.repository.ProviderRepository;
 import com.group.mis_servicios.service.ProviderService;
+import com.group.mis_servicios.view.dto.FacilityToProviderDTO;
+import com.group.mis_servicios.view.dto.ProviderDTO;
+import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,17 +12,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/providers")
+@CrossOrigin("*")
 public class ProviderController {
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Autowired
-    private ProviderRepository providerRepository;
 
     @Autowired
     private BCryptPasswordEncoder encoder;
@@ -34,89 +29,110 @@ public class ProviderController {
     @Autowired
     private ProviderService service;
 
-    @GetMapping("/sin-paginacion")
-    public ResponseEntity<List<Provider>> listAll() {
+    private String whatsappNumber;
+
+    @GetMapping("/")
+    public ResponseEntity<List<ProviderDTO>> listAll() {
         return ResponseEntity.ok(service.listAll());
     }
 
-
     @GetMapping("/{id}")
-    public ResponseEntity<Provider> getById(@PathVariable Long id) {
-        return service.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+        Optional<ProviderDTO> providerDTO = service.getById(id);
+
+        if (providerDTO.isPresent())
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(providerDTO.get());
+
+        return ResponseEntity.status(404)
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "The provider hasn't been found"));
     }
 
-    @GetMapping("/license")
-    public ResponseEntity<Provider> filterByLicenseNumber(@RequestParam String licenseNumber) {
-        return ResponseEntity.ok(service.filterByLicenseNumber(licenseNumber));
+    @GetMapping("/license/{licenseNumber}")
+    public ResponseEntity<?> filterByLicenseNumber(@PathVariable String licenseNumber) {
+        Optional<ProviderDTO> providerDTO = service.filterByLicenseNumber(licenseNumber);
+
+        if (providerDTO.isPresent())
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(providerDTO.get());
+
+        return ResponseEntity.status(404)
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "The provider hasn't been found"));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProviderDTO> updateProfile(@PathVariable Long id, @RequestBody ProviderDTO updated) {
-        return new ResponseEntity<>(service.update(id, updated), HttpStatus.OK);
-    }
-    @GetMapping("/{services}")
-    public ResponseEntity<List<ProviderDTO>> filterByServices(@PathVariable String services){
-        return ResponseEntity.ok(service.filterByServices(services));
-    }
+    public ResponseEntity<?> updateProfile(@PathVariable Long id, @RequestBody ProviderDTO dto) {
+        Optional<ProviderResponseDTO> providerDTO = service.update(id, dto);
 
-    @PostMapping("/register")
-    public ResponseEntity<ProviderResponseDTO> registerProvider(@RequestBody ProviderDTO dto) {
-        Category categoria = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+        if (providerDTO.isPresent())
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(Map.of("message", "The provider has been updated successfully!"));
 
-        Provider provider = new Provider();
-        provider.setFirstName(dto.getFirstName());
-        provider.setLastName(dto.getLastName());
-        provider.setEmail(dto.getEmail());
-        provider.setAddress(dto.getAddress());
-        provider.setLicenseNumber(dto.getLicenseNumber());
-        provider.setCategory(categoria);
-
-        Credentials credentials = new Credentials();
-        credentials.setUsername(dto.getUsername());
-        credentials.setPassword(encoder.encode(dto.getPassword()));
-        credentials.setUser(provider);
-
-        provider.setCredentials(credentials);
-
-        Provider saved = providerRepository.save(provider);
-
-        ProviderResponseDTO response = new ProviderResponseDTO();
-        response.setId(saved.getId());
-        response.setFirstName(saved.getFirstName());
-        response.setLastName(saved.getLastName());
-        response.setEmail(saved.getEmail());
-        response.setAddress(saved.getAddress());
-        response.setLicenseNumber(saved.getLicenseNumber());
-        response.setCategoryName(categoria.getNombre());
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(404)
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "The provider hasn't been found"));
     }
 
-
-
-    @GetMapping("/por-categoria")
-    public ResponseEntity<List<ProviderResponseDTO>> getPorCategoria(@RequestParam String nombreCategoria) {
-        return ResponseEntity.ok(service.buscarPorNombreCategoria(nombreCategoria));
+    @PostMapping("/create")
+    public ResponseEntity<?> create(@RequestBody ProviderDTO dto) {
+        service.create(dto);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "The provider has been registered successfully!"));
     }
-    @GetMapping("/buscar")
+
+    @GetMapping("/facility/{facilityName}")
+    public ResponseEntity<?> getByFacility(@PathVariable String facilityName) {
+        List<ProviderDTO> providerDTOS = service.filterByFacility(facilityName);
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(providerDTOS);
+    }
+
+    @GetMapping("/search")
     public ResponseEntity<List<ProviderResponseDTO>> buscar(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String licenseNumber
     ) {
-        return ResponseEntity.ok(service.buscarPorCriterios(firstName, lastName, email, licenseNumber));
+        return ResponseEntity.ok(service.filterByCriterios(firstName, lastName, email, licenseNumber));
     }
-    @GetMapping
-    public ResponseEntity<Page<ProviderResponseDTO>> listAllPaginado(
+
+    @PostMapping("/add-facility")
+    public ResponseEntity<?> addFacilityToProvider(@RequestBody FacilityToProviderDTO dto) {
+        boolean added = service.addFacility(dto.getProviderId(), dto.getFacilityId());
+
+        if (added)
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(Map.of("message", "The facility has been added to the provider successfully!"));
+
+        return ResponseEntity.status(404)
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "The provider hasn't been found"));
+    }
+
+
+    @GetMapping("/page")
+    public ResponseEntity<Page<ProviderResponseDTO>> listAllPaginated(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(service.listarPaginado(pageable));
+        return ResponseEntity.ok(service.listPage(pageable));
     }
 
+    // manejo de excecpciones
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        String errorMessage = "The parameter '" + ex.getName() + "' must be a valid number (Long).";
+        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+    }
 }

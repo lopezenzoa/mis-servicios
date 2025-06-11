@@ -1,0 +1,37 @@
+<div class="login-page">
+  <h1>Bienvenido/a a Mis Servicios</h1>
+  <p>Conectá con profesionales cerca tuyo</p>
+
+  <div class="login-container">
+    <h2>Iniciar Sesión</h2>
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+      <div class="form-group">
+        <input
+          type="text"
+          id="identificador"
+          name="identificador"
+          [(ngModel)]="email"
+          required
+          placeholder="E-mail"
+        />
+      </div>
+
+      <div class="form-group">
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="password"
+          required
+          placeholder="Password"
+        />
+      </div>
+      <button type="submit" class="btn-ingresar">Ingresar</button>
+    </form>
+    <div class="link-registrarse">
+      <p class="cuenta">¿No tenés cuenta? <a routerLink="/registro">Registrate</a></p>
+    </div>
+
+  </div>
+</div>
+

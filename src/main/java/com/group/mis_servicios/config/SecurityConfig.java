@@ -18,14 +18,15 @@ public class SecurityConfig {
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/auth/register", "/auth/login").permitAll()
                             .requestMatchers("/auth/users").permitAll()
-                            .requestMatchers("/clientes/**").permitAll()
+                            .requestMatchers("/customers/**").permitAll()
                             .requestMatchers("/providers/**").permitAll()
-                            .requestMatchers("/users/**").permitAll()
                             .requestMatchers("/shifts/**").permitAll()
                             .requestMatchers("/auth/logout").permitAll()
-                            .requestMatchers("/categorias/**").permitAll()
-
-
+                            .requestMatchers("/calls/**").permitAll()
+                            .requestMatchers("/facilities/**").permitAll()
+                            .requestMatchers("/favorites-lists/**").permitAll()
+                            .requestMatchers("/favorites-lists/add-provider").permitAll()
+                            .requestMatchers("/flagged-providers/**").permitAll()
                             .anyRequest().authenticated()
                     );
 
