@@ -2,6 +2,7 @@ package com.group.mis_servicios.service.mappers;
 
 import com.group.mis_servicios.model.entity.Credentials;
 import com.group.mis_servicios.model.entity.Provider;
+import com.group.mis_servicios.model.enums.Roles;
 import com.group.mis_servicios.view.dto.ProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 
@@ -27,6 +28,7 @@ public class ProviderMapper {
         Credentials credentials = new Credentials();
 
         credentials.setUsername(dto.getUsername());
+        credentials.setRole(Roles.USER);
         credentials.setPassword(dto.getPassword());
 
         // Credentials saved = credentialsRepository.save(credentials);

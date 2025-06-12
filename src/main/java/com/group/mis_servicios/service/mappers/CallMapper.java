@@ -1,6 +1,6 @@
 package com.group.mis_servicios.service.mappers;
 
-import com.group.mis_servicios.enums.States;
+import com.group.mis_servicios.model.enums.States;
 import com.group.mis_servicios.model.entity.Call;
 import com.group.mis_servicios.model.entity.Customer;
 import com.group.mis_servicios.model.entity.Provider;
