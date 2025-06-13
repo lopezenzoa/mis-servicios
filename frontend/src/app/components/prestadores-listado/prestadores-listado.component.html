@@ -9,7 +9,6 @@
   <button (click)="aplicarFiltros()">
     <i class="fas fa-search"></i> Aplicar filtros
   </button>
-
 </div>
 
 <hr />
@@ -21,13 +20,14 @@
     <p><strong>Dirección:</strong> {{ p.address }}</p>
     <p><strong>Licencia:</strong> {{ p.licenseNumber }}</p>
     <p><strong>Categoría:</strong> {{ p.categoryName }}</p>
+
+    <p *ngIf="p.whatsappNumber">
+      <strong>WhatsApp:</strong> {{ p.whatsappNumber }}
+    </p>
+    <button *ngIf="p.whatsappNumber" (click)="contactarPorWhatsApp(p.whatsappNumber)">
+      Contactar por WhatsApp
+    </button>
   </div>
-  <p *ngIf="p.whatsappNumber">
-    <strong>WhatsApp:</strong> {{ p.whatsappNumber }}
-  </p>
-  <button *ngIf="p.whatsappNumber" (click)="contactarPorWhatsApp(p.whatsappNumber)">
-    Contactar por WhatsApp
-  </button>
 </div>
 
 <ng-template #sinResultados>
