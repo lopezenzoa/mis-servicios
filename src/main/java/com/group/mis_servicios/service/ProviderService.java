@@ -2,7 +2,7 @@ package com.group.mis_servicios.service;
 
 import com.group.mis_servicios.model.entity.Credentials;
 import com.group.mis_servicios.model.entity.Facility;
-
+import com.group.mis_servicios.model.entity.Provider;
 import com.group.mis_servicios.model.repository.CredentialsRepository;
 import com.group.mis_servicios.model.repository.FacilityRepository;
 import com.group.mis_servicios.model.repository.ProviderRepository;
@@ -28,55 +28,54 @@ public class ProviderService {
     private CredentialsRepository credentialsRepository;
     @Autowired
     private BCryptPasswordEncoder encoder;
-    @Autowired
-    private CredentialsRepository credentialsRepository;
 
     public List<ProviderDTO> listAll() {
         List<ProviderDTO> providers = new ArrayList<>();
-
-        repository.findAll()
-                .forEach(p -> providers.add(providerMapper(p)));
-
+        repository.findAll().forEach(p -> providers.add(this.providerMapper(p)));
         return providers;
     }
 
     public Optional<ProviderDTO> getById(Long id) {
         Optional<Provider> provider = repository.findById(id);
-
         return provider.map(this::providerMapper);
     }
 
-    public Optional<ProviderDTO> filterByLicenseNumber(String licenseNumber){
+    public Optional<ProviderDTO> filterByLicenseNumber(String licenseNumber) {
         Optional<Provider> providerOptional = repository.findByLicenseNumber(licenseNumber);
-
         return providerOptional.map(this::providerMapper);
     }
 
     public Optional<ProviderResponseDTO> create(ProviderDTO dto) {
         boolean isValid = checkValidity(dto);
 
-        if (!isValid)
-            return Optional.empty();
+        if (!isValid) return Optional.empty();
 
-if (dto.getWhatsappNumber() != null && !dto.getWhatsappNumber().matches("\\d{10,15}")) {
-    throw new IllegalArgumentException("Número de WhatsApp inválido");
-}
+        if (dto.getWhatsappNumber() != null && !dto.getWhatsappNumber().matches("\\d{10,15}")) {
+            throw new IllegalArgumentException("Número de WhatsApp inválido");
+        }
 
-Credentials credentials = new Credentials();
-credentials.setUsername(dto.getUsername());
-credentials.setPassword(encoder.encode(dto.getPassword()));
+        Provider provider = providerMapper(dto);
 
-Provider provider = providerMapper(dto);
-provider.setCredentials(credentials);
+        facilityRepository.findById(dto.getFacilityId())
+                .ifPresent(provider::setFacility);
 
-facilityRepository.findById(dto.getFacilityId())
-        .ifPresent(provider::setFacility);
-
-Provider savedProvider = repository.save(provider);
-return Optional.of(providerResponseMapper(savedProvider));
-
-
-
+        Provider savedProvider = repository.save(provider);
+        return Optional.of(providerResponseMapper(savedProvider));
+    }
+    private ProviderDTO providerMapper(Provider provider) {
+        ProviderDTO dto = new ProviderDTO();
+        dto.setFirstName(provider.getFirstName());
+        dto.setLastName(provider.getLastName());
+        dto.setUsername(provider.getCredentials().getUsername());
+        dto.setPassword(provider.getCredentials().getPassword());
+        dto.setEmail(provider.getEmail());
+        dto.setAddress(provider.getAddress());
+        dto.setPhoneNumber(provider.getPhoneNumber());
+        dto.setWhatsappNumber(provider.getWhatsappNumber());
+        dto.setLicenseNumber(provider.getLicenseNumber());
+        dto.setFacilityId(provider.getFacility() != null ? provider.getFacility().getId() : null);
+        return dto;
+    }
 
     public List<ProviderDTO> filterByFacility(String facilityName) {
         List<ProviderDTO> providerDTOs = new ArrayList<>();
@@ -89,9 +88,7 @@ return Optional.of(providerResponseMapper(savedProvider));
                     .filter(p -> p.getFacility().equals(facilityOptional.get()))
                     .toList();
 
-            providers.forEach(provider -> {
-                providerDTOs.add(providerMapper(provider));
-            });
+            providers.forEach(provider -> providerDTOs.add(providerMapper(provider)));
         }
 
         return providerDTOs;
@@ -103,9 +100,7 @@ return Optional.of(providerResponseMapper(savedProvider));
 
         if (facilityOptional.isPresent() && providerOptional.isPresent()) {
             Provider provider = providerOptional.get();
-
             provider.setFacility(facilityOptional.get());
-
             return true;
         }
 
@@ -117,7 +112,6 @@ return Optional.of(providerResponseMapper(savedProvider));
 
         if (providerOptional.isPresent() && checkValidity(updated)) {
             Provider saved = repository.save(providerMapper(updated));
-
             return Optional.of(providerResponseMapper(saved));
         }
 
@@ -129,77 +123,47 @@ return Optional.of(providerResponseMapper(savedProvider));
         return providers.stream().map(this::providerResponseMapper).toList();
     }
 
-
     public Page<ProviderResponseDTO> listPage(Pageable pageable) {
-        return repository.findAll(pageable)
-                .map(this::providerResponseMapper);
+        return repository.findAll(pageable).map(this::providerResponseMapper);
     }
 
-    private ProviderDTO providerMapper(Provider provider) {
-        ProviderDTO dto = new ProviderDTO();
+    private Provider providerMapper(ProviderDTO dto) {
+        Provider provider = new Provider();
 
-        dto.setFirstName(provider.getFirstName());
-        dto.setLastName(provider.getLastName());
-        dto.setUsername(provider.getCredentials().getUsername());
-        dto.setPassword(provider.getCredentials().getPassword());
-        dto.setEmail(provider.getEmail());
-        dto.setAddress(provider.getAddress());
-        dto.setPhoneNumber(provider.getPhoneNumber());
-        dto.setWhatsappNumber(provider.getWhatsappNumber());
-        dto.setLicenseNumber(provider.getLicenseNumber());
+        Credentials credentials = new Credentials();
+        credentials.setUsername(dto.getUsername());
+        credentials.setPassword(encoder.encode(dto.getPassword()));
+        Credentials saved = credentialsRepository.save(credentials);
 
-
-        // dto.setCategoryId(provider.getCategory() != null ? provider.getCategory().getId() : null);
-        return dto;
-    }
-
-  Provider provider = new Provider();
-
-Credentials credentials = new Credentials();
-credentials.setUsername(dto.getUsername());
-credentials.setPassword(dto.getPassword());
-
-Credentials saved = credentialsRepository.save(credentials);
-
-        provider.setCredentials(credentials);
-        provider.setCredentialsId(saved.getId());
+        provider.setCredentials(saved);
         provider.setFirstName(dto.getFirstName());
         provider.setLastName(dto.getLastName());
         provider.setEmail(dto.getEmail());
         provider.setAddress(dto.getAddress());
         provider.setLicenseNumber(dto.getLicenseNumber());
         provider.setPhoneNumber(dto.getPhoneNumber());
-provider.setWhatsappNumber(dto.getWhatsappNumber());
-provider.setFacilityId(dto.getFacilityId());
+        provider.setWhatsappNumber(dto.getWhatsappNumber());
 
-
-        /*
-        if (dto.getCategoryId() != null) {
-            Category category = categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
-            provider.setCategory(category);
+        if (dto.getFacilityId() != null) {
+            facilityRepository.findById(dto.getFacilityId()).ifPresent(provider::setFacility);
         }
-
-         */
 
         return provider;
     }
 
     private ProviderResponseDTO providerResponseMapper(Provider provider) {
         ProviderResponseDTO dto = new ProviderResponseDTO();
-
         dto.setId(provider.getId());
         dto.setFirstName(provider.getFirstName());
         dto.setLastName(provider.getLastName());
         dto.setEmail(provider.getEmail());
         dto.setAddress(provider.getAddress());
         dto.setLicenseNumber(provider.getLicenseNumber());
-        dto.setFacility(provider.getFacility()==null?null:provider.getFacility().getName());
+        dto.setFacility(provider.getFacility() == null ? null : provider.getFacility().getName());
         dto.setWhatsappNumber(provider.getWhatsappNumber());
         return dto;
     }
 
-    // These two validation methods are used for updating (that's why I'm requesting the id)
     public boolean checkValidEmail(Long id, String email) {
         return repository.findAll()
                 .stream()
@@ -221,7 +185,6 @@ provider.setFacilityId(dto.getFacilityId());
                 .anyMatch(c -> c.getCredentials().getUsername().equals(username));
     }
 
-    // These two validation methods are used for creating
     public boolean checkValidEmail(String email) {
         return repository.findAll()
                 .stream()
@@ -233,14 +196,13 @@ provider.setFacilityId(dto.getFacilityId());
                 .stream()
                 .anyMatch(c -> c.getPhoneNumber().equals(phone));
     }
-    
+
     public boolean checkValidUsername(String username) {
         return repository.findAll()
                 .stream()
                 .anyMatch(c -> c.getCredentials().getUsername().equals(username));
     }
-    
-    // this method is used when updating (notice I'm adding the providerId to the params)
+
     private boolean checkValidity(Long providerId, ProviderDTO dto) {
         return !dto.getFirstName().isEmpty()
                 && !dto.getLastName().isEmpty()
@@ -253,7 +215,6 @@ provider.setFacilityId(dto.getFacilityId());
                 && (dto.getWhatsappNumber() == null || dto.getWhatsappNumber().matches("\\d{10,15}"));
     }
 
-    // this method is used when creating
     private boolean checkValidity(ProviderDTO dto) {
         return !dto.getFirstName().isEmpty()
                 && !dto.getLastName().isEmpty()
@@ -264,6 +225,4 @@ provider.setFacilityId(dto.getFacilityId());
                 && !checkValidUsername(dto.getUsername())
                 && !dto.getPassword().isEmpty();
     }
-
-
 }
