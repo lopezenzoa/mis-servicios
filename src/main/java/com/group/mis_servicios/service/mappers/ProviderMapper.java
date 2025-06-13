@@ -5,6 +5,7 @@ import com.group.mis_servicios.model.entity.Provider;
 import com.group.mis_servicios.model.enums.Roles;
 import com.group.mis_servicios.view.dto.ProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class ProviderMapper {
     public static ProviderDTO toDTO(Provider provider) {
@@ -18,18 +19,19 @@ public class ProviderMapper {
         dto.setAddress(provider.getAddress());
         dto.setPhoneNumber(provider.getPhoneNumber());
         dto.setLicenseNumber(provider.getLicenseNumber());
+        dto.setFacility(provider.getFacility());
         // dto.setCategoryId(provider.getCategory() != null ? provider.getCategory().getId() : null);
 
         return dto;
     }
 
-    public static Provider toProvider(ProviderDTO dto) {
+    public static Provider toProvider(ProviderDTO dto, BCryptPasswordEncoder encoder) {
         Provider provider = new Provider();
         Credentials credentials = new Credentials();
 
         credentials.setUsername(dto.getUsername());
-        credentials.setRole(Roles.USER);
-        credentials.setPassword(dto.getPassword());
+        credentials.setRole(Roles.PROVIDER);
+        credentials.setPassword(encoder.encode(dto.getPassword()));
 
         // Credentials saved = credentialsRepository.save(credentials);
 
@@ -41,7 +43,7 @@ public class ProviderMapper {
         provider.setAddress(dto.getAddress());
         provider.setLicenseNumber(dto.getLicenseNumber());
         provider.setPhoneNumber(dto.getPhoneNumber());
-        // provider.setFacilityId(dto.getFacilityId());
+        provider.setFacility(dto.getFacility());
 
         /*
         if (dto.getCategoryId() != null) {
@@ -64,6 +66,7 @@ public class ProviderMapper {
         dto.setEmail(provider.getEmail());
         dto.setAddress(provider.getAddress());
         dto.setLicenseNumber(provider.getLicenseNumber());
+        dto.setFacility(provider.getFacility());
         // dto.setFacility(provider.getFacility()==null?null:provider.getFacility().getName());
 
         return dto;

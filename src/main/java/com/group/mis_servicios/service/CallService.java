@@ -1,7 +1,7 @@
 package com.group.mis_servicios.service;
 
 import ch.qos.logback.classic.spi.CallerData;
-import com.group.mis_servicios.enums.States;
+import com.group.mis_servicios.model.enums.States;
 import com.group.mis_servicios.model.entity.Call;
 import com.group.mis_servicios.model.entity.Customer;
 import com.group.mis_servicios.model.entity.Provider;
@@ -11,6 +11,7 @@ import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.service.mappers.CallMapper;
 import com.group.mis_servicios.service.validators.CallValidator;
 import com.group.mis_servicios.view.dto.CallDTO;
+import com.group.mis_servicios.view.dto.CallResponseDTO;
 import com.group.mis_servicios.view.dto.CustomerResponseDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,24 +33,24 @@ public class CallService implements I_Service<CallDTO> {
     private CustomerRepository customerRepo;
 
     @Override
-    public List<CallDTO> getAll() {
+    public List<CallResponseDTO> getAll() {
         return repository.findAll()
                 .stream()
-                .map(CallMapper::toDTO)
-                .collect(Collectors.toList());
+                .map(CallMapper::toResponseDTO)
+                .toList();
     }
 
     @Override
     public Optional<CallDTO> getById(Long id) {
-        return repository.findById(id).map(CallMapper::toDTO);
+        return repository.findById(id).map(call -> CallMapper.toDTO(call));
     }
 
     @Override
     public Optional<CallDTO> create(CallDTO call) {
-        boolean valid = CallValidator.checkCallValidity(call);
+        boolean valid = CallValidator.checkCallValidity(call, providerRepo);
 
         if (valid) {
-            Call saved = repository.save(CallMapper.toCall(call));
+            Call saved = repository.save(CallMapper.toCall(call, customerRepo, providerRepo));
             return Optional.of(CallMapper.toDTO(saved));
         }
 
@@ -61,7 +62,7 @@ public class CallService implements I_Service<CallDTO> {
         Optional<Call> optionalCall = repository.findById(id);
 
         if (optionalCall.isPresent()){
-            Call call= repository.save(CallMapper.toCall(updatedCall));
+            Call call= repository.save(CallMapper.toCall(updatedCall, customerRepo, providerRepo));
             return Optional.of(CallMapper.toDTO(call));
         }
 

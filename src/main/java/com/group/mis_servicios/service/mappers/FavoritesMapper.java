@@ -1,17 +1,17 @@
 package com.group.mis_servicios.service.mappers;
 
 import com.group.mis_servicios.model.entity.Customer;
-import com.group.mis_servicios.model.entity.FavoritesList;
+import com.group.mis_servicios.model.entity.Favorites;
 import com.group.mis_servicios.model.repository.CustomerRepository;
 import com.group.mis_servicios.view.dto.FavoritesDTO;
 
 public class FavoritesMapper {
     private static CustomerRepository customerRepository;
 
-    public static FavoritesList toFavoritesList(FavoritesDTO dto) {
+    public static Favorites toFavoritesList(FavoritesDTO dto) {
         Customer customer = customerRepository.getReferenceById(dto.getCustomerId());
 
-        FavoritesList list = new FavoritesList();
+        Favorites list = new Favorites();
 
         list.setCustomer(customer);
         list.setTitle(dto.getTitle());
@@ -20,7 +20,7 @@ public class FavoritesMapper {
         return list;
     }
 
-    public static FavoritesDTO toDTO(FavoritesList list) {
+    public static FavoritesDTO toDTO(Favorites list) {
         FavoritesDTO dto = new FavoritesDTO();
 
         dto.setTitle(list.getTitle());

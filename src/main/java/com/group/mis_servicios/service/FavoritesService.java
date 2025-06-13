@@ -1,13 +1,12 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.service.mappers.FacilityMapper;
 import com.group.mis_servicios.service.mappers.FavoritesMapper;
 import com.group.mis_servicios.service.mappers.ProviderMapper;
 import com.group.mis_servicios.service.validators.FavoritesValidator;
 import com.group.mis_servicios.view.dto.FavoritesDTO;
 import com.group.mis_servicios.model.entity.Customer;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
-import com.group.mis_servicios.model.entity.FavoritesList;
+import com.group.mis_servicios.model.entity.Favorites;
 import com.group.mis_servicios.model.entity.Provider;
 import com.group.mis_servicios.model.repository.CustomerRepository;
 import com.group.mis_servicios.model.repository.FavoritesRepository;
@@ -46,7 +45,7 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
         if (customerOpt.isEmpty() || FavoritesValidator.checkValidity(favoritesDTO))
             return Optional.empty();
 
-        FavoritesList saved = favoritesListRepository.save(FavoritesMapper.toFavoritesList(favoritesDTO));
+        Favorites saved = favoritesListRepository.save(FavoritesMapper.toFavoritesList(favoritesDTO));
 
         return Optional.of(FavoritesMapper.toDTO(saved));
     }
@@ -62,7 +61,7 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
     }
 
     public Optional<FavoritesDTO> addProviderToFavorites(Long favoritesListId, Long providerId) {
-        Optional<FavoritesList> list = favoritesListRepository.findById(favoritesListId);
+        Optional<Favorites> list = favoritesListRepository.findById(favoritesListId);
         Optional<Provider> provider = providerRepository.findById(providerId);
 
         if (list.isEmpty() || provider.isEmpty())
@@ -71,7 +70,7 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
         if (!list.get().getProviders().contains(provider.get()))
             list.get().getProviders().add(provider.get());
 
-        FavoritesList saved = favoritesListRepository.save(list.get());
+        Favorites saved = favoritesListRepository.save(list.get());
 
         // Conversión de providers a DTO response
         List<ProviderResponseDTO> providersDto = saved.getProviders().stream()
@@ -91,7 +90,7 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
     }
 
     public Optional<List<ProviderResponseDTO>> getProvidersFromFavoritesList(Long favoritesListId) {
-        Optional<FavoritesList> list = favoritesListRepository.findById(favoritesListId);
+        Optional<Favorites> list = favoritesListRepository.findById(favoritesListId);
 
         return list.map(favoritesList -> favoritesList.getProviders()
                 .stream()
@@ -100,7 +99,7 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
     }
 
     public Optional<FavoritesDTO> removeProviderFromFavorites(Long favoritesListId, Long providerId) {
-        Optional<FavoritesList> list = favoritesListRepository.findById(favoritesListId);
+        Optional<Favorites> list = favoritesListRepository.findById(favoritesListId);
         Optional<Provider> provider = providerRepository.findById(providerId);
 
         if (list.isEmpty() || provider.isEmpty())
@@ -108,7 +107,7 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
 
         list.get().getProviders().remove(provider.get());
 
-        FavoritesList updatedList = favoritesListRepository.save(list.get());
+        Favorites updatedList = favoritesListRepository.save(list.get());
 
         FavoritesDTO dto = new FavoritesDTO();
 
@@ -127,7 +126,7 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
     }
 
     public boolean deleteFavoritesList(Long id) {
-        Optional<FavoritesList> optionalList = favoritesListRepository.findById(id);
+        Optional<Favorites> optionalList = favoritesListRepository.findById(id);
 
         if (optionalList.isPresent()) {
             favoritesListRepository.deleteById(id);

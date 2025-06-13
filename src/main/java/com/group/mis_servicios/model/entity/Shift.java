@@ -21,40 +21,7 @@ public class Shift {
     @Column(columnDefinition = "TINYINT", nullable = false)
     private boolean available;
 
-    // Relation with Provider
     @ManyToOne
     @JoinColumn(name = "provider_id")  // FK a la tabla Prestador
     private Provider provider;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
-    }
-
-    public boolean isAvailable() {
-        return available;
-    }
-
-    public void setAvailable(boolean available) {
-        this.available = available;
-    }
-
-    public Provider getProvider() {
-        return provider;
-    }
-
-    public void setProvider(Provider provider) {
-        this.provider = provider;
-    }
 }

@@ -1,5 +1,6 @@
 package com.group.mis_servicios.service;
 
+import com.group.mis_servicios.model.enums.Roles;
 import com.group.mis_servicios.service.mappers.AuthMapper;
 import com.group.mis_servicios.service.mappers.CustomerMapper;
 import com.group.mis_servicios.model.repository.CredentialsRepository;
@@ -27,11 +28,11 @@ public class CustomerService implements I_Service<CustomerDTO> {
     private BCryptPasswordEncoder encoder;
 
     @Override
-    public List<CustomerDTO> getAll() {
-        List<CustomerDTO> customers = new ArrayList<>();
+    public List<CustomerResponseDTO> getAll() {
+        List<CustomerResponseDTO> customers = new ArrayList<>();
 
         repository.findAll()
-                .forEach(c -> customers.add(CustomerMapper.toDTO(c)));
+                .forEach(c -> customers.add(CustomerMapper.toResponseDTO(c)));
 
         return customers;
     }
@@ -51,13 +52,13 @@ public class CustomerService implements I_Service<CustomerDTO> {
 
     @Override
     public Optional<CustomerResponseDTO> create(CustomerDTO dto) {
-        boolean isValid = CustomerValidator.checkValidity(dto);
+//        boolean isValid = CustomerValidator.checkValidity(dto, repository);
+//
+//        if (!isValid)
+//            return Optional.empty();
 
-        if (!isValid)
-            return Optional.empty();
-
-        Customer saved = repository.save(CustomerMapper.toCustomer(dto));
-        authService.register(AuthMapper.toRegisterDTO(dto)); // inserting the customer into the users table
+        Customer saved = repository.save(CustomerMapper.toCustomer(dto, encoder));
+        // authService.register(AuthMapper.toRegisterDTO(dto), Roles.CUSTOMER); // inserting the customer into the users table
 
         return Optional.of(CustomerMapper.toResponseDTO(saved));
     }
@@ -67,8 +68,8 @@ public class CustomerService implements I_Service<CustomerDTO> {
         Optional<Customer> customerOptional = repository.findById(id);
 
 
-        if (customerOptional.isPresent() && CustomerValidator.checkValidity(updated)) {
-            Customer customerUpdated = repository.save(CustomerMapper.toCustomer(updated));
+        if (customerOptional.isPresent() && CustomerValidator.checkValidity(updated, repository)) {
+            Customer customerUpdated = repository.save(CustomerMapper.toCustomer(updated, encoder));
 
             return Optional.of(CustomerMapper.toResponseDTO(customerUpdated));
         }
@@ -84,5 +85,9 @@ public class CustomerService implements I_Service<CustomerDTO> {
         }
 
         return false;
+    }
+
+    public Optional<Customer> getByEmail(String email) {
+        return repository.findByEmail(email);
     }
 }

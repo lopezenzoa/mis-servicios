@@ -25,4 +25,6 @@ public interface ProviderRepository extends JpaRepository<Provider, Long> {
             @Param("email") String email,
             @Param("licenseNumber") String licenseNumber
     );
+
+    Optional<Provider> findByEmail(String email);
 }

@@ -35,7 +35,7 @@ public class Customer {
     @Column(name = "phone_number", nullable = false, length = 40, unique = true)
     private String phoneNumber;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "credential_id")
     private Credentials credentials;
 
@@ -43,88 +43,8 @@ public class Customer {
     private List<Review> reviews;
 
     @OneToOne(mappedBy = "customer")
-    private FavoritesList favorites;
+    private Favorites favorites;
 
     @OneToMany(mappedBy = "customer")
     private List<Call> calls;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public Credentials getCredentials() {
-        return credentials;
-    }
-
-    public void setCredentials(Credentials credentials) {
-        this.credentials = credentials;
-    }
-
-    public List<Review> getReviews() {
-        return reviews;
-    }
-
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
-    }
-
-    public FavoritesList getFavorites() {
-        return favorites;
-    }
-
-    public void setFavorites(FavoritesList favorites) {
-        this.favorites = favorites;
-    }
-
-    public List<Call> getCalls() {
-        return calls;
-    }
-
-    public void setCalls(List<Call> calls) {
-        this.calls = calls;
-    }
 }

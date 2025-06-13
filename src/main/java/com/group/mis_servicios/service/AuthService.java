@@ -1,13 +1,15 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.enums.Roles;
+import com.group.mis_servicios.model.entity.Customer;
+import com.group.mis_servicios.model.entity.Provider;
+import com.group.mis_servicios.model.enums.Roles;
+import com.group.mis_servicios.model.repository.CustomerRepository;
+import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.service.validators.AuthValidator;
 import com.group.mis_servicios.view.dto.LoginDTO;
 import com.group.mis_servicios.view.dto.RegisterDTO;
 import com.group.mis_servicios.model.entity.Credentials;
-import com.group.mis_servicios.model.entity.User;
 import com.group.mis_servicios.model.repository.CredentialsRepository;
-import com.group.mis_servicios.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,35 +20,45 @@ import java.util.Optional;
 
 @Service
 public class AuthService {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired private CredentialsRepository credentialsRepository;
+    @Autowired private CustomerRepository customerRepo;
+    @Autowired private ProviderRepository providerRepo;
+    @Autowired private CredentialsRepository credsRepo;
     @Autowired private BCryptPasswordEncoder encoder; // to encrypt the password
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public void register(RegisterDTO dto) {
-        boolean isValid = AuthValidator.checkRegisterValidity(dto);
+    public void register(RegisterDTO dto, Roles role) {
+        boolean isValid = AuthValidator.checkRegisterValidity(dto, credsRepo);
+
+        System.out.println(isValid);
 
         if (isValid) {
-            User user = new User();
-            Credentials credentials = new Credentials();
+            Credentials creds = new Credentials();
 
-            user.setFirstName(dto.getFirstName());
-            user.setLastName(dto.getLastName());
-            user.setEmail(dto.getEmail());
-            user.setAddress(dto.getAddress());
-            user.setPhoneNumber(dto.getPhoneNumber());
+            creds.setUsername(dto.getUsername());
+            creds.setPassword(encoder.encode(dto.getPassword()));
+            creds.setRole(role); // this param is sent in the customer/provider service
 
-            credentials.setUsername(dto.getUsername());
-            credentials.setPassword(encoder.encode(dto.getPassword()));
-            credentials.setRole(Roles.USER);
-            credentials.setUser(user);
+            System.out.println(creds);
 
-            user.setCredentials(credentials);
+            if (role.equals(Roles.CUSTOMER)) {
+                Optional<Customer> customerOpt = customerRepo.findByEmail(dto.getEmail());
 
-            userRepository.save(user);
+                if (customerOpt.isPresent()) {
+                    creds.setCustomer(customerOpt.get());
+                    customerOpt.get().setCredentials(creds);
+                    credsRepo.save(creds);
+                }
+            } else {
+                Optional<Provider> providerOpt = providerRepo.findByEmail(dto.getEmail());
+
+                if (providerOpt.isPresent()) {
+                    creds.setProvider(providerOpt.get());
+                    providerOpt.get().setCredentials(creds);
+                    credsRepo.save(creds);
+                }
+            }
         }
     }
 
@@ -55,20 +67,8 @@ public class AuthService {
         String password = dto.getPassword();
 
         // by this way, the user can log in with your email or username
-        Optional<User> userOpt = identifier.contains("@") ?
-                userRepository.findByEmail(identifier) :
-                userRepository.findByCredentials(credentialsRepository.findByUsername(identifier).get());
+        Optional<Credentials> credsOpt = credsRepo.findByUsername(identifier);
 
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            return passwordEncoder.matches(password, user.getCredentials().getPassword());
-        }
-
-        return false;
-    }
-
-
-    public List<User> getAuthUsers() {
-        return userRepository.findAll();
+        return credsOpt.filter(credentials -> passwordEncoder.matches(password, credentials.getPassword())).isPresent();
     }
 }

@@ -11,21 +11,5 @@ import java.util.List;
 @NoArgsConstructor
 public class ProviderResponseDTO extends UserResponseDTO {
     private String licenseNumber;
-    private List<String> facilities;
-
-    public String getLicenseNumber() {
-        return licenseNumber;
-    }
-
-    public void setLicenseNumber(String licenseNumber) {
-        this.licenseNumber = licenseNumber;
-    }
-
-    public List<String> getFacilities() {
-        return facilities;
-    }
-
-    public void setFacilities(List<String> facilities) {
-        this.facilities = facilities;
-    }
+    private String facility;
 }

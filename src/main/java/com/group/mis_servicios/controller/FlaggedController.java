@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/flagged-providers")
-public class FlaggedProviderController {
+public class FlaggedController {
     @Autowired
     private FlaggedProviderService flaggedProviderService;
 

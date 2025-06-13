@@ -1,7 +1,9 @@
 package com.group.mis_servicios.view.dto;
 
 import com.group.mis_servicios.model.enums.States;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class CallDTO {
+public class CallResponseDTO {
     private Long id;
 
     private String description;
@@ -23,10 +25,4 @@ public class CallDTO {
     private String address;
 
     private States state;
-
-    @Positive
-    private Long customerId;
-
-    @Positive
-    private Long providerId;
 }

@@ -2,9 +2,14 @@ package com.group.mis_servicios.service.mappers;
 
 import com.group.mis_servicios.model.entity.Credentials;
 import com.group.mis_servicios.model.entity.Customer;
+import com.group.mis_servicios.model.enums.Roles;
 import com.group.mis_servicios.model.repository.CredentialsRepository;
 import com.group.mis_servicios.view.dto.CustomerDTO;
 import com.group.mis_servicios.view.dto.CustomerResponseDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.ArrayList;
 
 public class CustomerMapper {
     private static CredentialsRepository credentialsRepo;
@@ -23,16 +28,17 @@ public class CustomerMapper {
         return dto;
     }
 
-    public static Customer toCustomer(CustomerDTO dto) {
+    public static Customer toCustomer(CustomerDTO dto, BCryptPasswordEncoder encoder) {
         Customer customer = new Customer();
         Credentials credentials = new Credentials();
 
         credentials.setUsername(dto.getUsername());
-        credentials.setPassword(dto.getPassword());
+        credentials.setPassword(encoder.encode(dto.getPassword()));
+        credentials.setRole(Roles.CUSTOMER);
 
-        Credentials saved = credentialsRepo.save(credentials);
+        // Credentials saved = credentialsRepo.save(credentials);
 
-        customer.setCredentials(saved);
+        customer.setCredentials(credentials);
         customer.setFirstName(dto.getFirstName());
         customer.setLastName(dto.getLastName());
         customer.setEmail(dto.getEmail());
@@ -51,6 +57,8 @@ public class CustomerMapper {
         response.setEmail(customer.getEmail());
         response.setAddress(customer.getAddress());
         response.setPhoneNumber(customer.getPhoneNumber());
+        response.setReviews(customer.getReviews() == null ? new ArrayList<>() : ReviewMapper.toReviewDTOList(customer.getReviews()));
+        response.setCalls(customer.getCalls() == null ? new ArrayList<>() : CallMapper.toCallDTOList(customer.getCalls()));
 
         return response;
     }

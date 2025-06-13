@@ -16,20 +16,4 @@ public class ProviderToFavoritesDTO {
     @Positive
     @NotBlank(message = "The provider cannot be in blank")
     private Long providerId;
-
-    public Long getFavoritesListId() {
-        return favoritesListId;
-    }
-
-    public void setFavoritesListId(Long favoritesListId) {
-        this.favoritesListId = favoritesListId;
-    }
-
-    public Long getProviderId() {
-        return providerId;
-    }
-
-    public void setProviderId(Long providerId) {
-        this.providerId = providerId;
-    }
 }

@@ -1,13 +1,10 @@
 package com.group.mis_servicios.controller;
 
-import com.group.mis_servicios.model.entity.FavoritesList;
-import com.group.mis_servicios.view.dto.FavoritesResponseDTO;
 import com.group.mis_servicios.view.dto.ProviderToFavoritesDTO;
 import com.group.mis_servicios.view.dto.FavoritesDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import com.group.mis_servicios.service.FavoritesService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +19,7 @@ public class FavoritesController {
     private FavoritesService service;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createFavoritesList(@RequestBody FavoritesDTO dto) {
+    public ResponseEntity<?> create(@RequestBody FavoritesDTO dto) {
         service.create(dto);
 
         return ResponseEntity.ok()
@@ -55,7 +52,7 @@ public class FavoritesController {
 
     @DeleteMapping("/remove-provider")
     public ResponseEntity<?> removeProvider(@RequestBody ProviderToFavoritesDTO dto) {
-        Optional<FavoritesResponseDTO> listOptional = service.removeProviderFromFavorites(dto.getFavoritesListId(), dto.getProviderId());
+        Optional<FavoritesDTO> listOptional = service.removeProviderFromFavorites(dto.getFavoritesListId(), dto.getProviderId());
 
         if (listOptional.isPresent())
             return ResponseEntity.ok()
@@ -68,7 +65,7 @@ public class FavoritesController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteFavoritesList(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id) {
         boolean deleted = service.deleteFavoritesList(id);
 
         if (deleted) {

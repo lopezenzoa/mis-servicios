@@ -12,8 +12,8 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "favorites_list")
-public class FavoritesList {
+@Table(name = "favorites")
+public class Favorites {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "list_id", nullable = false)
@@ -30,47 +30,11 @@ public class FavoritesList {
     private Customer customer;
 
     // JPA automatically creates service_provider junction table
-    @OneToMany
-    @JoinColumn(name = "provider_id")
+    @ManyToMany
+    @JoinTable(
+            name = "favorites_provider",  // Nombre de la tabla intermedia
+            joinColumns = @JoinColumn(name = "list_id"),  // FK que referencia a la tabla Prestador
+            inverseJoinColumns = @JoinColumn(name = "provider_id")// FK que referencia a la tabla Servicio
+    )
     private List<Provider> providers;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public LocalDateTime getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
-
-    public List<Provider> getProviders() {
-        return providers;
-    }
-
-    public void setProviders(List<Provider> providers) {
-        this.providers = providers;
-    }
 }
