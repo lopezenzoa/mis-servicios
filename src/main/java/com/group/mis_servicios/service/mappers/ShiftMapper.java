@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public class ShiftMapper {
-    private static ProviderRepository providerRepository;
+    //private static ProviderRepository providerRepository;
 
     public static ShiftDTO toDTO(Shift shift) {
         ShiftDTO dto = new ShiftDTO();
@@ -21,7 +21,7 @@ public class ShiftMapper {
         return dto;
     }
 
-    public static Shift toShift(ShiftDTO dto) {
+    public static Shift toShift(ShiftDTO dto, ProviderRepository providerRepository) {
         Shift shift = new Shift();
         Optional<Provider> provider = providerRepository.findById(dto.getProviderId());
 

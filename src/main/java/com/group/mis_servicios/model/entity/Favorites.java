@@ -26,7 +26,8 @@ public class Favorites {
     private LocalDateTime creationDate;
 
     @OneToOne
-    @JoinColumn(name = "customer_id", insertable = false, updatable = false)
+    //@JoinColumn(name = "customer_id", insertable = false, updatable = false)  //Esto hace que no se pueda persistir correctamente la relación con el Customer
+    @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
     // JPA automatically creates service_provider junction table

@@ -1,17 +1,17 @@
 package com.group.mis_servicios.service;
 
+import com.group.mis_servicios.model.entity.Provider;
 import com.group.mis_servicios.model.repository.CredentialsRepository;
+import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.service.mappers.ProviderMapper;
 import com.group.mis_servicios.service.validators.ProviderValidator;
 import com.group.mis_servicios.view.dto.ProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
-import com.group.mis_servicios.model.entity.Provider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.group.mis_servicios.model.repository.ProviderRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,10 +45,10 @@ public class ProviderService implements I_Service<ProviderDTO> {
 
     @Override
     public Optional<ProviderResponseDTO> create(ProviderDTO dto) {
-//        boolean isValid = ProviderValidator.checkValidity(dto, repository);
-//
-//        if (!isValid)
-//            return Optional.empty();
+       boolean isValid = ProviderValidator.checkValidity(dto, repository);
+
+        if (!isValid)
+            return Optional.empty();
 
         Provider provider = repository.save(ProviderMapper.toProvider(dto, encoder));
 

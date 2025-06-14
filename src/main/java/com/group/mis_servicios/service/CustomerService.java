@@ -1,13 +1,10 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.model.enums.Roles;
-import com.group.mis_servicios.service.mappers.AuthMapper;
-import com.group.mis_servicios.service.mappers.CustomerMapper;
-import com.group.mis_servicios.model.repository.CredentialsRepository;
-import com.group.mis_servicios.service.validators.CustomerValidator;
-import com.group.mis_servicios.view.dto.CustomerDTO;
 import com.group.mis_servicios.model.entity.Customer;
 import com.group.mis_servicios.model.repository.CustomerRepository;
+import com.group.mis_servicios.service.mappers.CustomerMapper;
+import com.group.mis_servicios.service.validators.CustomerValidator;
+import com.group.mis_servicios.view.dto.CustomerDTO;
 import com.group.mis_servicios.view.dto.CustomerResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -52,10 +49,10 @@ public class CustomerService implements I_Service<CustomerDTO> {
 
     @Override
     public Optional<CustomerResponseDTO> create(CustomerDTO dto) {
-//        boolean isValid = CustomerValidator.checkValidity(dto, repository);
-//
-//        if (!isValid)
-//            return Optional.empty();
+       boolean isValid = CustomerValidator.checkValidity(dto, repository);
+
+        if (!isValid)
+            return Optional.empty();
 
         Customer saved = repository.save(CustomerMapper.toCustomer(dto, encoder));
         // authService.register(AuthMapper.toRegisterDTO(dto), Roles.CUSTOMER); // inserting the customer into the users table

@@ -1,7 +1,10 @@
 package com.group.mis_servicios.view.dto;
 
 import com.group.mis_servicios.model.enums.States;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,7 +25,9 @@ public class CallDTO {
     @NotBlank(message = "The address cannot be in blank")
     private String address;
 
+    @NotNull(message = "The state must not be null")
     private States state;
+
 
     @Positive
     private Long customerId;
