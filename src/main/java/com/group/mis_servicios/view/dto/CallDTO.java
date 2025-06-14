@@ -22,6 +22,7 @@ public class CallDTO {
     @Future(message = "The date must be in the future")
     private LocalDateTime date;
 
+    
     @NotBlank(message = "The address cannot be in blank")
     private String address;
 
