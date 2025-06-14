@@ -3,6 +3,7 @@ package com.group.mis_servicios.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,6 +15,7 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
             http
+                    .cors(Customizer.withDefaults())
                     .csrf(csrf -> csrf.disable())
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/auth/register", "/auth/login").permitAll()
@@ -27,6 +29,7 @@ public class SecurityConfig {
                             .requestMatchers("/favorites-lists/**").permitAll()
                             .requestMatchers("/favorites-lists/add-provider").permitAll()
                             .requestMatchers("/flagged-providers/**").permitAll()
+                            .requestMatchers("/categorias/**").permitAll()
                             .anyRequest().authenticated()
                     );
 
@@ -37,6 +40,7 @@ public class SecurityConfig {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     }
 
 
