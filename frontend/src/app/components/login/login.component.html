@@ -8,8 +8,8 @@
     <div *ngIf="mostrarLogin">
       <h2>Iniciar Sesión</h2>
       <form (ngSubmit)="handleLoginSubmit()">
-        <label>Correo electrónico</label>
-        <input type="email" [(ngModel)]="loginData.email" name="loginEmail" required />
+        <label>Nombre de Usuario</label>
+        <input type="text" [(ngModel)]="loginData.username" name="loginEmail" required />
 
         <label>Contraseña</label>
         <input type="password" [(ngModel)]="loginData.password" name="loginPassword" required />
@@ -86,6 +86,13 @@
                style="width: 100%;" />
 
         <div *ngIf="registroData.role === 'PROVEEDOR'">
+          <label>Numero de Licencia</label>
+          <br>
+          <br>
+          <input type="licenseNumber" [(ngModel)]="registroData.licenseNumber" name="licenseNumber" required />
+          <br>
+          <br>
+
           <label for="descripcion">Descripción breve</label>
           <textarea id="descripcion"
                     [(ngModel)]="registroData.descripcion"

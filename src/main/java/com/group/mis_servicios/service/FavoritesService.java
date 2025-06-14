@@ -1,24 +1,24 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.view.dto.FavoritesDTO;
-import com.group.mis_servicios.view.dto.FavoritesResponseDTO;
 import com.group.mis_servicios.model.entity.Customer;
-import com.group.mis_servicios.view.dto.ProviderResponseDTO;
-import com.group.mis_servicios.model.entity.FavoritesList;
+import com.group.mis_servicios.model.entity.Favorites;
 import com.group.mis_servicios.model.entity.Provider;
 import com.group.mis_servicios.model.repository.CustomerRepository;
 import com.group.mis_servicios.model.repository.FavoritesRepository;
 import com.group.mis_servicios.model.repository.ProviderRepository;
+import com.group.mis_servicios.service.mappers.FavoritesMapper;
+import com.group.mis_servicios.service.mappers.ProviderMapper;
+import com.group.mis_servicios.service.validators.FavoritesValidator;
+import com.group.mis_servicios.view.dto.FavoritesDTO;
+import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class FavoritesService {
-
+public class FavoritesService implements I_Service<FavoritesDTO> {
     @Autowired
     private FavoritesRepository favoritesListRepository;
 
@@ -28,34 +28,44 @@ public class FavoritesService {
     @Autowired
     private ProviderRepository providerRepository;
 
+    @Override
+    public List<FavoritesDTO> getAll() {
+        return null;
+    }
+
+    @Override
+    public Optional<FavoritesDTO> getById(Long id) {
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<FavoritesDTO> create(FavoritesDTO favoritesDTO) {
         Optional<Customer> customerOpt = customerRepository.findById(favoritesDTO.getCustomerId());
-        
-        if (customerOpt.isEmpty() || checkValidity(favoritesDTO))
+
+        if (customerOpt.isEmpty() || !FavoritesValidator.checkValidity(favoritesDTO, favoritesListRepository)) {
             return Optional.empty();
+        }
 
-        FavoritesList saved = favoritesListRepository.save(listMapper(favoritesDTO));
+        Favorites saved = favoritesListRepository.save(
+                FavoritesMapper.toFavoritesList(favoritesDTO, customerRepository)
+        );
 
-        return Optional.of(listMapper(saved));
-    }
-
-    private ProviderResponseDTO mapToProviderDTO(Provider provider) {
-        ProviderResponseDTO dto = new ProviderResponseDTO();
-
-        dto.setId(provider.getId());
-        dto.setFirstName(provider.getFirstName());
-        dto.setLastName(provider.getLastName());
-        dto.setEmail(provider.getEmail());
-        dto.setAddress(provider.getAddress());
-        dto.setLicenseNumber(provider.getLicenseNumber());
-        dto.setFacility(provider.getFacility().getName());
-
-        return dto;
+        return Optional.of(FavoritesMapper.toDTO(saved));
     }
 
 
-    public Optional<FavoritesResponseDTO> addProviderToFavorites(Long favoritesListId, Long providerId) {
-        Optional<FavoritesList> list = favoritesListRepository.findById(favoritesListId);
+    @Override
+    public Optional<?> update(Long id, FavoritesDTO newType) {
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean delete(Long id) {
+        return false;
+    }
+
+    public Optional<FavoritesDTO> addProviderToFavorites(Long favoritesListId, Long providerId) {
+        Optional<Favorites> list = favoritesListRepository.findById(favoritesListId);
         Optional<Provider> provider = providerRepository.findById(providerId);
 
         if (list.isEmpty() || provider.isEmpty())
@@ -64,15 +74,15 @@ public class FavoritesService {
         if (!list.get().getProviders().contains(provider.get()))
             list.get().getProviders().add(provider.get());
 
-        FavoritesList saved = favoritesListRepository.save(list.get());
+        Favorites saved = favoritesListRepository.save(list.get());
 
         // Conversión de providers a DTO response
         List<ProviderResponseDTO> providersDto = saved.getProviders().stream()
-                .map(this::mapToProviderDTO)
+                .map(ProviderMapper::toResponeDTO)
                 .toList();
 
         // Se crea y devuelve el DTO de la lista de favoritos
-        FavoritesResponseDTO dto = new FavoritesResponseDTO();
+        FavoritesDTO dto = new FavoritesDTO();
 
         dto.setId(saved.getId());
         dto.setTitle(saved.getTitle());
@@ -84,16 +94,16 @@ public class FavoritesService {
     }
 
     public Optional<List<ProviderResponseDTO>> getProvidersFromFavoritesList(Long favoritesListId) {
-        Optional<FavoritesList> list = favoritesListRepository.findById(favoritesListId);
+        Optional<Favorites> list = favoritesListRepository.findById(favoritesListId);
 
         return list.map(favoritesList -> favoritesList.getProviders()
                 .stream()
-                .map(this::mapToProviderDTO)
+                .map(ProviderMapper::toResponeDTO)
                 .toList());
     }
 
-    public Optional<FavoritesResponseDTO> removeProviderFromFavorites(Long favoritesListId, Long providerId) {
-        Optional<FavoritesList> list = favoritesListRepository.findById(favoritesListId);
+    public Optional<FavoritesDTO> removeProviderFromFavorites(Long favoritesListId, Long providerId) {
+        Optional<Favorites> list = favoritesListRepository.findById(favoritesListId);
         Optional<Provider> provider = providerRepository.findById(providerId);
 
         if (list.isEmpty() || provider.isEmpty())
@@ -101,9 +111,9 @@ public class FavoritesService {
 
         list.get().getProviders().remove(provider.get());
 
-        FavoritesList updatedList = favoritesListRepository.save(list.get());
+        Favorites updatedList = favoritesListRepository.save(list.get());
 
-        FavoritesResponseDTO dto = new FavoritesResponseDTO();
+        FavoritesDTO dto = new FavoritesDTO();
 
         dto.setId(updatedList.getId());
         dto.setTitle(updatedList.getTitle());
@@ -111,7 +121,7 @@ public class FavoritesService {
         dto.setCustomerId(updatedList.getCustomer().getId());
 
         List<ProviderResponseDTO> providerDTOs = updatedList.getProviders().stream()
-                .map(this::mapToProviderDTO)
+                .map(ProviderMapper::toResponeDTO)
                 .toList();
 
         dto.setProviders(providerDTOs);
@@ -120,7 +130,7 @@ public class FavoritesService {
     }
 
     public boolean deleteFavoritesList(Long id) {
-        Optional<FavoritesList> optionalList = favoritesListRepository.findById(id);
+        Optional<Favorites> optionalList = favoritesListRepository.findById(id);
 
         if (optionalList.isPresent()) {
             favoritesListRepository.deleteById(id);
@@ -128,38 +138,5 @@ public class FavoritesService {
         }
 
         return false;
-    }
-
-    private FavoritesList listMapper(FavoritesDTO dto) {
-        Customer customer = customerRepository.getReferenceById(dto.getCustomerId());
-
-        FavoritesList list = new FavoritesList();
-
-        list.setCustomer(customer);
-        list.setTitle(dto.getTitle());
-        list.setCreationDate(dto.getCreationDate());
-
-        return list;
-    }
-
-    private FavoritesDTO listMapper(FavoritesList list) {
-        FavoritesDTO dto = new FavoritesDTO();
-
-        dto.setTitle(list.getTitle());
-        dto.setCustomerId(list.getOwnerId());
-        dto.setCreationDate(list.getCreationDate());
-
-        return dto;
-    }
-
-    private boolean checkValidity(FavoritesDTO dto) {
-        // checking that the title is unique for the customer's list
-        boolean isTitleUnique = favoritesListRepository.findAll()
-                .stream()
-                .filter(l -> l.getCustomer().getId().equals(dto.getCustomerId()))
-                .anyMatch(l -> l.getTitle().equals(dto.getTitle()));
-
-
-        return !dto.getTitle().isBlank() && isTitleUnique;
     }
 }

@@ -1,7 +1,7 @@
 package com.group.mis_servicios.service;
 
 import com.group.mis_servicios.model.entity.Customer;
-import com.group.mis_servicios.model.entity.FlaggedProvider;
+import com.group.mis_servicios.model.entity.Flagged;
 import com.group.mis_servicios.model.entity.Provider;
 import com.group.mis_servicios.model.repository.CustomerRepository;
 import com.group.mis_servicios.model.repository.FlaggedProviderRepository;
@@ -41,7 +41,7 @@ public class FlaggedProviderService {
             throw new RuntimeException("Provider not found!");
         }
 
-        FlaggedProvider flagged = new FlaggedProvider();
+        Flagged flagged = new Flagged();
         flagged.setCustomer(customerOpt.get());
         flagged.setProvider(providerOpt.get());
         flagged.setReason(dto.getReason());
@@ -50,7 +50,7 @@ public class FlaggedProviderService {
     }
 
     public List<FlaggedProviderResponseDTO> getProviderFlags(Long providerId) {
-        List<FlaggedProvider> flags = flaggedProviderRepository.findByProviderId(providerId);
+        List<Flagged> flags = flaggedProviderRepository.findByProviderId(providerId);
 
         return flags.stream().map(f -> {
             FlaggedProviderResponseDTO dto = new FlaggedProviderResponseDTO();
@@ -59,7 +59,7 @@ public class FlaggedProviderService {
             dto.setProviderFirstName(f.getProvider().getFirstName());
             dto.setProviderLastName((f.getProvider().getLastName()));
             dto.setReason(f.getReason());
-            dto.setFecha(f.getReportDate());
+            dto.setDate(f.getReportDate());
             return dto;
         }).toList();
     }
