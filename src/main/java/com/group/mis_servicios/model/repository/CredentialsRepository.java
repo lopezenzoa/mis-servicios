@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface CredentialsRepository extends JpaRepository<Credentials, Long> {
     Optional<Credentials> findByUsername(String username);
+    boolean existsByUsername(String username);  // evitar usuarios duplicados por email
+
 }
