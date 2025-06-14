@@ -177,7 +177,7 @@ button:hover, button:focus {
   border-color: #764ba2;
 }
 
-/* Responsivo */
+
 @media (max-width: 480px) {
   main {
     padding: 24px 20px 36px;

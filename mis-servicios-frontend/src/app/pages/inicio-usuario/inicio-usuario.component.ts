@@ -27,30 +27,7 @@ export class InicioUsuarioComponent implements OnInit {
       description: 'Diseño y mantenimiento de jardines, trato amable y profesional.',
       contact: 'maria@example.com'
     },
-    {
-      name: 'Carlos Gómez',
-      service: 'Plomero',
-      description: 'Soluciones rápidas para cualquier problema de plomería en tu hogar.',
-      contact: 'carlos@example.com'
-    },
-    {
-      name: 'Ana Torres',
-      service: 'Pintor',
-      description: 'Pintura de interiores y exteriores con acabados impecables.',
-      contact: 'ana@example.com'
-    },
-    {
-      name: 'Luis Fernández',
-      service: 'Paseador de perros',
-      description: 'Cuido y paseo tu mascota con cariño y responsabilidad.',
-      contact: 'luis@example.com'
-    },
-    {
-      name: 'Sofía Martínez',
-      service: 'Limpieza',
-      description: 'Servicios de limpieza profesional para hogares y oficinas.',
-      contact: 'sofia@example.com'
-    }
+
   ];
 
   constructor() {}
@@ -62,7 +39,7 @@ export class InicioUsuarioComponent implements OnInit {
   filtrar(): void {
     this.prestadoresFiltrados = this.prestadores.filter(p => {
       const coincideServicio = this.filtroServicio ? p.service.toLowerCase() === this.filtroServicio.toLowerCase() : true;
-      const coincideUbicacion = this.filtroUbicacion ? true : true; // Se puede mejorar si se usa backend con ubicación
+      const coincideUbicacion = this.filtroUbicacion ? true : true;
       return coincideServicio && coincideUbicacion;
     });
   }

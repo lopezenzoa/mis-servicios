@@ -12,7 +12,6 @@ import { RouterModule, Router } from '@angular/router';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent implements OnInit {
-  // Campos comunes
   firstName = '';
   lastName = '';
   email = '';
