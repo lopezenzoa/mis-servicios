@@ -3,16 +3,14 @@ package com.group.mis_servicios.service.mappers;
 import com.group.mis_servicios.model.entity.Credentials;
 import com.group.mis_servicios.model.entity.Customer;
 import com.group.mis_servicios.model.enums.Roles;
-import com.group.mis_servicios.model.repository.CredentialsRepository;
 import com.group.mis_servicios.view.dto.CustomerDTO;
 import com.group.mis_servicios.view.dto.CustomerResponseDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.ArrayList;
 
 public class CustomerMapper {
-    private static CredentialsRepository credentialsRepo;
+    // private static CredentialsRepository credentialsRepo;  ////no irian porque no funciona en clases estáticas sin @Component, y nunca se inyectan
 
     public static CustomerDTO toDTO(Customer customer) {
         CustomerDTO dto = new CustomerDTO();

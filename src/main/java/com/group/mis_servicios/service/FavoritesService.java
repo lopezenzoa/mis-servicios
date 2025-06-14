@@ -1,16 +1,16 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.service.mappers.FavoritesMapper;
-import com.group.mis_servicios.service.mappers.ProviderMapper;
-import com.group.mis_servicios.service.validators.FavoritesValidator;
-import com.group.mis_servicios.view.dto.FavoritesDTO;
 import com.group.mis_servicios.model.entity.Customer;
-import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import com.group.mis_servicios.model.entity.Favorites;
 import com.group.mis_servicios.model.entity.Provider;
 import com.group.mis_servicios.model.repository.CustomerRepository;
 import com.group.mis_servicios.model.repository.FavoritesRepository;
 import com.group.mis_servicios.model.repository.ProviderRepository;
+import com.group.mis_servicios.service.mappers.FavoritesMapper;
+import com.group.mis_servicios.service.mappers.ProviderMapper;
+import com.group.mis_servicios.service.validators.FavoritesValidator;
+import com.group.mis_servicios.view.dto.FavoritesDTO;
+import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,13 +42,17 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
     public Optional<FavoritesDTO> create(FavoritesDTO favoritesDTO) {
         Optional<Customer> customerOpt = customerRepository.findById(favoritesDTO.getCustomerId());
 
-        if (customerOpt.isEmpty() || FavoritesValidator.checkValidity(favoritesDTO))
+        if (customerOpt.isEmpty() || !FavoritesValidator.checkValidity(favoritesDTO, favoritesListRepository)) {
             return Optional.empty();
+        }
 
-        Favorites saved = favoritesListRepository.save(FavoritesMapper.toFavoritesList(favoritesDTO));
+        Favorites saved = favoritesListRepository.save(
+                FavoritesMapper.toFavoritesList(favoritesDTO, customerRepository)
+        );
 
         return Optional.of(FavoritesMapper.toDTO(saved));
     }
+
 
     @Override
     public Optional<?> update(Long id, FavoritesDTO newType) {

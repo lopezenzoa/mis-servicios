@@ -1,7 +1,9 @@
 package com.group.mis_servicios.model.entity;
 
+import com.group.mis_servicios.model.enums.States;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +21,7 @@ public class Call {
     @Column(name = "call_id", nullable = false)
     private Long id;
 
+    @NotBlank
     @Column(length = 255)
     private String description;
 
@@ -26,14 +29,18 @@ public class Call {
     @Future(message = "The date must be in the future")
     private LocalDateTime date;
 
+    @NotBlank
     @Column(length = 40, nullable = false)
     private String address;
 
-    @Column(length = 15, nullable = false)
-    private String state;
+    @NotBlank
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    private States state;
+
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", updatable = false)
+    @JoinColumn(name = "customer_id", nullable = false, updatable = false)
     private Customer customer;
 
     @ManyToOne

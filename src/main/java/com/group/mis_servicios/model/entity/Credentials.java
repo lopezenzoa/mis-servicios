@@ -2,6 +2,7 @@ package com.group.mis_servicios.model.entity;
 
 import com.group.mis_servicios.model.enums.Roles;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,11 +15,14 @@ import lombok.Setter;
 public class Credentials {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "credential_id", nullable = false)
-    private Long id;
+    @Column(name = "credential_id")
+    private Long credentialId;
 
-    @Column(length = 20, nullable = false, unique = true)
+    @NotBlank
+    @Column(length = 100, nullable = false, unique = true)
     private String username;
+
+    @NotBlank
     @Column(length = 100, nullable = false)
     private String password;
 

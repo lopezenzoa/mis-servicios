@@ -1,6 +1,5 @@
 package com.group.mis_servicios.service.mappers;
 
-import com.group.mis_servicios.model.enums.States;
 import com.group.mis_servicios.model.entity.Call;
 import com.group.mis_servicios.model.entity.Customer;
 import com.group.mis_servicios.model.entity.Provider;
@@ -12,11 +11,10 @@ import com.group.mis_servicios.view.dto.CallResponseDTO;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class CallMapper {
-    private static CustomerRepository customerRepo;
-    private static ProviderRepository providerRepo;
+    //private static CustomerRepository customerRepo;
+    //private static ProviderRepository providerRepo;    //no irian porque no funciona en clases estáticas sin @Component, y nunca se inyectan
 
     public static CallDTO toDTO(Call call) {
         CallDTO callDTO = new CallDTO();
@@ -25,7 +23,8 @@ public class CallMapper {
         callDTO.setDescription(call.getDescription());
         callDTO.setAddress(call.getAddress());
         callDTO.setDate(call.getDate());
-        callDTO.setState(States.valueOf(call.getState()));
+        callDTO.setState(call.getState());
+
 //        callDTO.setCustomerId(call.getCustomerId());
 //        callDTO.setProviderId(call.getProviderId());
 
@@ -39,7 +38,7 @@ public class CallMapper {
         callDTO.setDescription(call.getDescription());
         callDTO.setAddress(call.getAddress());
         callDTO.setDate(call.getDate());
-        callDTO.setState(States.valueOf(call.getState()));
+        callDTO.setState(call.getState());
 
         return callDTO;
     }
@@ -64,7 +63,7 @@ public class CallMapper {
             call.setDescription(callDTO.getDescription());
             call.setAddress(callDTO.getAddress());
             call.setDate(callDTO.getDate());
-            call.setState(callDTO.getState().toString());
+            call.setState(callDTO.getState());
             call.setCustomer(customerOpt.get());
             call.setProvider(providerOpt.get());
         }
