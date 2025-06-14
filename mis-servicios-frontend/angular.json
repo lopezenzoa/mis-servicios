@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "frontend-servicios": {
+    "mis-servicios-frontend": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/frontend-servicios",
+            "outputPath": "dist/mis-servicios-frontend",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -29,7 +29,12 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "server": "src/main.server.ts",
+            "outputMode": "server",
+            "ssr": {
+              "entry": "src/server.ts"
+            }
           },
           "configurations": {
             "production": {
@@ -59,10 +64,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "frontend-servicios:build:production"
+              "buildTarget": "mis-servicios-frontend:build:production"
             },
             "development": {
-              "buildTarget": "frontend-servicios:build:development"
+              "buildTarget": "mis-servicios-frontend:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -94,6 +99,6 @@
     }
   },
   "cli": {
-    "analytics": false
+    "analytics": "64237564-1d30-473a-a6f1-6c7695c8c91b"
   }
 }
