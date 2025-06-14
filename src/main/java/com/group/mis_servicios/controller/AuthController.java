@@ -25,7 +25,7 @@ public class AuthController {
         if (success) {
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
-                    .body("Logged in successfully!");
+                    .body(Map.of("message", "Logged in successfully!"));
         }
 
         return ResponseEntity.status(401)
