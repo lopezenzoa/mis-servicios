@@ -15,7 +15,7 @@ export class LoginComponent implements OnInit {
   mostrarLogin = true;
 
   loginData = {
-    email: '',
+    username: '',
     password: ''
   };
 
@@ -30,7 +30,8 @@ registroData = {
   categoria: '',
   descripcion: '',
   phoneNumber: '',
-  address: ''
+  address: '',
+  licenseNumber: ''
 };
 registroErrores: { [key: string]: string } = {};
 
@@ -49,19 +50,19 @@ ngOnInit() {
 }
 
   handleLoginSubmit() {
-    const { email, password } = this.loginData;
+    const { username, password } = this.loginData;
 
-    if (!email || !password) {
+    if (!username || !password) {
       alert('Por favor, completa todos los campos.');
       return;
     }
 
     this.http.post<any>('http://localhost:8080/auth/login', {
-      identifier: email,
+      identifier: username,
       password: password
     }).subscribe({
       next: res => {
-        localStorage.setItem('token', res.token);
+       // localStorage.setItem('token', res.token);
         alert('Inicio de sesión exitoso.');
       },
       error: err => alert('Error al iniciar sesión.')
@@ -69,9 +70,9 @@ ngOnInit() {
   }
 
  handleRegisterSubmit() {
-   const { role, nombre, apellido, email, password, confirmPassword, categoria, descripcion, username, phoneNumber, address } = this.registroData;
+   const { role, nombre, apellido, email, password, confirmPassword, categoria, descripcion, username, phoneNumber, address, licenseNumber } = this.registroData;
 
-   if (!nombre || !apellido || !email || !password || !confirmPassword || !username || !phoneNumber || !address) {
+   if (!nombre || !apellido || !email || !password || !confirmPassword || !username || !phoneNumber || !address || !licenseNumber) {
      alert('Por favor, completa todos los campos.');
      return;
    }
@@ -81,43 +82,72 @@ ngOnInit() {
      return;
    }
 
-   const body: any = {
-     firstName: nombre,
-     lastName: apellido,
-     username,
-     email,
-     address,
-     phoneNumber,
-     password,
-     role
-   };
-
    if (role === 'PROVEEDOR') {
      if (!categoria || !descripcion) {
        alert('Todos los campos son obligatorios para prestadores de servicio.');
        return;
      }
 
+   const body: any = {
+        firstName: nombre,
+        lastName: apellido,
+        username,
+        email,
+        address,
+        phoneNumber,
+        password,
+        role,
+        licenseNumber,
+        facility: categoria
+      };
+
      body.descripcion = descripcion;
      body.categoria = categoria;
-   }
 
-   this.http.post('http://localhost:8080/auth/register', body).subscribe({
-     next: () => {
-       alert('Registro exitoso.');
-       this.mostrarLogin = true;
-     },
-     error: err => {
-       this.registroErrores = {};
+     this.http.post('http://localhost:8080/providers/register', body).subscribe({
+          next: () => {
+            alert('Registro exitoso.');
+            this.mostrarLogin = true;
+          },
+          error: err => {
+            this.registroErrores = {};
 
-       if (err.status === 400 && err.error) {
-         this.registroErrores = err.error;
-       } else {
-           this.registroErrores['general'] = "Error al registrarse.";
-         }
+            if (err.status === 400 && err.error) {
+              this.registroErrores = err.error;
+            } else {
+                this.registroErrores['general'] = "Error al registrarse.";
+              }
 
+          }
+        });
+   } else {
+        const body: any = {
+             firstName: nombre,
+             lastName: apellido,
+             username,
+             email,
+             address,
+             phoneNumber,
+             password,
+             role
+           };
+
+     this.http.post('http://localhost:8080/customers/register', body).subscribe({
+               next: () => {
+                 alert('Registro exitoso.');
+                 this.mostrarLogin = true;
+               },
+               error: err => {
+                 this.registroErrores = {};
+
+                 if (err.status === 400 && err.error) {
+                   this.registroErrores = err.error;
+                 } else {
+                     this.registroErrores['general'] = "Error al registrarse.";
+                   }
+
+               }
+             });
      }
-   });
-
  }
 }

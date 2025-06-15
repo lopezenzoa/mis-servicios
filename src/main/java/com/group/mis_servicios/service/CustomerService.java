@@ -1,10 +1,10 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.model.entity.Credentials;
-import com.group.mis_servicios.model.repository.CredentialsRepository;
-import com.group.mis_servicios.view.dto.CustomerDTO;
 import com.group.mis_servicios.model.entity.Customer;
 import com.group.mis_servicios.model.repository.CustomerRepository;
+import com.group.mis_servicios.service.mappers.CustomerMapper;
+import com.group.mis_servicios.service.validators.CustomerValidator;
+import com.group.mis_servicios.view.dto.CustomerDTO;
 import com.group.mis_servicios.view.dto.CustomerResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,125 +15,76 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CustomerService {
+public class CustomerService implements I_Service<CustomerDTO> {
     @Autowired
     private CustomerRepository repository;
     @Autowired
-    private CredentialsRepository credentialsRepository;
+    private AuthService authService;
 
     @Autowired
     private BCryptPasswordEncoder encoder;
 
-    public Optional<CustomerResponseDTO> create(CustomerDTO dto) {
-        boolean isValid = checkValidity(dto);
-
-        if (!isValid)
-            return Optional.empty();
-
-        Customer saved = repository.save(customerMapper(dto));
-
-        return Optional.of(customerResponseMapper(saved));
-    }
-
-    public List<CustomerDTO> getAll() {
-        List<CustomerDTO> customers = new ArrayList<>();
+    @Override
+    public List<CustomerResponseDTO> getAll() {
+        List<CustomerResponseDTO> customers = new ArrayList<>();
 
         repository.findAll()
-                .forEach(c -> customers.add(customerMapper(c)));
+                .forEach(c -> customers.add(CustomerMapper.toResponseDTO(c)));
 
         return customers;
     }
 
+    @Override
     public Optional<CustomerDTO> getById(Long id) {
         Optional<Customer> customerOptional = repository.findById(id);
 
         if (customerOptional.isPresent()) {
             Customer customer = customerOptional.get();
 
-            return Optional.of(customerMapper(customer));
+            return Optional.of(CustomerMapper.toDTO(customer));
         }
 
         return Optional.empty();
     }
 
+    @Override
+    public Optional<CustomerResponseDTO> create(CustomerDTO dto) {
+       boolean isValid = CustomerValidator.checkValidity(dto, repository);
+
+        if (!isValid)
+            return Optional.empty();
+
+        Customer saved = repository.save(CustomerMapper.toCustomer(dto, encoder));
+        // authService.register(AuthMapper.toRegisterDTO(dto), Roles.CUSTOMER); // inserting the customer into the users table
+
+        return Optional.of(CustomerMapper.toResponseDTO(saved));
+    }
+
+    @Override
     public Optional<CustomerResponseDTO> update(Long id, CustomerDTO updated) {
         Optional<Customer> customerOptional = repository.findById(id);
 
 
-        if (customerOptional.isPresent() && checkValidity(updated)) {
-            Customer customerUpdated = repository.save(customerMapper(updated));
+        if (customerOptional.isPresent() && CustomerValidator.checkValidity(updated, repository)) {
+            Customer customerUpdated = repository.save(CustomerMapper.toCustomer(updated, encoder));
 
-            return Optional.of(customerResponseMapper(customerUpdated));
+            return Optional.of(CustomerMapper.toResponseDTO(customerUpdated));
         }
 
         return Optional.empty();
     }
 
-    private CustomerDTO customerMapper(Customer customer) {
-        CustomerDTO dto = new CustomerDTO();
+    @Override
+    public boolean delete(Long id) {
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return true;
+        }
 
-        dto.setUsername(customer.getCredentials().getUsername());
-        dto.setPassword(customer.getCredentials().getPassword());
-        dto.setFirstName(customer.getFirstName());
-        dto.setLastName(customer.getLastName());
-        dto.setEmail(customer.getEmail());
-        dto.setAddress(customer.getAddress());
-
-        return dto;
+        return false;
     }
 
-    private Customer customerMapper(CustomerDTO dto) {
-        Customer customer = new Customer();
-        Credentials credentials = new Credentials();
-
-        credentials.setUsername(dto.getUsername());
-        credentials.setPassword(dto.getPassword());
-
-        Credentials saved = credentialsRepository.save(credentials);
-
-        customer.setCredentials(credentials);
-        customer.setCredentialsId(saved.getId());
-        customer.setFirstName(dto.getFirstName());
-        customer.setLastName(dto.getLastName());
-        customer.setEmail(dto.getEmail());
-        customer.setAddress(dto.getAddress());
-        customer.setPhoneNumber(dto.getPhoneNumber());
-
-        return customer;
-    }
-
-    private CustomerResponseDTO customerResponseMapper(Customer customer) {
-        CustomerResponseDTO response = new CustomerResponseDTO();
-
-        response.setId(customer.getId());
-        response.setFirstName(customer.getFirstName());
-        response.setLastName(customer.getLastName());
-        response.setEmail(customer.getEmail());
-        response.setAddress(customer.getAddress());
-        response.setPhoneNumber(customer.getPhoneNumber());
-
-        return response;
-    }
-
-    public boolean checkValidEmail(String email) {
-        return repository.findAll()
-                .stream()
-                .anyMatch(c -> c.getEmail().equals(email));
-    }
-
-    public boolean checkValidPhone(String phone) {
-        return repository.findAll()
-                .stream()
-                .anyMatch(c -> c.getPhoneNumber().equals(phone));
-    }
-
-    private boolean checkValidity(CustomerDTO dto) {
-        return !dto.getFirstName().isEmpty()
-                && !dto.getLastName().isEmpty()
-                && !checkValidPhone(dto.getPhoneNumber())
-                && !dto.getAddress().isEmpty()
-                && !checkValidEmail(dto.getEmail())
-                && !dto.getUsername().isEmpty()
-                && !dto.getPassword().isEmpty();
+    public Optional<Customer> getByEmail(String email) {
+        return repository.findByEmail(email);
     }
 }

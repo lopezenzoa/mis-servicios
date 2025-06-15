@@ -1,0 +1,244 @@
+/* Reset y box-sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background:
+        linear-gradient(135deg, #667eea, #764ba2);
+      color: #333;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+      background-image: url('data:image/svg+xml;utf8,<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke="%23e0d7fa" stroke-opacity="0.3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 100L40 90L60 100L80 90L100 100" /><circle cx="30" cy="30" r="12" /><path d="M48 24L54 18L60 24M15 80L23 72L31 80" /><rect x="80" y="10" width="15" height="30" rx="4" stroke="%23c5b4e3"/><path d="M20 40L40 40L40 60L20 60Z" /><path d="M85 90L105 90L105 110L85 110Z" /><path d="M60 50L70 60L60 70L50 60Z" /><circle cx="90" cy="90" r="10" /><path d="M75 20L85 10M85 20L95 10" /><circle cx="50" cy="100" r="5" /><circle cx="20" cy="70" r="4" /></g></svg>');
+      background-repeat: repeat;
+      background-size: 120px 120px;
+      min-height: 100vh;
+}
+main {
+      background: rgba(255 255 255 / 0.95);
+      max-width: 540px;
+      width: 100%;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      padding: 32px 32px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      backdrop-filter: saturate(180%) blur(12px);
+      -webkit-backdrop-filter: saturate(180%) blur(12px);
+}
+h1, h2, h3 {
+  margin: 0 0 16px 0;
+  font-weight: 700;
+}
+
+h1 {
+  font-size: 2.4rem;
+  color: #2a4365;
+}
+
+h2 {
+  font-size: 1.8rem;
+  color: #2d3748;
+}
+
+p {
+  margin-bottom: 24px;
+  color: #4a5568;
+  max-width: 500px;
+}
+
+/* Contenedor principal */
+main {
+  background: white;
+  max-width: 540px;
+  width: 100%;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+  padding: 32px 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Formularios */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+  color: #2d3748;
+  user-select: none;
+}
+
+input,
+select {
+  padding: 14px 16px;
+  font-size: 1rem;
+  border: 1.5px solid #cbd5e0;
+  border-radius: 12px;
+  transition: border-color 0.3s ease;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #4c51bf;
+  box-shadow: 0 0 8px rgba(76, 81, 191, 0.4);
+}
+
+/* Botón principal */
+button {
+  padding: 14px;
+  border: none;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  transition: background-color 0.3s ease;
+  user-select: none;
+}
+
+button:hover,
+button:focus {
+  background-color: #5a67d8;
+  outline: none;
+}
+
+/* Alternancia entre formularios */
+.toggle-forms {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #4a5568;
+  user-select: none;
+}
+
+.toggle-forms button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 4px;
+  color: #667eea;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.toggle-forms button:hover,
+.toggle-forms button:focus {
+  color: #764ba2;
+  outline: none;
+}
+
+/* Selector de rol */
+.role-select {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.role-radio {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.role-radio input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.custom-radio {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2.5px solid #667eea;
+  margin-right: 10px;
+  display: inline-block;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.role-radio input[type="radio"]:checked + .custom-radio {
+  background: #667eea;
+  border-color: #764ba2;
+}
+
+/* Mensajes de alerta */
+.alert {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.alert-error {
+  background-color: #fed7d7;
+  color: #9b2c2c;
+  border: 1.5px solid #f56565;
+}
+
+.alert-success {
+  background-color: #c6f6d5;
+  color: #276749;
+  border: 1.5px solid #38a169;
+}
+
+
+@media (max-width: 480px) {
+  main {
+    padding: 24px 20px 36px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+}
+.toggle-forms .register-link {
+  margin-left: 4px;
+  color: #667eea;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.toggle-forms .register-link:hover,
+.toggle-forms .register-link:focus {
+  color: #764ba2;
+  text-decoration: underline;
+}
+.link-router {
+  color: #764ba2;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.link-router:hover {
+  text-decoration: underline;
+}

@@ -20,18 +20,20 @@ public class CustomerController {
     private CustomerService service;
 
     @GetMapping("/")
-    public ResponseEntity<List<CustomerDTO>> getAll() {
+    public ResponseEntity<List<CustomerResponseDTO>> getAll() {
         return new ResponseEntity<>(service.getAll(), HttpStatus.OK);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<String> create(@RequestBody CustomerDTO dto) {
+    @PostMapping("/register")
+    public ResponseEntity<?> create(@RequestBody CustomerDTO dto) {
         service.create(dto);
-        return new ResponseEntity<>("The customer has been created successfully", HttpStatus.OK);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(Map.of("message", "The customer has been registered successfully!"));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> showProfile(@PathVariable Long id) {
+    public ResponseEntity<?> getById(@PathVariable Long id) {
         Optional<CustomerDTO> customerOptional = service.getById(id);
 
         if (customerOptional.isPresent()) {
@@ -46,7 +48,7 @@ public class CustomerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProfile(@PathVariable Long id, @RequestBody CustomerDTO dto) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody CustomerDTO dto) {
         Optional<CustomerResponseDTO> customerOptional = service.update(id, dto);
 
         if (customerOptional.isPresent())

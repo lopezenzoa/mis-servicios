@@ -1,0 +1,68 @@
+<main>
+  <h1>Bienvenido a Servicios de Confianza</h1>
+  <p>
+    Encuentra y contrata profesionales confiables o regístrate para brindar
+    servicios en tu zona, desde gasistas hasta paseadores de perros.
+  </p>
+  <h2> Registro </h2>
+  <form (ngSubmit)="onSubmit()">
+    <fieldset class="role-select">
+      <legend>Crear cuenta como:</legend>
+      <label class="role-radio">
+        <input type="radio" name="role" [(ngModel)]="rol" value="usuario" /> Usuario
+        <span class="custom-radio"></span>
+      </label>
+      <label class="role-radio">
+        <input type="radio" name="role" [(ngModel)]="rol" value="prestador" /> Prestador
+        <span class="custom-radio"></span>
+      </label>
+    </fieldset>
+
+    <label>Nombre</label>
+    <input type="text" [(ngModel)]="firstName" name="firstName" required>
+
+    <label>Apellido</label>
+    <input type="text" [(ngModel)]="lastName" name="lastName" required>
+
+    <label>Correo electrónico</label>
+    <input type="email" [(ngModel)]="email" name="email" required>
+
+    <label>Dirección</label>
+    <input type="text" [(ngModel)]="address" name="address" required>
+
+    <label>Teléfono</label>
+    <input type="text" [(ngModel)]="phoneNumber" name="phoneNumber" required>
+
+    <label>Nombre de usuario</label>
+    <input type="text" [(ngModel)]="username" name="username" required>
+
+    <label>Contraseña</label>
+    <input type="password" [(ngModel)]="password" name="password" required>
+
+    <label>Confirmar contraseña</label>
+    <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" required>
+    <div *ngIf="rol === 'prestador'" class="grupo-prestador">
+      <div class="form-group">
+        <label for="license">Número de Licencia</label>
+        <input id="license" name="licenseNumber" [(ngModel)]="licenseNumber" required />
+      </div>
+
+      <div class="form-group">
+        <label for="categoria">Categoría</label>
+        <select id="categoria" [(ngModel)]="categoriaSeleccionada" name="categoria" required>
+          <option value="" disabled selected>Seleccioná una categoría</option>
+          <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+        </select>
+
+      </div>
+
+
+    </div>
+
+
+    <button type="submit">Crear cuenta</button>
+    <p class="toggle-forms">
+    <a routerLink="/login">¿Ya tenés cuenta? Iniciar sesión</a>
+    </p>
+  </form>
+</main>

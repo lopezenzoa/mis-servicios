@@ -32,8 +32,8 @@ public class ProviderController {
     private String whatsappNumber;
 
     @GetMapping("/")
-    public ResponseEntity<List<ProviderDTO>> listAll() {
-        return ResponseEntity.ok(service.listAll());
+    public ResponseEntity<List<ProviderDTO>> getAll() {
+        return ResponseEntity.ok(service.getAll());
     }
 
     @GetMapping("/{id}")
@@ -65,7 +65,7 @@ public class ProviderController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProfile(@PathVariable Long id, @RequestBody ProviderDTO dto) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ProviderDTO dto) {
         Optional<ProviderResponseDTO> providerDTO = service.update(id, dto);
 
         if (providerDTO.isPresent())
@@ -78,7 +78,7 @@ public class ProviderController {
                 .body(Map.of("message", "The provider hasn't been found"));
     }
 
-    @PostMapping("/create")
+    @PostMapping("/register")
     public ResponseEntity<?> create(@RequestBody ProviderDTO dto) {
         service.create(dto);
         return ResponseEntity.ok()
@@ -86,14 +86,14 @@ public class ProviderController {
                 .body(Map.of("message", "The provider has been registered successfully!"));
     }
 
-    @GetMapping("/facility/{facilityName}")
-    public ResponseEntity<?> getByFacility(@PathVariable String facilityName) {
-        List<ProviderDTO> providerDTOS = service.filterByFacility(facilityName);
-
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json")
-                .body(providerDTOS);
-    }
+//    @GetMapping("/facility/{facilityName}")
+//    public ResponseEntity<?> getByFacility(@PathVariable String facilityName) {
+//        List<ProviderDTO> providerDTOS = service.filterByFacility(facilityName);
+//
+//        return ResponseEntity.ok()
+//                .header("Content-Type", "application/json")
+//                .body(providerDTOS);
+//    }
 
     @GetMapping("/search")
     public ResponseEntity<List<ProviderResponseDTO>> buscar(
@@ -105,19 +105,19 @@ public class ProviderController {
         return ResponseEntity.ok(service.filterByCriterios(firstName, lastName, email, licenseNumber));
     }
 
-    @PostMapping("/add-facility")
-    public ResponseEntity<?> addFacilityToProvider(@RequestBody FacilityToProviderDTO dto) {
-        boolean added = service.addFacility(dto.getProviderId(), dto.getFacilityId());
-
-        if (added)
-            return ResponseEntity.ok()
-                    .header("Content-Type", "application/json")
-                    .body(Map.of("message", "The facility has been added to the provider successfully!"));
-
-        return ResponseEntity.status(404)
-                .header("Content-Type", "application/json")
-                .body(Map.of("message", "The provider hasn't been found"));
-    }
+//    @PostMapping("/add-facility")
+//    public ResponseEntity<?> addFacilityToProvider(@RequestBody FacilityToProviderDTO dto) {
+//        boolean added = service.addFacility(dto.getProviderId(), dto.getFacilityId());
+//
+//        if (added)
+//            return ResponseEntity.ok()
+//                    .header("Content-Type", "application/json")
+//                    .body(Map.of("message", "The facility has been added to the provider successfully!"));
+//
+//        return ResponseEntity.status(404)
+//                .header("Content-Type", "application/json")
+//                .body(Map.of("message", "The provider hasn't been found"));
+//    }
 
 
     @GetMapping("/page")

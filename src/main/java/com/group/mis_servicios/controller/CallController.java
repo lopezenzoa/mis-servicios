@@ -2,6 +2,7 @@ package com.group.mis_servicios.controller;
 
 import com.group.mis_servicios.service.CallService;
 import com.group.mis_servicios.view.dto.CallDTO;
+import com.group.mis_servicios.view.dto.CallResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,20 +17,19 @@ import java.util.Optional;
 @RequestMapping("/calls")
 @CrossOrigin("*")
 public class CallController {
-
     @Autowired
     private CallService service;
 
     @GetMapping("/")
-    public ResponseEntity<List<CallDTO>> listAll() {
+    public ResponseEntity<List<CallResponseDTO>> getAll() {
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json")
-                .body(service.listAll());
+                .body(service.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable Long id) {
-        Optional<CallDTO> optionalCall = service.findById(id);
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+        Optional<CallDTO> optionalCall = service.getById(id);
 
         if (optionalCall.isPresent()) {
             return ResponseEntity.ok()
@@ -63,7 +63,7 @@ public class CallController {
         if (optionalCallDTO.isPresent())
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
-                    .body(Map.of("message", "The call was successfully updated"));
+                    .body(Map.of("message", "The call was successfully created"));
 
         return  ResponseEntity.status(400)
                 .header("Content-Type", "application/json")
@@ -71,8 +71,8 @@ public class CallController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable Long id) {
-        if (service.deleteById(id))
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        if (service.delete(id))
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
                     .body(Map.of("message", "The call was successfully deleted"));

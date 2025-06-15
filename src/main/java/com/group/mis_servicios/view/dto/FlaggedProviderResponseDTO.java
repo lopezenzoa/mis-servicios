@@ -12,5 +12,5 @@ public class FlaggedProviderResponseDTO {
     private String customerFirstName;
     private String customerLastName;
     private String reason;
-    private LocalDateTime fecha;
+    private LocalDateTime date;
 }
