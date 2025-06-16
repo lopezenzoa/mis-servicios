@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class ProviderResponseDTO extends UserResponseDTO {
+
     private String licenseNumber;
     private String facility;
     private List<CallResponseDTO> calls;

@@ -2,8 +2,6 @@ package com.group.mis_servicios.service.validators;
 
 import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.view.dto.ProviderDTO;
-import jakarta.persistence.Access;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class ProviderValidator {
 //    @Autowired
@@ -30,24 +28,22 @@ public class ProviderValidator {
                 .filter(c -> !c.getId().equals(id))
                 .anyMatch(c -> c.getCredentials().getUsername().equals(username));
     }
-
-    // These two validation methods are used for creating
-    public static  boolean checkValidEmail(String email, ProviderRepository providerRepository) {
-        return providerRepository.findAll()
-                .stream()
-                .anyMatch(c -> c.getEmail().equals(email));
+    public static boolean checkValidEmail(String email, ProviderRepository repo) {
+        return repo.existsByEmail(email);
     }
+    // These two validation methods are used for creating
+    //public static  boolean checkValidEmail(String email, ProviderRepository providerRepository) {
+    //    return providerRepository.findAll()
+    //            .stream()
+    //            .anyMatch(c -> c.getEmail().equals(email));
+    //}
 
     public static  boolean checkValidPhone(String phone, ProviderRepository providerRepository) {
-        return providerRepository.findAll()
-                .stream()
-                .anyMatch(c -> c.getPhoneNumber().equals(phone));
+        return providerRepository.existsByPhoneNumber(phone);
     }
 
     public static  boolean checkValidUsername(String username, ProviderRepository providerRepository) {
-        return providerRepository.findAll()
-                .stream()
-                .anyMatch(c -> c.getCredentials().getUsername().equals(username));
+        return providerRepository.existsByCredentialsUsername(username);
     }
 
     // this method is used when updating (notice I'm adding the providerId to the params)
@@ -73,4 +69,6 @@ public class ProviderValidator {
                 && !checkValidUsername(dto.getUsername(), providerRepository)
                 && !dto.getPassword().isEmpty();
     }
+
+
 }

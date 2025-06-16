@@ -1,7 +1,7 @@
 package com.group.mis_servicios.controller;
 
+import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.service.ProviderService;
-import com.group.mis_servicios.view.dto.FacilityToProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,14 +31,17 @@ public class ProviderController {
 
     @Autowired
     private ProviderService service;
+    @Autowired
+    private ProviderRepository repository;
 
     private String whatsappNumber;
 
     @GetMapping("/")
     @ApiResponse(responseCode = "200", description = "Obtiene todos los proveedores")
     public ResponseEntity<List<ProviderResponseDTO>> getAll() {
-        return ResponseEntity.ok(service.getAll());
+        return ResponseEntity.ok(service.getAllResponse()); // ← debe devolver ProviderResponseDTO
     }
+
 
     @GetMapping("/{id}")
     @ApiResponse(responseCode = "200", description = "Proveedor encontrado")

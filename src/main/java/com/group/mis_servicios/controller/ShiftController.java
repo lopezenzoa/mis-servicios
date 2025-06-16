@@ -1,9 +1,7 @@
 package com.group.mis_servicios.controller;
 
-import com.group.mis_servicios.model.entity.Shift;
 import com.group.mis_servicios.service.ProviderService;
 import com.group.mis_servicios.service.ShiftService;
-import com.group.mis_servicios.view.dto.CustomerResponseDTO;
 import com.group.mis_servicios.view.dto.ProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import com.group.mis_servicios.view.dto.ShiftDTO;
@@ -35,6 +33,12 @@ public class ShiftController {
                 .header("Content-Type", "application/json")
                 .body(service.getAll());
     }
+    @PostMapping("/reservar/{id}")
+    public ResponseEntity<ShiftDTO> reservarTurno(@PathVariable Long id) {
+        Optional<ShiftDTO> reservado = service.reserveShift(id);
+        return reservado.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+    }
 
     @GetMapping("/{id}")
     @ApiResponse(responseCode = "200", description = "Turno encontrado")
@@ -61,24 +65,19 @@ public class ShiftController {
 //                .body(service.getAvailables());
 //    }
 
-    @PostMapping("/create")
+    @PostMapping("/create-multiple")
     @ApiResponse(responseCode = "200", description = "Turno creado")
     @ApiResponse(responseCode = "404", description = "El proveedor no se pudo encontrar")
-    public ResponseEntity<?> create(
+    public ResponseEntity<?> createMultiple(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Cuerpo del turno a crear")
-            @RequestBody ShiftDTO shift
+            @RequestBody List<ShiftDTO> shifts
     ) {
-        Optional<ShiftDTO> shiftOptional = service.create(shift);
+        List<ShiftDTO> registrados = service.createMultiple(shifts);
 
-        if (shiftOptional.isPresent())
-            return ResponseEntity.ok()
-                    .header("Content-Type", "application/json")
-                    .body(Map.of("message", "The shift has been registered successfully!"));
-        else {
-            return ResponseEntity.status(404)
-                    .header("Content-Type", "application/json")
-                    .body(Map.of("message", "The provider hasn't been found"));
-        }
+        if (!registrados.isEmpty())
+            return ResponseEntity.ok(Map.of("message", "Los turnos fueron registrados exitosamente"));
+        else
+            return ResponseEntity.status(400).body(Map.of("message", "No se pudieron registrar los turnos"));
     }
 
     @PutMapping("/{id}")

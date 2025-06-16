@@ -1,8 +1,6 @@
 package com.group.mis_servicios.view.dto;
 
-import com.group.mis_servicios.model.entity.Customer;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +13,7 @@ public class ReviewDTO {
 
     private String description;
 
-    @NotBlank(message = "The customer id cannot be blank")
+    @Positive(message = "The customer id must be a positive number")
     private Long customerId;
+
 }

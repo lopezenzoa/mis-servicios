@@ -1,10 +1,14 @@
 package com.group.mis_servicios.controller;
 
-import com.group.mis_servicios.view.dto.CustomerDTO;
+import com.group.mis_servicios.model.enums.Roles;
+import com.group.mis_servicios.service.AuthService;
 import com.group.mis_servicios.service.CustomerService;
+import com.group.mis_servicios.view.dto.CustomerDTO;
 import com.group.mis_servicios.view.dto.CustomerResponseDTO;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import com.group.mis_servicios.view.dto.RegisterDTO;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +25,14 @@ import java.util.Optional;
 public class CustomerController {
     @Autowired
     private CustomerService service;
-
+    @Autowired
+    private AuthService authService;
     @GetMapping("/")
     @ApiResponse(responseCode = "200", description = "Obtiene todos los clientes")
     public ResponseEntity<List<CustomerResponseDTO>> getAll() {
         return new ResponseEntity<>(service.getAll(), HttpStatus.OK);
     }
+
 
     @PostMapping("/register")
     @ApiResponse(responseCode = "200", description = "Cliente creado")
@@ -36,6 +42,7 @@ public class CustomerController {
             @RequestBody CustomerDTO dto
     ) {
         service.create(dto);
+
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json")
                 .body(Map.of("message", "The customer has been registered successfully!"));

@@ -4,16 +4,16 @@ import com.group.mis_servicios.model.repository.FavoritesRepository;
 import com.group.mis_servicios.view.dto.FavoritesDTO;
 
 public class FavoritesValidator {
-    private static FavoritesRepository favoritesRepository;
+    //private static FavoritesRepository favoritesRepository;
 
-    public static boolean checkValidity(FavoritesDTO dto) {
-        // checking that the title is unique for the customer's list
-        boolean isTitleUnique = favoritesRepository.findAll()
+    public static boolean checkValidity(FavoritesDTO dto, FavoritesRepository repo) {
+        boolean isTitleUnique = repo.findAll()
                 .stream()
-                .filter(l -> l.getCustomer().getId().equals(dto.getCustomerId()))
-                .anyMatch(l -> l.getTitle().equals(dto.getTitle()));
-
+                .filter(fav -> fav.getCustomer().getId().equals(dto.getCustomerId()))
+                .noneMatch(fav -> fav.getTitle().equalsIgnoreCase(dto.getTitle()));
 
         return !dto.getTitle().isBlank() && isTitleUnique;
     }
+
+
 }

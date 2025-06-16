@@ -3,7 +3,7 @@ package com.group.mis_servicios.view.dto;
 import com.group.mis_servicios.model.enums.States;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,5 +24,6 @@ public class CallResponseDTO {
     @NotBlank(message = "The address cannot be in blank")
     private String address;
 
+    @NotNull
     private States state;
 }
