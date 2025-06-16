@@ -12,20 +12,30 @@
     <input type="text" [(ngModel)]="filtroUbicacion" placeholder="Ingresa tu ciudad o barrio" aria-label="Ubicación" />
     <button (click)="filtrar()">Buscar</button>
   </div>
-
-  <section aria-live="polite" aria-atomic="true" tabindex="0">
+  <section>
     <div class="provider-list">
-      <div *ngIf="prestadoresFiltrados.length === 0">No se encontraron prestadores para los criterios seleccionados.</div>
+      <div *ngIf="prestadoresFiltrados.length === 0">
+        No se encontraron prestadores para los criterios seleccionados.
+      </div>
+
       <div *ngFor="let p of prestadoresFiltrados" class="provider-card">
-        <h3 class="provider-name">{{ p.name }}</h3>
-        <div class="provider-service">{{ p.service }}</div>
-        <p class="provider-desc">{{ p.description }}</p>
-        <div class="provider-contact">
-          <button class="btn-contact" aria-label="Contactar a {{ p.name }}">Contactar</button>
+        <h3 class="provider-name">{{ p.firstName }} {{ p.lastName }}</h3>
+        <div class="provider-service">{{ p.facility }}</div>
+        <p class="provider-desc">{{ p.address }}</p>
+        <div class="provider-actions">
+          <button
+            type="button"
+            class="btn-agendar"
+            (click)="verTurnos(p.id)">
+            Agendar Turno
+          </button>
+
+
         </div>
       </div>
     </div>
   </section>
+
 
   <footer>
     &copy; 2025 Servicios de Confianza

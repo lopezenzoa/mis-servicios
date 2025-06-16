@@ -60,6 +60,13 @@ public class ShiftService implements I_Service<ShiftDTO> {
         return Optional.empty();
     }
 
+    public List<ShiftDTO> createMultiple(List<ShiftDTO> shifts) {
+        return shifts.stream()
+                .map(this::create)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+    }
 
     @Override
     public boolean delete(Long id) {
@@ -84,4 +91,21 @@ public class ShiftService implements I_Service<ShiftDTO> {
     public List<ShiftDTO> getAvailableByProvider(Long providerId) {
         return shiftRepository.findByProviderIdAndAvailableTrue(providerId).stream().map(ShiftMapper::toDTO).toList();
     }
+    public Optional<ShiftDTO> reserveShift(Long shiftId) {
+        Optional<Shift> shiftOptional = shiftRepository.findById(shiftId);
+
+        if (shiftOptional.isPresent()) {
+            Shift shift = shiftOptional.get();
+            if (!shift.isAvailable()) {
+                return Optional.empty(); // Ya reservado
+            }
+
+            shift.setAvailable(false); // Marcar como reservado
+            Shift saved = shiftRepository.save(shift);
+            return Optional.of(ShiftMapper.toDTO(saved));
+        }
+
+        return Optional.empty(); // No existe
+    }
+
 }

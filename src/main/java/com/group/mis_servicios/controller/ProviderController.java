@@ -1,7 +1,7 @@
 package com.group.mis_servicios.controller;
 
+import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.service.ProviderService;
-import com.group.mis_servicios.view.dto.FacilityToProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +28,16 @@ public class ProviderController {
 
     @Autowired
     private ProviderService service;
+    @Autowired
+    private ProviderRepository repository;
 
     private String whatsappNumber;
 
     @GetMapping("/")
-    public ResponseEntity<List<ProviderDTO>> getAll() {
-        return ResponseEntity.ok(service.getAll());
+    public ResponseEntity<List<ProviderResponseDTO>> getAll() {
+        return ResponseEntity.ok(service.getAllResponse()); // ← debe devolver ProviderResponseDTO
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {

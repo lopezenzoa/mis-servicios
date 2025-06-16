@@ -177,6 +177,21 @@ button:hover, button:focus {
   border-color: #764ba2;
 }
 
+.error-box {
+  background-color: #ffe0e0;
+  color: #a10000;
+  padding: 10px;
+  border: 1px solid #a10000;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.campo-invalido {
+  border: 2px solid red !important;
+  background-color: #fff0f0;
+}
 
 @media (max-width: 480px) {
   main {

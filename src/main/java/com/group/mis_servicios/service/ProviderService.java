@@ -23,6 +23,7 @@ public class ProviderService implements I_Service<ProviderDTO> {
     private ProviderRepository repository;
     @Autowired
     private CredentialsRepository credentialsRepository;
+
     @Autowired
     private BCryptPasswordEncoder encoder;
 
@@ -83,6 +84,19 @@ public class ProviderService implements I_Service<ProviderDTO> {
 
         return providerOptional.map(ProviderMapper::toDTO);
     }
+    public List<ProviderResponseDTO> getAllResponse() {
+        return repository.findAll().stream().map(provider -> {
+
+            ProviderResponseDTO dto = new ProviderResponseDTO();
+            dto.setId(provider.getId());
+            dto.setFirstName(provider.getFirstName());
+            dto.setLastName(provider.getLastName());
+            dto.setFacility(provider.getFacility());
+            dto.setAddress(provider.getAddress());
+            return dto;
+        }).toList();
+    }
+
 
 //    public List<ProviderDTO> filterByFacility(String facilityName) {
 //        List<ProviderDTO> providerDTOs = new ArrayList<>();

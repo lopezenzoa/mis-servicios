@@ -28,7 +28,8 @@ public class DataLoader {
                     "Profesor particular",
                     "Servicios de Limpieza",
                     "Maguiver",
-                    "Albanil"
+                    "Albanil",
+                    "Cerrajero"
 
             );
 

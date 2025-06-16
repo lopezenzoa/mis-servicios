@@ -1,11 +1,8 @@
 package com.group.mis_servicios.controller;
 
-import com.group.mis_servicios.model.entity.Shift;
 import com.group.mis_servicios.service.ProviderService;
 import com.group.mis_servicios.service.ShiftService;
-import com.group.mis_servicios.view.dto.CustomerResponseDTO;
 import com.group.mis_servicios.view.dto.ProviderDTO;
-import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import com.group.mis_servicios.view.dto.ShiftDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,6 +28,12 @@ public class ShiftController {
                 .header("Content-Type", "application/json")
                 .body(service.getAll());
     }
+    @PostMapping("/reservar/{id}")
+    public ResponseEntity<ShiftDTO> reservarTurno(@PathVariable Long id) {
+        Optional<ShiftDTO> reservado = service.reserveShift(id);
+        return reservado.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
@@ -54,19 +57,14 @@ public class ShiftController {
                 .body(service.getAvailables());
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody ShiftDTO shift) {
-        Optional<ShiftDTO> shiftOptional = service.create(shift);
+    @PostMapping("/create-multiple")
+    public ResponseEntity<?> createMultiple(@RequestBody List<ShiftDTO> shifts) {
+        List<ShiftDTO> registrados = service.createMultiple(shifts);
 
-        if (shiftOptional.isPresent())
-            return ResponseEntity.ok()
-                    .header("Content-Type", "application/json")
-                    .body(Map.of("message", "The shift has been registered successfully!"));
-        else {
-            return ResponseEntity.status(404)
-                    .header("Content-Type", "application/json")
-                    .body(Map.of("message", "The provider hasn't been found"));
-        }
+        if (!registrados.isEmpty())
+            return ResponseEntity.ok(Map.of("message", "Los turnos fueron registrados exitosamente"));
+        else
+            return ResponseEntity.status(400).body(Map.of("message", "No se pudieron registrar los turnos"));
     }
 
     @PutMapping("/{id}")

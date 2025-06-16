@@ -4,7 +4,13 @@
     Encuentra y contrata profesionales confiables o regístrate para brindar
     servicios en tu zona, desde gasistas hasta paseadores de perros.
   </p>
-  <h2> Registro </h2>
+
+  <h2>Registro</h2>
+
+  <div *ngIf="mensajeError" class="error-box">
+    {{ mensajeError }}
+  </div>
+
   <form (ngSubmit)="onSubmit()">
     <fieldset class="role-select">
       <legend>Crear cuenta como:</legend>
@@ -19,50 +25,58 @@
     </fieldset>
 
     <label>Nombre</label>
-    <input type="text" [(ngModel)]="firstName" name="firstName" required>
+    <input type="text" name="firstName" [(ngModel)]="firstName"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('firstName') }" />
 
     <label>Apellido</label>
-    <input type="text" [(ngModel)]="lastName" name="lastName" required>
+    <input type="text" name="lastName" [(ngModel)]="lastName"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('lastName') }" />
 
     <label>Correo electrónico</label>
-    <input type="email" [(ngModel)]="email" name="email" required>
+    <input type="email" name="email" [(ngModel)]="email"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('email') }" />
 
     <label>Dirección</label>
-    <input type="text" [(ngModel)]="address" name="address" required>
+    <input type="text" name="address" [(ngModel)]="address"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('address') }" />
 
     <label>Teléfono</label>
-    <input type="text" [(ngModel)]="phoneNumber" name="phoneNumber" required>
+    <input type="text" name="phoneNumber" [(ngModel)]="phoneNumber"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('phoneNumber') }" />
 
     <label>Nombre de usuario</label>
-    <input type="text" [(ngModel)]="username" name="username" required>
+    <input type="text" name="username" [(ngModel)]="username"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('username') }" />
 
     <label>Contraseña</label>
-    <input type="password" [(ngModel)]="password" name="password" required>
+    <input type="password" name="password" [(ngModel)]="password"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('password') }" />
 
     <label>Confirmar contraseña</label>
-    <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" required>
+    <input type="password" name="confirmPassword" [(ngModel)]="confirmPassword"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('confirmPassword') }" />
+
     <div *ngIf="rol === 'prestador'" class="grupo-prestador">
       <div class="form-group">
         <label for="license">Número de Licencia</label>
-        <input id="license" name="licenseNumber" [(ngModel)]="licenseNumber" required />
+        <input id="license" name="licenseNumber" [(ngModel)]="licenseNumber"
+               [ngClass]="{ 'campo-invalido': camposInvalidos.includes('licenseNumber') }" />
       </div>
 
       <div class="form-group">
         <label for="categoria">Categoría</label>
-        <select id="categoria" [(ngModel)]="categoriaSeleccionada" name="categoria" required>
+        <select id="categoria" name="categoria" [(ngModel)]="categoriaSeleccionada"
+                [ngClass]="{ 'campo-invalido': camposInvalidos.includes('categoria') }">
           <option value="" disabled selected>Seleccioná una categoría</option>
           <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
         </select>
-
       </div>
-
-
     </div>
 
-
     <button type="submit">Crear cuenta</button>
+
     <p class="toggle-forms">
-    <a routerLink="/login">¿Ya tenés cuenta? Iniciar sesión</a>
+      <a routerLink="/login">¿Ya tenés cuenta? Iniciar sesión</a>
     </p>
   </form>
 </main>

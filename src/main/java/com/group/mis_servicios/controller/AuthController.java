@@ -1,14 +1,12 @@
 package com.group.mis_servicios.controller;
 
 
-import com.group.mis_servicios.view.dto.LoginDTO;
-import com.group.mis_servicios.view.dto.RegisterDTO;
 import com.group.mis_servicios.service.AuthService;
+import com.group.mis_servicios.view.dto.LoginDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -23,15 +21,22 @@ public class AuthController {
         boolean success = service.login(dto);
 
         if (success) {
+            String role = service.getRoleByUsername(dto.getIdentifier());
+
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
-                    .body(Map.of("message", "Logged in successfully!"));
+                    .body(Map.of(
+                            "message", "Logged in successfully!",
+                            "role", role
+                    ));
         }
 
         return ResponseEntity.status(401)
                 .header("Content-Type", "application/json")
                 .body("Oops :( Invalid credentials");
     }
+
+
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {

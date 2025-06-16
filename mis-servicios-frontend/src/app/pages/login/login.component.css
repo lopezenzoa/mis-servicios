@@ -202,6 +202,15 @@ button:focus {
   color: #276749;
   border: 1.5px solid #38a169;
 }
+.error-box {
+  background-color: #ffe0e0;
+  color: #a10000;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #a10000;
+  border-radius: 4px;
+  text-align: center;
+}
 
 
 @media (max-width: 480px) {
