@@ -17,6 +17,7 @@ public class ShiftMapper {
         dto.setProviderId(shift.getProvider().getId());
         dto.setDateTime(shift.getDateTime().toString());
         dto.setAvailable(shift.isAvailable());
+        dto.setId(shift.getId());
 
         return dto;
     }
