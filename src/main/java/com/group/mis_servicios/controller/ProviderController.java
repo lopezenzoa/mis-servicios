@@ -4,6 +4,8 @@ import com.group.mis_servicios.service.ProviderService;
 import com.group.mis_servicios.view.dto.FacilityToProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +23,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/providers")
 @CrossOrigin("*")
+@Tag(name = "Proveedores", description = "Operaciones relacionadas con los proveedores")
 public class ProviderController {
 
     @Autowired
@@ -32,13 +35,16 @@ public class ProviderController {
     private String whatsappNumber;
 
     @GetMapping("/")
-    public ResponseEntity<List<ProviderDTO>> getAll() {
+    @ApiResponse(responseCode = "200", description = "Obtiene todos los proveedores")
+    public ResponseEntity<List<ProviderResponseDTO>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }
 
     @GetMapping("/{id}")
+    @ApiResponse(responseCode = "200", description = "Proveedor encontrado")
+    @ApiResponse(responseCode = "404", description = "Proveedor no encontrado")
     public ResponseEntity<?> getById(@PathVariable Long id) {
-        Optional<ProviderDTO> providerDTO = service.getById(id);
+        Optional<ProviderResponseDTO> providerDTO = service.getById(id);
 
         if (providerDTO.isPresent())
             return ResponseEntity.ok()
@@ -51,6 +57,8 @@ public class ProviderController {
     }
 
     @GetMapping("/license/{licenseNumber}")
+    @ApiResponse(responseCode = "200", description = "Obtiene un proveedor dado su numero de licencia profesional")
+    @ApiResponse(responseCode = "404", description = "Numero de licencia no encontrada")
     public ResponseEntity<?> filterByLicenseNumber(@PathVariable String licenseNumber) {
         Optional<ProviderDTO> providerDTO = service.filterByLicenseNumber(licenseNumber);
 
@@ -65,7 +73,13 @@ public class ProviderController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ProviderDTO dto) {
+    @ApiResponse(responseCode = "200", description = "Proveedor actualizado")
+    @ApiResponse(responseCode = "400", description = "El proveedor no se pudo actualizar")
+    public ResponseEntity<?> update(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Cuerpo del prestador a actualizar")
+            @PathVariable Long id,
+            @RequestBody ProviderDTO dto
+    ) {
         Optional<ProviderResponseDTO> providerDTO = service.update(id, dto);
 
         if (providerDTO.isPresent())
@@ -79,7 +93,12 @@ public class ProviderController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> create(@RequestBody ProviderDTO dto) {
+    @ApiResponse(responseCode = "200", description = "Proveedor creado")
+    @ApiResponse(responseCode = "400", description = "El proveedor no se pudo crear")
+    public ResponseEntity<?> create(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Cuerpo del proveedor a crear")
+            @RequestBody ProviderDTO dto
+    ) {
         service.create(dto);
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json")
@@ -95,15 +114,15 @@ public class ProviderController {
 //                .body(providerDTOS);
 //    }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<ProviderResponseDTO>> buscar(
-            @RequestParam(required = false) String firstName,
-            @RequestParam(required = false) String lastName,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String licenseNumber
-    ) {
-        return ResponseEntity.ok(service.filterByCriterios(firstName, lastName, email, licenseNumber));
-    }
+//    @GetMapping("/search")
+//    public ResponseEntity<List<ProviderResponseDTO>> buscar(
+//            @RequestParam(required = false) String firstName,
+//            @RequestParam(required = false) String lastName,
+//            @RequestParam(required = false) String email,
+//            @RequestParam(required = false) String licenseNumber
+//    ) {
+//        return ResponseEntity.ok(service.filterByCriterios(firstName, lastName, email, licenseNumber));
+//    }
 
 //    @PostMapping("/add-facility")
 //    public ResponseEntity<?> addFacilityToProvider(@RequestBody FacilityToProviderDTO dto) {
@@ -120,14 +139,14 @@ public class ProviderController {
 //    }
 
 
-    @GetMapping("/page")
-    public ResponseEntity<Page<ProviderResponseDTO>> listAllPaginated(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(service.listPage(pageable));
-    }
+//    @GetMapping("/page")
+//    public ResponseEntity<Page<ProviderResponseDTO>> listAllPaginated(
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size
+//    ) {
+//        Pageable pageable = PageRequest.of(page, size);
+//        return ResponseEntity.ok(service.listPage(pageable));
+//    }
 
     // manejo de excecpciones
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)

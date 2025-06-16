@@ -30,6 +30,8 @@ public class SecurityConfig {
                             .requestMatchers("/favorites-lists/add-provider").permitAll()
                             .requestMatchers("/flagged-providers/**").permitAll()
                             .requestMatchers("/categorias/**").permitAll()
+                            .requestMatchers("/swagger-ui/**").permitAll()
+                            .requestMatchers("/v3/api-docs/**").permitAll()
                             .anyRequest().authenticated()
                     );
 

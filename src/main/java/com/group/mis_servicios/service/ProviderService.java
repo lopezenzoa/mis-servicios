@@ -27,20 +27,20 @@ public class ProviderService implements I_Service<ProviderDTO> {
     private BCryptPasswordEncoder encoder;
 
     @Override
-    public List<ProviderDTO> getAll() {
-        List<ProviderDTO> providers = new ArrayList<>();
+    public List<ProviderResponseDTO> getAll() {
+        List<ProviderResponseDTO> providers = new ArrayList<>();
 
         repository.findAll()
-                .forEach(p -> providers.add(ProviderMapper.toDTO(p)));
+                .forEach(p -> providers.add(ProviderMapper.toResponeDTO(p)));
 
         return providers;
     }
 
     @Override
-    public Optional<ProviderDTO> getById(Long id) {
+    public Optional<ProviderResponseDTO> getById(Long id) {
         Optional<Provider> provider = repository.findById(id);
 
-        return provider.map(ProviderMapper::toDTO);
+        return provider.map(ProviderMapper::toResponeDTO);
     }
 
     @Override

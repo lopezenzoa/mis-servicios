@@ -7,6 +7,8 @@ import com.group.mis_servicios.view.dto.CustomerResponseDTO;
 import com.group.mis_servicios.view.dto.ProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import com.group.mis_servicios.view.dto.ShiftDTO;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/shifts")
 @CrossOrigin("*")
+@Tag(name = "Turnos", description = "Operaciones relacionadas con los turnos del prestador")
 public class ShiftController {
     @Autowired
     private ShiftService service;
@@ -26,6 +29,7 @@ public class ShiftController {
     private ProviderService providerService;
 
     @GetMapping("/")
+    @ApiResponse(responseCode = "200", description = "Obtiene todos los turnos")
     public ResponseEntity<List<ShiftDTO>> getAll() {
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json")
@@ -33,6 +37,8 @@ public class ShiftController {
     }
 
     @GetMapping("/{id}")
+    @ApiResponse(responseCode = "200", description = "Turno encontrado")
+    @ApiResponse(responseCode = "404", description = "Turno no encontrado")
     public ResponseEntity<?> getById(@PathVariable Long id) {
         Optional<ShiftDTO> shiftOptional = service.getById(id);
 
@@ -47,15 +53,21 @@ public class ShiftController {
         }
     }
 
-    @GetMapping("/availables")
-    public ResponseEntity<List<ShiftDTO>> getAvailables() {
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json")
-                .body(service.getAvailables());
-    }
+//    @GetMapping("/availables")
+//    @ApiResponse(responseCode = "200", description = "Obtiene todos los turnos disponibles")
+//    public ResponseEntity<List<ShiftDTO>> getAvailables() {
+//        return ResponseEntity.ok()
+//                .header("Content-Type", "application/json")
+//                .body(service.getAvailables());
+//    }
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody ShiftDTO shift) {
+    @ApiResponse(responseCode = "200", description = "Turno creado")
+    @ApiResponse(responseCode = "404", description = "El proveedor no se pudo encontrar")
+    public ResponseEntity<?> create(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Cuerpo del turno a crear")
+            @RequestBody ShiftDTO shift
+    ) {
         Optional<ShiftDTO> shiftOptional = service.create(shift);
 
         if (shiftOptional.isPresent())
@@ -70,7 +82,13 @@ public class ShiftController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ShiftDTO updated) {
+    @ApiResponse(responseCode = "200", description = "Turno actualizado")
+    @ApiResponse(responseCode = "404", description = "El proveedor no se encontró")
+    public ResponseEntity<?> update(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Cuerpo del turno a actualizar")
+            @PathVariable Long id,
+            @RequestBody ShiftDTO updated
+    ) {
         Optional<ShiftDTO> customerOptional = service.update(id, updated);
 
         if (customerOptional.isPresent())
@@ -81,19 +99,22 @@ public class ShiftController {
     }
 
     @DeleteMapping("/{id}")
+    @ApiResponse(responseCode = "200", description = "Proveedor creado")
     public ResponseEntity<String> delete(@PathVariable Long id) {
         service.delete(id);
         return new ResponseEntity<>("The shift is not more in your list", HttpStatus.OK);
     }
 
     @GetMapping("/availables/{providerId}")
+    @ApiResponse(responseCode = "200", description = "Obtiene todos los turnos disponibles de un proveedor")
+    @ApiResponse(responseCode = "404", description = "El proveedor no se encontró")
     public ResponseEntity<?> getAvailableByProvider(@PathVariable Long providerId) {
-        Optional<ProviderDTO> providerResponseDTO = providerService.getById(providerId);
+        Optional<ProviderResponseDTO> providerResponseDTO = providerService.getById(providerId);
 
         if (providerResponseDTO.isPresent())
             return new ResponseEntity<>(service.getAvailableByProvider(providerId), HttpStatus.OK);
         else
-            return new ResponseEntity<>("The shift has no been found with the ID: " + providerId, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("The provider has no been found with the ID: " + providerId, HttpStatus.NOT_FOUND);
     }
 
     /*

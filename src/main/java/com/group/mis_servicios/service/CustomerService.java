@@ -38,13 +38,13 @@ public class CustomerService implements I_Service<CustomerDTO> {
     }
 
     @Override
-    public Optional<CustomerDTO> getById(Long id) {
+    public Optional<CustomerResponseDTO> getById(Long id) {
         Optional<Customer> customerOptional = repository.findById(id);
 
         if (customerOptional.isPresent()) {
             Customer customer = customerOptional.get();
 
-            return Optional.of(CustomerMapper.toDTO(customer));
+            return Optional.of(CustomerMapper.toResponseDTO(customer));
         }
 
         return Optional.empty();

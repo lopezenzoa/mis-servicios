@@ -12,4 +12,5 @@ import java.util.List;
 public class ProviderResponseDTO extends UserResponseDTO {
     private String licenseNumber;
     private String facility;
+    private List<CallResponseDTO> calls;
 }

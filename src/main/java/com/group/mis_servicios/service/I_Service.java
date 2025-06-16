@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public interface I_Service<T> {
     List<?> getAll();
-    Optional<T> getById(Long id);
+    Optional<?> getById(Long id);
     Optional<?> create(T type);
     Optional<?> update(Long id, T newType);
     boolean delete(Long id);

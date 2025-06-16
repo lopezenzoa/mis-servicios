@@ -7,6 +7,8 @@ import com.group.mis_servicios.view.dto.ProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.ArrayList;
+
 public class ProviderMapper {
     public static ProviderDTO toDTO(Provider provider) {
         ProviderDTO dto = new ProviderDTO();
@@ -68,6 +70,7 @@ public class ProviderMapper {
         dto.setLicenseNumber(provider.getLicenseNumber());
         dto.setFacility(provider.getFacility());
         // dto.setFacility(provider.getFacility()==null?null:provider.getFacility().getName());
+        dto.setCalls(provider.getCalls() == null ? new ArrayList<>() : CallMapper.toCallDTOList(provider.getCalls()));
 
         return dto;
     }
