@@ -1,0 +1,70 @@
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background:
+    linear-gradient(135deg, #667eea, #764ba2);
+  background-image: url('data:image/svg+xml;utf8,<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke="%23e0d7fa" stroke-opacity="0.25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 100L40 90L60 100L80 90L100 100" /><circle cx="30" cy="30" r="12" /><path d="M48 24L54 18L60 24M15 80L23 72L31 80" /><rect x="80" y="10" width="15" height="30" rx="4" stroke="%23c5b4e3"/><path d="M20 40L40 40L40 60L20 60Z" /><path d="M85 90L105 90L105 110L85 110Z" /><path d="M60 50L70 60L60 70L50 60Z" /><circle cx="90" cy="90" r="10" /><path d="M75 20L85 10M85 20L95 10" /><circle cx="50" cy="100" r="5" /><circle cx="20" cy="70" r="4" /></g></svg>');
+  background-repeat: repeat;
+  background-size: 120px 120px;
+  padding: 2rem 1rem;
+  color: #2a4365;
+}
+
+.container {
+  max-width: 700px;
+  margin: 3rem auto;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 2rem 3rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  margin: 1rem 0 0.3rem;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+input[type="datetime-local"],
+textarea {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 1rem;
+  border: 1.5px solid #cbd5e0;
+  border-radius: 12px;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+  resize: vertical;
+}
+
+textarea {
+  min-height: 100px;
+}
+
+.btn-agendar {
+  padding: 12px 32px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 8px 14px rgba(102, 126, 234, 0.3);
+}
+
+.btn-agendar:hover,
+.btn-agendar:focus {
+  background-color: #5a67d8;
+  outline: none;
+}
