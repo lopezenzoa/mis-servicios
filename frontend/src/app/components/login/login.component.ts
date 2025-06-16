@@ -72,7 +72,7 @@ ngOnInit() {
  handleRegisterSubmit() {
    const { role, nombre, apellido, email, password, confirmPassword, categoria, descripcion, username, phoneNumber, address, licenseNumber } = this.registroData;
 
-   if (!nombre || !apellido || !email || !password || !confirmPassword || !username || !phoneNumber || !address || !licenseNumber) {
+   if (!nombre || !apellido || !email || !password || !confirmPassword || !username || !phoneNumber || !address) {
      alert('Por favor, completa todos los campos.');
      return;
    }
