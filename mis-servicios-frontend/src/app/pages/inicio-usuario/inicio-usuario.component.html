@@ -1,0 +1,43 @@
+<div class="container">
+  <header>
+    <h1>Contrata a tu Profesional Ideal</h1>
+    <p class="lead">Explora servicios confiables cerca de ti: gasistas, plomeros, jardineros, pintores y más.</p>
+  </header>
+
+  <div class="search-bar" role="search" aria-label="Buscador de profesionales">
+    <select [(ngModel)]="filtroServicio" aria-label="Selecciona el servicio">
+      <option value="" disabled selected>Selecciona un servicio</option>
+      <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+    </select>
+    <input type="text" [(ngModel)]="filtroUbicacion" placeholder="Ingresa tu ciudad o barrio" aria-label="Ubicación" />
+    <button (click)="filtrar()">Buscar</button>
+  </div>
+  <section>
+    <div class="provider-list">
+      <div *ngIf="prestadoresFiltrados.length === 0">
+        No se encontraron prestadores para los criterios seleccionados.
+      </div>
+
+      <div *ngFor="let p of prestadoresFiltrados" class="provider-card">
+        <h3 class="provider-name">{{ p.firstName }} {{ p.lastName }}</h3>
+        <div class="provider-service">{{ p.facility }}</div>
+        <p class="provider-desc">{{ p.address }}</p>
+        <div class="provider-actions">
+          <button
+            type="button"
+            class="btn-agendar"
+            (click)="verTurnos(p.id)">
+            Agendar Turno
+          </button>
+
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <footer>
+    &copy; 2025 Servicios de Confianza
+  </footer>
+</div>

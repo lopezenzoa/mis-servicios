@@ -1,65 +1,79 @@
 package com.group.mis_servicios.service;
 
-import com.group.mis_servicios.view.dto.ShiftDTO;
-import com.group.mis_servicios.model.entity.Provider;
 import com.group.mis_servicios.model.entity.Shift;
-import com.group.mis_servicios.model.repository.ShiftRepository;
 import com.group.mis_servicios.model.repository.ProviderRepository;
-import com.group.mis_servicios.view.dto.FacilityDTO;
+import com.group.mis_servicios.model.repository.ShiftRepository;
+import com.group.mis_servicios.service.mappers.ShiftMapper;
+import com.group.mis_servicios.service.validators.ShiftValidator;
+import com.group.mis_servicios.view.dto.ShiftDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ShiftService {
+public class ShiftService implements I_Service<ShiftDTO> {
     @Autowired
-    private ShiftRepository repository;
+    private ShiftRepository shiftRepository;
     @Autowired
     private ProviderRepository providerRepository;
 
+    @Override
     public List<ShiftDTO> getAll() {
-        return repository.findAll()
+        return shiftRepository.findAll()
                 .stream()
-                .map(this::shiftMapper)
+                .map(ShiftMapper::toDTO)
                 .toList();
     }
 
+    @Override
     public Optional<ShiftDTO> getById(Long id) {
-        Optional<Shift> shift = repository.findById(id);
+        Optional<Shift> shift = shiftRepository.findById(id);
 
-        return shift.map(this::shiftMapper);
+        return shift.map(ShiftMapper::toDTO);
     }
 
+    @Override
     public Optional<ShiftDTO> create(ShiftDTO shift) {
-        Optional<Shift> optionalShift = Optional.of(repository.save(shiftMapper(shift)));
+        Optional<Shift> optionalShift = Optional.of(
+                shiftRepository.save(ShiftMapper.toShift(shift, providerRepository))
+        );
 
-        return optionalShift.map(this::shiftMapper);
+
+        return optionalShift.map(ShiftMapper::toDTO);
     }
 
+    @Override
     public Optional<ShiftDTO> update(Long id, ShiftDTO updated) {
-        Optional<Shift> shiftOptional = repository.findById(id);
+        Optional<Shift> shiftOptional = shiftRepository.findById(id);
 
         if (shiftOptional.isPresent()
-                && checkProvider(updated.getProviderId())
-                && !existsShiftAtSameTime(updated.getProviderId(), LocalDateTime.parse(updated.getDateTime()))
-        ) {
-            Shift saved = repository.save(shiftMapper(updated));
+                && ShiftValidator.checkProvider(updated.getProviderId(), providerRepository)
+                && !ShiftValidator.existsShiftAtSameTime(updated.getProviderId(), LocalDateTime.parse(updated.getDateTime()), shiftRepository)) {
 
-            return Optional.of(shiftMapper(saved));
+            Shift saved = shiftRepository.save(ShiftMapper.toShift(updated, providerRepository));
+            return Optional.of(ShiftMapper.toDTO(saved));
         }
 
         return Optional.empty();
     }
 
+    public List<ShiftDTO> createMultiple(List<ShiftDTO> shifts) {
+        return shifts.stream()
+                .map(this::create)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+    }
+
+    @Override
     public boolean delete(Long id) {
-        Optional<Shift> shiftOptional = repository.findById(id);
+        Optional<Shift> shiftOptional = shiftRepository.findById(id);
 
         if (shiftOptional.isPresent()) {
-            repository.deleteById(id);
+            shiftRepository.deleteById(id);
             return true;
         }
 
@@ -67,49 +81,31 @@ public class ShiftService {
     }
 
     public List<ShiftDTO> getAvailables() {
-        return repository.findAll()
+        return shiftRepository.findAll()
                 .stream()
                 .filter(Shift::isAvailable)
-                .map(this::shiftMapper)
+                .map(ShiftMapper::toDTO)
                 .toList();
     }
 
     public List<ShiftDTO> getAvailableByProvider(Long providerId) {
-        return repository.findByProviderIdAndAvailableTrue(providerId).stream().map(this::shiftMapper).toList();
+        return shiftRepository.findByProviderIdAndAvailableTrue(providerId).stream().map(ShiftMapper::toDTO).toList();
     }
+    public Optional<ShiftDTO> reserveShift(Long shiftId) {
+        Optional<Shift> shiftOptional = shiftRepository.findById(shiftId);
 
-    public boolean existsShiftAtSameTime(Long providerId, LocalDateTime dateTime) {
-        return repository.existsByProviderIdAndDateTime(providerId, dateTime);
-    }
+        if (shiftOptional.isPresent()) {
+            Shift shift = shiftOptional.get();
+            if (!shift.isAvailable()) {
+                return Optional.empty(); // Ya reservado
+            }
 
-    public ShiftDTO shiftMapper(Shift shift) {
-        ShiftDTO dto = new ShiftDTO();
-
-        dto.setProviderId(shift.getProvider().getId());
-        dto.setDateTime(shift.getDateTime().toString());
-        dto.setAvailable(shift.isAvailable());
-
-        return dto;
-    }
-
-    public Shift shiftMapper(ShiftDTO dto) {
-        Shift shift = new Shift();
-        Optional<Provider> provider = providerRepository.findById(dto.getProviderId());
-
-        if (provider.isPresent()) {
-            shift.setDateTime(LocalDateTime.parse(dto.getDateTime()));
-            shift.setAvailable(dto.isAvailable());
-            shift.setProviderId(dto.getProviderId());
-            shift.setProvider(provider.get());
+            shift.setAvailable(false); // Marcar como reservado
+            Shift saved = shiftRepository.save(shift);
+            return Optional.of(ShiftMapper.toDTO(saved));
         }
 
-        return shift;
+        return Optional.empty(); // No existe
     }
 
-    // checks if the provider exists given his id
-    private boolean checkProvider(Long providerId) {
-        return providerRepository.findAll()
-                .stream()
-                .anyMatch(p -> p.getId().equals(providerId));
-    }
 }

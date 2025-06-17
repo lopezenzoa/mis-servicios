@@ -1,84 +1,125 @@
 package com.group.mis_servicios.service;
 
+import com.group.mis_servicios.model.entity.Credentials;
+import com.group.mis_servicios.model.entity.Customer;
+import com.group.mis_servicios.model.entity.Provider;
+import com.group.mis_servicios.model.enums.Roles;
+import com.group.mis_servicios.model.repository.CredentialsRepository;
+import com.group.mis_servicios.model.repository.CustomerRepository;
+import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.view.dto.LoginDTO;
 import com.group.mis_servicios.view.dto.RegisterDTO;
-import com.group.mis_servicios.model.entity.Credentials;
-import com.group.mis_servicios.model.entity.User;
-import com.group.mis_servicios.model.repository.CredentialsRepository;
-import com.group.mis_servicios.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public class AuthService {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired private CredentialsRepository credentialsRepository;
+    @Autowired private CustomerRepository customerRepo;
+    @Autowired private ProviderRepository providerRepo;
+    @Autowired private CredentialsRepository credsRepo;
     @Autowired private BCryptPasswordEncoder encoder; // to encrypt the password
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private ProviderRepository providerRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public void register(RegisterDTO dto) {
-        boolean isValid = checkRegisterValidity(dto);
+    public void register(RegisterDTO dto, Roles role) {
+        // Validación de unicidad de username
+        if (credsRepo.existsByUsername(dto.getUsername())) {
+            throw new IllegalArgumentException("El nombre de usuario ya está en uso");
+        }
 
-        if (isValid) {
-            User user = new User();
-            Credentials credentials = new Credentials();
+        // Validación de unicidad de email
+        if (role.equals(Roles.CUSTOMER) && customerRepo.existsByEmail(dto.getEmail())) {
+            throw new IllegalArgumentException("El correo electrónico ya está registrado como cliente");
+        }
 
-            user.setFirstName(dto.getFirstName());
-            user.setLastName(dto.getLastName());
-            user.setEmail(dto.getEmail());
-            user.setAddress(dto.getAddress());
-            user.setPhoneNumber(dto.getPhoneNumber());
+        if (role.equals(Roles.PROVIDER) && providerRepo.existsByEmail(dto.getEmail())) {
+            throw new IllegalArgumentException("El correo electrónico ya está registrado como prestador");
+        }
 
-            credentials.setUsername(dto.getUsername());
-            credentials.setPassword(encoder.encode(dto.getPassword()));
-            // credentials.setUser(user);
+        // Crear credenciales
+        Credentials creds = new Credentials();
+        creds.setUsername(dto.getUsername());
+        creds.setPassword(encoder.encode(dto.getPassword()));
+        creds.setRole(role);
 
-            user.setCredentials(credentials);
+        if (role.equals(Roles.CUSTOMER)) {
+            // Crear nuevo Customer
+            Customer nuevo = new Customer();
+            nuevo.setFirstName(dto.getFirstName());
+            nuevo.setLastName(dto.getLastName());
+            nuevo.setEmail(dto.getEmail());
+            nuevo.setAddress(dto.getAddress());
+            nuevo.setPhoneNumber(dto.getPhoneNumber());
 
-            userRepository.save(user);
+            customerRepo.save(nuevo);
+
+            // Asociar credenciales
+            nuevo.setCredentials(creds);
+            creds.setCustomer(nuevo);
+            credsRepo.save(creds);
+
+        } else if (role.equals(Roles.PROVIDER)) {
+            // Crear nuevo Provider
+            Provider nuevo = new Provider();
+            nuevo.setFirstName(dto.getFirstName());
+            nuevo.setLastName(dto.getLastName());
+            nuevo.setEmail(dto.getEmail());
+            nuevo.setAddress(dto.getAddress());
+            nuevo.setPhoneNumber(dto.getPhoneNumber());
+            nuevo.setLicenseNumber(dto.getLicenseNumber());
+            nuevo.setFacility(dto.getFacility());
+
+            providerRepo.save(nuevo);
+
+            // Asociar credenciales
+            nuevo.setCredentials(creds);
+            creds.setProvider(nuevo);
+            credsRepo.save(creds);
         }
     }
+
 
     public boolean login(LoginDTO dto) {
         String identifier = dto.getIdentifier();
         String password = dto.getPassword();
 
-        // by this way, the user can log in with your email or username
-        Optional<User> userOpt = identifier.contains("@") ?
-                userRepository.findByEmail(identifier) :
-                userRepository.findByCredentials(credentialsRepository.findByUsername(identifier).get());
+        // Primero busca por username
+        Optional<Credentials> credsOpt = credsRepo.findByUsername(identifier);
 
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            return passwordEncoder.matches(password, user.getCredentials().getPassword());
+        // Si no encuentra por username, intenta por email
+        if (credsOpt.isEmpty()) {
+            Optional<Customer> customer = customerRepo.findByEmail(identifier);
+            Optional<Provider> provider = providerRepo.findByEmail(identifier);
+
+            if (customer.isPresent() && customer.get().getCredentials() != null) {
+                credsOpt = Optional.of(customer.get().getCredentials());
+            } else if (provider.isPresent() && provider.get().getCredentials() != null) {
+                credsOpt = Optional.of(provider.get().getCredentials());
+            }
         }
 
-        return false;
+        return credsOpt
+                .filter(credentials -> passwordEncoder.matches(password, credentials.getPassword()))
+                .isPresent();
+    }
+    public String getRoleByUsername(String username) {
+        boolean esCliente = customerRepository.existsByCredentials_Username(username);
+        boolean esPrestador = providerRepository.existsByCredentials_Username(username);
+
+        if (esCliente) return "CLIENTE";
+        if (esPrestador) return "PROVEEDOR";
+        return "UNKNOWN";
     }
 
 
-    public List<User> getAuthUsers() {
-        return userRepository.findAll();
-    }
-
-    private boolean checkRegisterValidity(RegisterDTO dto) {
-        // checks if the username is unique
-        boolean isUsernameUnique = getAuthUsers()
-                .stream()
-                .anyMatch(user -> user.getCredentials().getUsername().equals(dto.getUsername()));
-
-        boolean isEmailUnique = getAuthUsers()
-                .stream()
-                .anyMatch(user -> user.getCredentials().getUsername().equals(dto.getEmail()));
-
-        return isEmailUnique && isUsernameUnique;
-    }
 }

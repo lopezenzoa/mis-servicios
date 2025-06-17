@@ -1,0 +1,14 @@
+<div class="container">
+  <h2>Turnos Disponibles</h2>
+
+  <p *ngIf="mensaje">{{ mensaje }}</p>
+
+  <ul *ngIf="turnos.length > 0">
+    <li *ngFor="let turno of turnos">
+      Fecha: {{ turno.dateTime | date:'short' }}
+      <button (click)="reservar(turno.id)">Reservar</button>
+    </li>
+  </ul>
+
+  <p *ngIf="turnos.length === 0">No hay turnos disponibles.</p>
+</div>

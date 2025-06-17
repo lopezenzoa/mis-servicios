@@ -1,6 +1,9 @@
 package com.group.mis_servicios.view.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,12 +11,16 @@ import lombok.Setter;
 @Setter
 
 public class RegisterDTO {
-    @Max(value = 30, message = "The username must contains less than 30 characters")
-    @NotBlank(message = "The username cannot be in blank")
+    @Size(min = 4, max = 40, message = "El nombre de usuario debe tener entre 4 y 40 caracteres")
+    @NotBlank(message = "El nombre de usuario no puede estar en blanco")
     private String username;
 
-    @Pattern(regexp = "\\d{8,16}", message = "The password must contain at least 8 characters")
+
     @NotBlank(message = "The password cannot be in blank")
+    @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{8,}$",
+            message = "The password must have at least 8 characters, including uppercase, lowercase, number, and special character."
+    )
     private String password;
 
     @NotBlank(message = "The first name cannot be in blank")
@@ -32,59 +39,9 @@ public class RegisterDTO {
     @NotBlank(message = "The phone number cannot be in blank")
     private String phoneNumber;
 
-    public String getUsername() {
-        return username;
-    }
+    @Size(max = 40, message = "The license number is too long")
+    private String licenseNumber;
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
+    @Size(max = 40, message = "The facility name is too long")
+    private String facility;
 }

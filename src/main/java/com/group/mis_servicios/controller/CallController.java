@@ -2,6 +2,10 @@ package com.group.mis_servicios.controller;
 
 import com.group.mis_servicios.service.CallService;
 import com.group.mis_servicios.view.dto.CallDTO;
+import com.group.mis_servicios.view.dto.CallResponseDTO;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.Table;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,21 +19,24 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/calls")
 @CrossOrigin("*")
+@Tag(name = "Contrataciones", description = "Operaciones relacionadas a las contrataciones del cliente")
 public class CallController {
-
     @Autowired
     private CallService service;
 
     @GetMapping("/")
-    public ResponseEntity<List<CallDTO>> listAll() {
+    @ApiResponse(responseCode = "200", description = "Obtiene todas las contrataciones")
+    public ResponseEntity<List<CallResponseDTO>> getAll() {
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json")
-                .body(service.listAll());
+                .body(service.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable Long id) {
-        Optional<CallDTO> optionalCall = service.findById(id);
+    @ApiResponse(responseCode = "200", description = "Contratacion encontrada")
+    @ApiResponse(responseCode = "404", description = "Contratacion no encontrada")
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+        Optional<CallDTO> optionalCall = service.getById(id);
 
         if (optionalCall.isPresent()) {
             return ResponseEntity.ok()
@@ -43,7 +50,13 @@ public class CallController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody CallDTO dto) {
+    @ApiResponse(responseCode = "200", description = "Contratacion actualizada")
+    @ApiResponse(responseCode = "400", description = "La Contratación no se pudo actualizar")
+    public ResponseEntity<?> update(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Cuerpo de la contratacion a actualizar")
+            @PathVariable Long id,
+            @Valid @RequestBody CallDTO dto
+    ) {
         Optional<CallDTO> optionalCallDTO = service.update(id, dto);
 
         if (optionalCallDTO.isPresent())
@@ -57,13 +70,18 @@ public class CallController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@Valid @RequestBody CallDTO dto) {
+    @ApiResponse(responseCode = "200", description = "Contratacion creada")
+    @ApiResponse(responseCode = "400", description = "La Contratación no se pudo crear")
+    public ResponseEntity<?> create(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Cuerpo de la contratacion a crear")
+            @Valid @RequestBody CallDTO dto
+    ) {
         Optional<CallDTO> optionalCallDTO = service.create(dto);
 
         if (optionalCallDTO.isPresent())
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
-                    .body(Map.of("message", "The call was successfully updated"));
+                    .body(Map.of("message", "The call was successfully created"));
 
         return  ResponseEntity.status(400)
                 .header("Content-Type", "application/json")
@@ -71,8 +89,10 @@ public class CallController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable Long id) {
-        if (service.deleteById(id))
+    @ApiResponse(responseCode = "200", description = "Contratacion eliminada")
+    @ApiResponse(responseCode = "404", description = "La contratacion no se encontró")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        if (service.delete(id))
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
                     .body(Map.of("message", "The call was successfully deleted"));
