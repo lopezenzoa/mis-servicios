@@ -14,9 +14,10 @@ public class ShiftMapper {
     public static ShiftDTO toDTO(Shift shift) {
         ShiftDTO dto = new ShiftDTO();
 
+        dto.setId(shift.getId());
         dto.setProviderId(shift.getProvider().getId());
         dto.setDateTime(shift.getDateTime().toString());
-        dto.setAvailable(shift.isAvailable());
+        dto.setIsAvailable(shift.getAvailable());
 
         return dto;
     }
@@ -27,7 +28,7 @@ public class ShiftMapper {
 
         if (provider.isPresent()) {
             shift.setDateTime(LocalDateTime.parse(dto.getDateTime()));
-            shift.setAvailable(dto.isAvailable());
+            shift.setAvailable(dto.getIsAvailable());
             // shift.setProviderId(dto.getProviderId());
             shift.setProvider(provider.get());
         }

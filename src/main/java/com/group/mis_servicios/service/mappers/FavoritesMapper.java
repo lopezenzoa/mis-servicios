@@ -5,6 +5,8 @@ import com.group.mis_servicios.model.entity.Favorites;
 import com.group.mis_servicios.model.repository.CustomerRepository;
 import com.group.mis_servicios.view.dto.FavoritesDTO;
 
+import java.util.ArrayList;
+
 public class FavoritesMapper {
    // private static CustomerRepository customerRepository;   ////no irian porque no funciona en clases estáticas sin @Component, y nunca se inyectan
 
@@ -23,9 +25,13 @@ public class FavoritesMapper {
     public static FavoritesDTO toDTO(Favorites list) {
         FavoritesDTO dto = new FavoritesDTO();
 
-        dto.setTitle(list.getTitle());
-        // dto.setCustomerId(list.getOwnerId());
-        dto.setCreationDate(list.getCreationDate());
+        if (list != null) {
+            dto.setId(list.getId());
+            dto.setTitle(list.getTitle());
+            dto.setCustomerId(list.getCustomer().getId());
+            dto.setCreationDate(list.getCreationDate());
+            dto.setProviders(list.getProviders() == null ? new ArrayList<>() : ProviderMapper.toProviderDTOList(list.getProviders()));
+        }
 
         return dto;
     }

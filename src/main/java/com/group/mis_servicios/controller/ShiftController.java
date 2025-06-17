@@ -53,7 +53,7 @@ public class ShiftController {
         else {
             return ResponseEntity.status(404)
                     .header("Content-Type", "application/json")
-                    .body(Map.of("message", "The provider hasn't been found"));
+                    .body(Map.of("message", "The shift hasn't been found"));
         }
     }
 
@@ -75,7 +75,7 @@ public class ShiftController {
         List<ShiftDTO> registrados = service.createMultiple(shifts);
 
         if (!registrados.isEmpty())
-            return ResponseEntity.ok(Map.of("message", "Los turnos fueron registrados exitosamente"));
+            return ResponseEntity.ok(Map.of("message", "The shifts were added successfully"));
         else
             return ResponseEntity.status(400).body(Map.of("message", "No se pudieron registrar los turnos"));
     }
@@ -98,7 +98,7 @@ public class ShiftController {
     }
 
     @DeleteMapping("/{id}")
-    @ApiResponse(responseCode = "200", description = "Proveedor creado")
+    @ApiResponse(responseCode = "200", description = "Turno eliminado")
     public ResponseEntity<String> delete(@PathVariable Long id) {
         service.delete(id);
         return new ResponseEntity<>("The shift is not more in your list", HttpStatus.OK);

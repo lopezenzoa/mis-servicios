@@ -10,4 +10,5 @@ import java.util.List;
 public class CustomerResponseDTO extends UserResponseDTO {
     private List<CallResponseDTO> calls;
     private List<ReviewDTO> reviews;
+    private FavoritesDTO favorites;
 }

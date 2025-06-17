@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ShiftDTO {
-
+    private Long id;
 
     @Positive(message = "The provider id must be positive")
     private Long providerId;
@@ -16,5 +16,5 @@ public class ShiftDTO {
     @NotBlank(message = "The date cannot be in blank")
     private String dateTime;
 
-    private boolean isAvailable;
+    private Boolean isAvailable;
 }

@@ -53,6 +53,8 @@ public class ShiftService implements I_Service<ShiftDTO> {
                 && ShiftValidator.checkProvider(updated.getProviderId(), providerRepository)
                 && !ShiftValidator.existsShiftAtSameTime(updated.getProviderId(), LocalDateTime.parse(updated.getDateTime()), shiftRepository)) {
 
+            shiftRepository.deleteById(id);
+
             Shift saved = shiftRepository.save(ShiftMapper.toShift(updated, providerRepository));
             return Optional.of(ShiftMapper.toDTO(saved));
         }
@@ -83,7 +85,7 @@ public class ShiftService implements I_Service<ShiftDTO> {
     public List<ShiftDTO> getAvailables() {
         return shiftRepository.findAll()
                 .stream()
-                .filter(Shift::isAvailable)
+                .filter(Shift::getAvailable)
                 .map(ShiftMapper::toDTO)
                 .toList();
     }
@@ -96,7 +98,7 @@ public class ShiftService implements I_Service<ShiftDTO> {
 
         if (shiftOptional.isPresent()) {
             Shift shift = shiftOptional.get();
-            if (!shift.isAvailable()) {
+            if (!shift.getAvailable()) {
                 return Optional.empty(); // Ya reservado
             }
 
