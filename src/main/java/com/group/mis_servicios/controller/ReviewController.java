@@ -33,14 +33,15 @@ public class ReviewController {
 
     @GetMapping("/provider/{id}")
     @ApiResponse(responseCode = "200",description = "Obtiene todas las reseñas por provider ID")
-    @ApiResponse (responseCode = "400", description = "No se pudo filtrar las reseñas por provider ID")
-    public ResponseEntity<List<ReviewDTO>> getAllByProviderId(@PathVariable("id") Long providerId) {
+    @ApiResponse (responseCode = "404", description = "No se pudo filtrar las reseñas por provider ID")
+    public ResponseEntity<?> getAllByProviderId(@PathVariable("id") Long providerId) {
         List<ReviewDTO> list =
                 serviceR.filterByProvider(providerId)
                 .stream().map(ReviewMapper::toDTO)
                 .toList();
         if (list.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.status(404)
+                    .body(Map.of("message", "Provider has not been found!"));
         }
 
         return ResponseEntity.ok(list);
@@ -89,7 +90,5 @@ public class ReviewController {
        return ResponseEntity.status(HttpStatus.NOT_FOUND)
                .body(Map.of("message", "Review has not been deleted!"));
     }
-
-
 
 }

@@ -33,6 +33,8 @@ public class ReviewMapper {
         dto.setId(review.getId());
         dto.setDescription(review.getDescription());
         dto.setReviewDate(review.getCreationDate());
+        dto.setCustomerId(review.getCustomer().getId());
+        dto.setProviderId(review.getProvider().getId());
 
         return dto;
     }
