@@ -58,6 +58,9 @@ public class CustomerMapper {
         response.setReviews(customer.getReviews() == null ? new ArrayList<>() : ReviewMapper.toReviewDTOList(customer.getReviews()));
         response.setCalls(customer.getCalls() == null ? new ArrayList<>() : CallMapper.toCallDTOList(customer.getCalls()));
 
+        if (customer.getFavorites() != null)
+            response.setFavorites(FavoritesMapper.toDTO(customer.getFavorites()));
+
         return response;
     }
 }

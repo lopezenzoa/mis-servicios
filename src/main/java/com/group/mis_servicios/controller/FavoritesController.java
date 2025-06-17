@@ -6,6 +6,7 @@ import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import com.group.mis_servicios.service.FavoritesService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,12 @@ import java.util.Optional;
 public class FavoritesController {
     @Autowired
     private FavoritesService service;
+
+    @GetMapping("/")
+    @ApiResponse(responseCode = "200", description = "Obtiene todas las listas de favoritos")
+    public ResponseEntity<?> getAll() {
+        return ResponseEntity.ok(service.getAll());
+    }
 
     @PostMapping("/create")
     @ApiResponse(responseCode = "200", description = "Lista de favoritos creada")
@@ -76,7 +83,7 @@ public class FavoritesController {
         if (listOptional.isPresent())
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
-                    .body(Map.of("message", "The provider has been added to the list successfully!"));
+                    .body(Map.of("message", "The provider has been removed to the list successfully!"));
 
         return ResponseEntity.status(404)
                 .header("Content-Type", "application/json")
@@ -87,7 +94,7 @@ public class FavoritesController {
     @ApiResponse(responseCode = "200", description = "Lista eliminada")
     @ApiResponse(responseCode = "404", description = "La lista especificada no se encontró")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        boolean deleted = service.deleteFavoritesList(id);
+        boolean deleted = service.delete(id);
 
         if (deleted) {
             return ResponseEntity.ok()

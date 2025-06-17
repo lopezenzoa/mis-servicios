@@ -18,8 +18,8 @@ public class Shift {
     @Column(name = "date", columnDefinition = "DATETIME", nullable = false, unique = true)
     private LocalDateTime dateTime;
 
-    @Column(columnDefinition = "TINYINT", nullable = false)
-    private boolean available;
+    @Column(columnDefinition = "TINYINT(1)", nullable = false)
+    private Boolean available;
 
     @ManyToOne
     @JoinColumn(name = "provider_id")  // FK a la tabla Prestador

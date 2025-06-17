@@ -2,7 +2,6 @@ package com.group.mis_servicios.controller;
 
 import com.group.mis_servicios.service.ProviderService;
 import com.group.mis_servicios.service.ShiftService;
-import com.group.mis_servicios.view.dto.ProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import com.group.mis_servicios.view.dto.ShiftDTO;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,6 +20,7 @@ import java.util.Optional;
 @CrossOrigin("*")
 @Tag(name = "Turnos", description = "Operaciones relacionadas con los turnos del prestador")
 public class ShiftController {
+
     @Autowired
     private ShiftService service;
     @Autowired
@@ -53,7 +53,7 @@ public class ShiftController {
         else {
             return ResponseEntity.status(404)
                     .header("Content-Type", "application/json")
-                    .body(Map.of("message", "The provider hasn't been found"));
+                    .body(Map.of("message", "The shift hasn't been found"));
         }
     }
 
@@ -75,7 +75,7 @@ public class ShiftController {
         List<ShiftDTO> registrados = service.createMultiple(shifts);
 
         if (!registrados.isEmpty())
-            return ResponseEntity.ok(Map.of("message", "Los turnos fueron registrados exitosamente"));
+            return ResponseEntity.ok(Map.of("message", "The shifts were added successfully"));
         else
             return ResponseEntity.status(400).body(Map.of("message", "No se pudieron registrar los turnos"));
     }
@@ -98,7 +98,7 @@ public class ShiftController {
     }
 
     @DeleteMapping("/{id}")
-    @ApiResponse(responseCode = "200", description = "Proveedor creado")
+    @ApiResponse(responseCode = "200", description = "Turno eliminado")
     public ResponseEntity<String> delete(@PathVariable Long id) {
         service.delete(id);
         return new ResponseEntity<>("The shift is not more in your list", HttpStatus.OK);
@@ -114,6 +114,10 @@ public class ShiftController {
             return new ResponseEntity<>(service.getAvailableByProvider(providerId), HttpStatus.OK);
         else
             return new ResponseEntity<>("The provider has no been found with the ID: " + providerId, HttpStatus.NOT_FOUND);
+    }
+    @GetMapping("/all/{providerId}")
+    public ResponseEntity<List<ShiftDTO>> getAllByProvider(@PathVariable Long providerId) {
+        return ResponseEntity.ok(service.getAllByProvider(providerId));
     }
 
     /*

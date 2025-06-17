@@ -14,6 +14,8 @@ import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +32,12 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
 
     @Override
     public List<FavoritesDTO> getAll() {
-        return null;
+        List<FavoritesDTO> favoritesDTOS = new ArrayList<>();
+
+        favoritesListRepository.findAll()
+                .forEach(favorites -> favoritesDTOS.add(FavoritesMapper.toDTO(favorites)));
+
+        return favoritesDTOS;
     }
 
     @Override
@@ -45,6 +52,8 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
         if (customerOpt.isEmpty() || !FavoritesValidator.checkValidity(favoritesDTO, favoritesListRepository)) {
             return Optional.empty();
         }
+
+        favoritesDTO.setCreationDate(LocalDateTime.now());
 
         Favorites saved = favoritesListRepository.save(
                 FavoritesMapper.toFavoritesList(favoritesDTO, customerRepository)
@@ -61,6 +70,13 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
 
     @Override
     public boolean delete(Long id) {
+        Optional<Favorites> optionalList = favoritesListRepository.findById(id);
+
+        if (optionalList.isPresent()) {
+            favoritesListRepository.deleteById(id);
+            return true;
+        }
+
         return false;
     }
 
@@ -127,16 +143,5 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
         dto.setProviders(providerDTOs);
 
         return Optional.of(dto);
-    }
-
-    public boolean deleteFavoritesList(Long id) {
-        Optional<Favorites> optionalList = favoritesListRepository.findById(id);
-
-        if (optionalList.isPresent()) {
-            favoritesListRepository.deleteById(id);
-            return true;
-        }
-
-        return false;
     }
 }
