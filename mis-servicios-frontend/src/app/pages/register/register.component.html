@@ -1,0 +1,82 @@
+<main>
+  <h1>Bienvenido a Servicios de Confianza</h1>
+  <p>
+    Encuentra y contrata profesionales confiables o regístrate para brindar
+    servicios en tu zona, desde gasistas hasta paseadores de perros.
+  </p>
+
+  <h2>Registro</h2>
+
+  <div *ngIf="mensajeError" class="error-box">
+    {{ mensajeError }}
+  </div>
+
+  <form (ngSubmit)="onSubmit()">
+    <fieldset class="role-select">
+      <legend>Crear cuenta como:</legend>
+      <label class="role-radio">
+        <input type="radio" name="role" [(ngModel)]="rol" value="usuario" /> Usuario
+        <span class="custom-radio"></span>
+      </label>
+      <label class="role-radio">
+        <input type="radio" name="role" [(ngModel)]="rol" value="prestador" /> Prestador
+        <span class="custom-radio"></span>
+      </label>
+    </fieldset>
+
+    <label>Nombre</label>
+    <input type="text" name="firstName" [(ngModel)]="firstName"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('firstName') }" />
+
+    <label>Apellido</label>
+    <input type="text" name="lastName" [(ngModel)]="lastName"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('lastName') }" />
+
+    <label>Correo electrónico</label>
+    <input type="email" name="email" [(ngModel)]="email"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('email') }" />
+
+    <label>Dirección</label>
+    <input type="text" name="address" [(ngModel)]="address"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('address') }" />
+
+    <label>Teléfono</label>
+    <input type="text" name="phoneNumber" [(ngModel)]="phoneNumber"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('phoneNumber') }" />
+
+    <label>Nombre de usuario</label>
+    <input type="text" name="username" [(ngModel)]="username"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('username') }" />
+
+    <label>Contraseña</label>
+    <input type="password" name="password" [(ngModel)]="password"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('password') }" />
+
+    <label>Confirmar contraseña</label>
+    <input type="password" name="confirmPassword" [(ngModel)]="confirmPassword"
+           [ngClass]="{ 'campo-invalido': camposInvalidos.includes('confirmPassword') }" />
+
+    <div *ngIf="rol === 'prestador'" class="grupo-prestador">
+      <div class="form-group">
+        <label for="license">Número de Licencia</label>
+        <input id="license" name="licenseNumber" [(ngModel)]="licenseNumber"
+               [ngClass]="{ 'campo-invalido': camposInvalidos.includes('licenseNumber') }" />
+      </div>
+
+      <div class="form-group">
+        <label for="categoria">Categoría</label>
+        <select id="categoria" name="categoria" [(ngModel)]="categoriaSeleccionada"
+                [ngClass]="{ 'campo-invalido': camposInvalidos.includes('categoria') }">
+          <option value="" disabled selected>Seleccioná una categoría</option>
+          <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="submit">Crear cuenta</button>
+
+    <p class="toggle-forms">
+      <a routerLink="/login">¿Ya tenés cuenta? Iniciar sesión</a>
+    </p>
+  </form>
+</main>

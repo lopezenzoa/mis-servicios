@@ -9,4 +9,6 @@ import java.util.List;
 public interface ShiftRepository extends JpaRepository<Shift, Long> {
     List<Shift> findByProviderIdAndAvailableTrue(Long providerId);
     boolean existsByProviderIdAndDateTime(Long providerId, LocalDateTime dateTime);
+    List<Shift> findByProviderId(Long providerId);
+
 }

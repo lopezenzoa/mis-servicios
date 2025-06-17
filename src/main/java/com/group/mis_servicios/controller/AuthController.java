@@ -1,54 +1,136 @@
 package com.group.mis_servicios.controller;
 
 
+import com.group.mis_servicios.model.entity.Credentials;
+import com.group.mis_servicios.model.entity.Customer;
+import com.group.mis_servicios.model.entity.Provider;
+import com.group.mis_servicios.model.enums.Roles;
+import com.group.mis_servicios.model.repository.CredentialsRepository;
+import com.group.mis_servicios.model.repository.CustomerRepository;
+import com.group.mis_servicios.model.repository.ProviderRepository;
+import com.group.mis_servicios.security.CustomUserDetailsService;
+import com.group.mis_servicios.security.JwtUtil;
+import com.group.mis_servicios.service.AuthService;
 import com.group.mis_servicios.view.dto.LoginDTO;
 import com.group.mis_servicios.view.dto.RegisterDTO;
-import com.group.mis_servicios.model.entity.User;
-import com.group.mis_servicios.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin("*")
+@Tag(name = "Autenticación", description = "Operaciones relacionadas con la autenticacion")
 public class AuthController {
     @Autowired
     private AuthService service;
+    @Autowired private CustomerRepository customerRepo;
+    @Autowired private ProviderRepository providerRepo;
+    @Autowired private CredentialsRepository credsRepo;
+    @Autowired private BCryptPasswordEncoder encoder; // to encrypt the password
+    @Autowired
+    private AuthenticationManager authManager;
+    @Autowired
+    private JwtUtil jwtUtil;
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+    public void register(RegisterDTO dto, Roles role) {
+        // Validación de unicidad de username
+        if (credsRepo.existsByUsername(dto.getUsername())) {
+            throw new IllegalArgumentException("El nombre de usuario ya está en uso");
+        }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterDTO dto) {
-        service.register(dto);
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json")
-                .body(Map.of("message", "The user has been registered successfully!"));
+        // Validación de unicidad de email
+        if (role.equals(Roles.CUSTOMER) && customerRepo.existsByEmail(dto.getEmail())) {
+            throw new IllegalArgumentException("El correo electrónico ya está registrado como cliente");
+        }
+
+        if (role.equals(Roles.PROVIDER) && providerRepo.existsByEmail(dto.getEmail())) {
+            throw new IllegalArgumentException("El correo electrónico ya está registrado como prestador");
+        }
+
+        // Crear credenciales
+        Credentials creds = new Credentials();
+        creds.setUsername(dto.getUsername());
+        creds.setPassword(encoder.encode(dto.getPassword()));
+        creds.setRole(role);
+
+        if (role.equals(Roles.CUSTOMER)) {
+            // Crear nuevo Customer
+            Customer nuevo = new Customer();
+            nuevo.setFirstName(dto.getFirstName());
+            nuevo.setLastName(dto.getLastName());
+            nuevo.setEmail(dto.getEmail());
+            nuevo.setAddress(dto.getAddress());
+            nuevo.setPhoneNumber(dto.getPhoneNumber());
+
+            customerRepo.save(nuevo);
+
+            // Asociar credenciales
+            nuevo.setCredentials(creds);
+            creds.setCustomer(nuevo);
+            credsRepo.save(creds);
+
+        } else if (role.equals(Roles.PROVIDER)) {
+            // Crear nuevo Provider
+            Provider nuevo = new Provider();
+            nuevo.setFirstName(dto.getFirstName());
+            nuevo.setLastName(dto.getLastName());
+            nuevo.setEmail(dto.getEmail());
+            nuevo.setAddress(dto.getAddress());
+            nuevo.setPhoneNumber(dto.getPhoneNumber());
+            nuevo.setLicenseNumber(dto.getLicenseNumber());
+            nuevo.setFacility(dto.getFacility());
+
+            providerRepo.save(nuevo);
+
+            // Asociar credenciales
+            nuevo.setCredentials(creds);
+            creds.setProvider(nuevo);
+            credsRepo.save(creds);
+        }
     }
 
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> getAuthUsers() {
-        return ResponseEntity.ok()
-                .header("Content-Type", "application/json")
-                .body(service.getAuthUsers());
-    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO dto) {
-        boolean success = service.login(dto);
-        if (success) {
-            return ResponseEntity.ok()
-                    .header("Content-Type", "application/json")
-                    .body("Logged in successfully!");
-        }
+        try {
+            authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(dto.getIdentifier(), dto.getPassword())
+            );
 
-        return ResponseEntity.status(401)
-                .header("Content-Type", "application/json")
-                .body("Oops :( Invalid credentials");
+            var userDetails = userDetailsService.loadUserByUsername(dto.getIdentifier());
+            var token = jwtUtil.generateToken(userDetails.getUsername(), userDetails.getAuthorities());
+
+
+            // 🔍 Obtener el rol
+            String role = userDetails.getAuthorities().stream()
+                    .findFirst()
+                    .map(GrantedAuthority::getAuthority)
+                    .orElse("UNKNOWN");
+
+            return ResponseEntity.ok(Map.of(
+                    "token", token,
+                    "role", role
+            ));
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(401).body(Map.of("error", "Credenciales inválidas"));
+        }
     }
+
+
+
     @PostMapping("/logout")
+    @Operation(summary = "Cerrar sesión del usuario", description = "Cierra la sesión del usuario, eliminando todas las cookies de sesión")
     public ResponseEntity<?> logout() {
         return ResponseEntity.ok()
                 .header("Content-Type", "application/json")

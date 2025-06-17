@@ -1,0 +1,30 @@
+<div class="contenedor-turnos">
+  <h2>Reservar turno con {{ prestadorNombre }}</h2>
+
+  <p *ngIf="mensaje">{{ mensaje }}</p>
+
+  <div *ngFor="let fecha of turnosAgrupados | keyvalue">
+    <details>
+      <summary><strong>{{ fecha.key | date:'fullDate' }}</strong></summary>
+      <ul>
+        <li *ngFor="let turno of fecha.value">
+          {{ turno.dateTime | date:'shortTime' }}
+          <button
+            (click)="reservar(turno.id)"
+            [disabled]="!turno.available"
+            [ngStyle]="{
+              'background-color': !turno.available ? '#ccc' : '#4CAF50',
+              'color': !turno.available ? '#666' : '#fff',
+              'cursor': !turno.available ? 'not-allowed' : 'pointer',
+              'margin-left': '10px',
+              'border': 'none',
+              'padding': '5px 10px',
+              'border-radius': '5px'
+            }">
+            {{ turno.available ? 'Reservar' : 'Ocupado' }}
+          </button>
+        </li>
+      </ul>
+    </details>
+  </div>
+</div>
