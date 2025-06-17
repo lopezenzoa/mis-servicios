@@ -37,13 +37,15 @@ public class ShiftService implements I_Service<ShiftDTO> {
 
     @Override
     public Optional<ShiftDTO> create(ShiftDTO shift) {
-        Optional<Shift> optionalShift = Optional.of(
-                shiftRepository.save(ShiftMapper.toShift(shift, providerRepository))
-        );
+        if (!providerRepository.existsById(shift.getProviderId())) {
+            throw new RuntimeException("Proveedor con ID " + shift.getProviderId() + " no encontrado.");
+        }
 
-
-        return optionalShift.map(ShiftMapper::toDTO);
+        Shift newShift = ShiftMapper.toShift(shift, providerRepository);
+        Shift saved = shiftRepository.save(newShift);
+        return Optional.of(ShiftMapper.toDTO(saved));
     }
+
 
     @Override
     public Optional<ShiftDTO> update(Long id, ShiftDTO updated) {
@@ -64,11 +66,20 @@ public class ShiftService implements I_Service<ShiftDTO> {
 
     public List<ShiftDTO> createMultiple(List<ShiftDTO> shifts) {
         return shifts.stream()
-                .map(this::create)
+                .map(dto -> {
+                    try {
+                        return this.create(dto);
+                    } catch (Exception e) {
+                        System.out.println("Error al crear shift: " + dto);
+                        e.printStackTrace();
+                        return Optional.<ShiftDTO>empty();
+                    }
+                })
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();
     }
+
 
     @Override
     public boolean delete(Long id) {
@@ -108,6 +119,12 @@ public class ShiftService implements I_Service<ShiftDTO> {
         }
 
         return Optional.empty(); // No existe
+    }
+    public List<ShiftDTO> getAllByProvider(Long providerId) {
+        return shiftRepository.findByProviderId(providerId)
+                .stream()
+                .map(ShiftMapper::toDTO)
+                .toList();
     }
 
 }

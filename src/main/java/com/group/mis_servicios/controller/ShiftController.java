@@ -2,7 +2,6 @@ package com.group.mis_servicios.controller;
 
 import com.group.mis_servicios.service.ProviderService;
 import com.group.mis_servicios.service.ShiftService;
-import com.group.mis_servicios.view.dto.ProviderDTO;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import com.group.mis_servicios.view.dto.ShiftDTO;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,6 +20,7 @@ import java.util.Optional;
 @CrossOrigin("*")
 @Tag(name = "Turnos", description = "Operaciones relacionadas con los turnos del prestador")
 public class ShiftController {
+
     @Autowired
     private ShiftService service;
     @Autowired
@@ -114,6 +114,10 @@ public class ShiftController {
             return new ResponseEntity<>(service.getAvailableByProvider(providerId), HttpStatus.OK);
         else
             return new ResponseEntity<>("The provider has no been found with the ID: " + providerId, HttpStatus.NOT_FOUND);
+    }
+    @GetMapping("/all/{providerId}")
+    public ResponseEntity<List<ShiftDTO>> getAllByProvider(@PathVariable Long providerId) {
+        return ResponseEntity.ok(service.getAllByProvider(providerId));
     }
 
     /*

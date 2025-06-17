@@ -1,0 +1,21 @@
+<div class="container">
+  <header>
+    <h1>Panel Prestador de Servicios</h1>
+    <div class="welcome-msg">Hola, {{ nombrePrestador }}</div>
+  </header>
+
+  <section class="requests-list">
+    <article class="request-card" *ngFor="let solicitud of solicitudes">
+      <h2 class="request-title">{{ solicitud.titulo }}</h2>
+      <p class="request-detail">{{ solicitud.descripcion }}</p>
+      <div class="request-contact">
+        Cliente: {{ solicitud.clienteNombre }} | Tel: {{ solicitud.telefono }}
+      </div>
+      <button class="btn-action" (click)="aceptarSolicitud(solicitud.id)">Aceptar solicitud</button>
+    </article>
+  </section>
+
+  <footer>
+    &copy; 2025 Servicios de Confianza
+  </footer>
+</div>

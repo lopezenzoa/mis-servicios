@@ -8,6 +8,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ShiftDTO {
+
+    @Positive(message = "The shift id must be positive")
     private Long id;
 
     @Positive(message = "The provider id must be positive")

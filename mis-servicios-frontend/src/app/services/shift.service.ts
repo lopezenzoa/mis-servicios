@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Shift {
@@ -26,6 +26,11 @@ export class ShiftService {
   }
 
   reserveShift(id: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/reservar/${id}`, {});
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+
+    return this.http.post(`${this.apiUrl}/reservar/${id}`, {}, { headers });
   }
 }
