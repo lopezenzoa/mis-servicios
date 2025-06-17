@@ -1,5 +1,7 @@
 package com.group.mis_servicios.controller;
 
+import com.group.mis_servicios.model.entity.Provider;
+import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.service.ProviderService;
 import com.group.mis_servicios.service.ShiftService;
 import com.group.mis_servicios.view.dto.ProviderResponseDTO;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,6 +23,8 @@ import java.util.Optional;
 @CrossOrigin("*")
 @Tag(name = "Turnos", description = "Operaciones relacionadas con los turnos del prestador")
 public class ShiftController {
+    @Autowired
+    private ProviderRepository providerRepo;
 
     @Autowired
     private ShiftService service;
@@ -33,6 +38,7 @@ public class ShiftController {
                 .header("Content-Type", "application/json")
                 .body(service.getAll());
     }
+
     @PostMapping("/reservar/{id}")
     public ResponseEntity<ShiftDTO> reservarTurno(@PathVariable Long id) {
         Optional<ShiftDTO> reservado = service.reserveShift(id);
@@ -115,6 +121,7 @@ public class ShiftController {
         else
             return new ResponseEntity<>("The provider has no been found with the ID: " + providerId, HttpStatus.NOT_FOUND);
     }
+
     @GetMapping("/all/{providerId}")
     public ResponseEntity<List<ShiftDTO>> getAllByProvider(@PathVariable Long providerId) {
         return ResponseEntity.ok(service.getAllByProvider(providerId));
@@ -132,4 +139,19 @@ public class ShiftController {
     }
 
      */
+    @GetMapping("/mis-turnos")
+    public ResponseEntity<List<ShiftDTO>> getTurnosDelPrestador(Principal principal) {
+        String username = principal.getName();
+        System.out.println("🔎 Username del token en /mis-turnos: " + username);
+
+        Optional<Provider> providerOpt = providerRepo.findByCredentials_Username(username);
+
+        if (providerOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        Long providerId = providerOpt.get().getId();
+        List<ShiftDTO> turnos = service.getAllByProvider(providerId);
+        return ResponseEntity.ok(turnos);
+    }
 }

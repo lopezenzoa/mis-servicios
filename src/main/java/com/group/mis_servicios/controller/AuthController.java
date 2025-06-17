@@ -8,13 +8,19 @@ import com.group.mis_servicios.model.enums.Roles;
 import com.group.mis_servicios.model.repository.CredentialsRepository;
 import com.group.mis_servicios.model.repository.CustomerRepository;
 import com.group.mis_servicios.model.repository.ProviderRepository;
+import com.group.mis_servicios.security.CustomUserDetailsService;
+import com.group.mis_servicios.security.JwtUtil;
 import com.group.mis_servicios.service.AuthService;
+import com.group.mis_servicios.view.dto.LoginDTO;
 import com.group.mis_servicios.view.dto.RegisterDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import com.group.mis_servicios.view.dto.LoginDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +37,12 @@ public class AuthController {
     @Autowired private ProviderRepository providerRepo;
     @Autowired private CredentialsRepository credsRepo;
     @Autowired private BCryptPasswordEncoder encoder; // to encrypt the password
-
+    @Autowired
+    private AuthenticationManager authManager;
+    @Autowired
+    private JwtUtil jwtUtil;
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
     public void register(RegisterDTO dto, Roles role) {
         // Validación de unicidad de username
         if (credsRepo.existsByUsername(dto.getUsername())) {
@@ -89,24 +100,31 @@ public class AuthController {
         }
     }
 
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO dto) {
-        boolean success = service.login(dto);
+        try {
+            authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(dto.getIdentifier(), dto.getPassword())
+            );
 
-        if (success) {
-            String role = service.getRoleByUsername(dto.getIdentifier());
+            var userDetails = userDetailsService.loadUserByUsername(dto.getIdentifier());
+            var token = jwtUtil.generateToken(userDetails.getUsername(), userDetails.getAuthorities());
 
-            return ResponseEntity.ok()
-                    .header("Content-Type", "application/json")
-                    .body(Map.of(
-                            "message", "Logged in successfully!",
-                            "role", role
-                    ));
+
+            // 🔍 Obtener el rol
+            String role = userDetails.getAuthorities().stream()
+                    .findFirst()
+                    .map(GrantedAuthority::getAuthority)
+                    .orElse("UNKNOWN");
+
+            return ResponseEntity.ok(Map.of(
+                    "token", token,
+                    "role", role
+            ));
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(401).body(Map.of("error", "Credenciales inválidas"));
         }
-
-        return ResponseEntity.status(401)
-                .header("Content-Type", "application/json")
-                .body("Oops :( Invalid credentials");
     }
 
 

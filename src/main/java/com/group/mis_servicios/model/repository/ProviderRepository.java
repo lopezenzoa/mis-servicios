@@ -28,5 +28,6 @@ public interface ProviderRepository extends JpaRepository<Provider, Long> {
     boolean existsByPhoneNumber(String phone);
     boolean existsByCredentialsUsername(String username);
     boolean existsByCredentials_Username(String username);
+    Optional<Provider> findByCredentials_Username(String username);
 
 }

@@ -47,4 +47,6 @@ public class Customer {
 
     @OneToMany(mappedBy = "customer")
     private List<Call> calls;
+    @OneToMany(mappedBy = "customer")
+    private List<Shift> shifts;
 }

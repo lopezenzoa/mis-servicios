@@ -1,7 +1,12 @@
 <div class="container">
   <header>
-    <h1>Contrata a tu Profesional Ideal</h1>
-    <p class="lead">Explora servicios confiables cerca de ti: gasistas, plomeros, jardineros, pintores y más.</p>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1>Contrata a tu Profesional Ideal</h1>
+        <p class="lead">Explora servicios confiables cerca de ti: gasistas, plomeros, jardineros, pintores y más.</p>
+      </div>
+      <button (click)="logout()" style="height: 40px;">Cerrar sesión</button>
+    </div>
   </header>
 
   <div class="search-bar" role="search" aria-label="Buscador de profesionales">

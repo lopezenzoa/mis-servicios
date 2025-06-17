@@ -171,3 +171,17 @@ h1 {
   outline: none;
 }
 
+/* En inicio-usuario.component.css */
+.btn-logout {
+  margin-top: 10px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  float: right;
+}
+
+.btn-logout:hover {
+  background-colo

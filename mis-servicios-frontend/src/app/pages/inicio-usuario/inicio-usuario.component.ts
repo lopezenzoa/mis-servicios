@@ -20,21 +20,22 @@ export class InicioUsuarioComponent implements OnInit {
 
   constructor(private http: HttpClient, private router: Router) {} // <-- INYECTAR Router
 
-  ngOnInit(): void {
+ngOnInit(): void {
+  const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
 
-    this.http.get<any[]>('http://localhost:8080/providers/').subscribe({
-      next: data => {
-        this.prestadoresOriginal = data;
-        this.prestadoresFiltrados = data;
-      },
-      error: err => console.error('Error al cargar prestadores', err)
-    });
+  this.http.get<any[]>('http://localhost:8080/providers/', { headers }).subscribe({
+    next: data => {
+      this.prestadoresOriginal = data;
+      this.prestadoresFiltrados = data;
+    },
+    error: err => console.error('Error al cargar prestadores', err)
+  });
 
-    this.http.get<any[]>('http://localhost:8080/categorias').subscribe({
-      next: data => this.categorias = data.map(c => c.nombre),
-      error: err => console.error('Error al cargar categorías')
-    });
-  }
+  this.http.get<any[]>('http://localhost:8080/categorias').subscribe({
+    next: data => this.categorias = data.map(c => c.nombre),
+    error: err => console.error('Error al cargar categorías')
+  });
+}
 
   verTurnos(id: number): void {
     if (id) {
@@ -52,4 +53,10 @@ export class InicioUsuarioComponent implements OnInit {
       (this.filtroUbicacion ? p.address?.toLowerCase().includes(this.filtroUbicacion.toLowerCase()) : true)
     );
   }
+logout(): void {
+  localStorage.removeItem('token');
+  localStorage.removeItem('role');
+  this.router.navigate(['/login']);
+}
+
 }

@@ -101,3 +101,17 @@ footer {
   color: #a0aec0;
   font-size: 0.9rem;
 }
+/* En inicio-usuario.component.css */
+.btn-logout {
+  margin-top: 10px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  float: right;
+}
+
+.btn-logout:hover {
+  background-colo
