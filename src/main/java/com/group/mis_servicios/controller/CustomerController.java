@@ -1,6 +1,10 @@
 package com.group.mis_servicios.controller;
 
+import com.group.mis_servicios.model.entity.Customer;
+import com.group.mis_servicios.model.entity.Provider;
 import com.group.mis_servicios.model.enums.Roles;
+import com.group.mis_servicios.model.repository.CustomerRepository;
+import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.service.AuthService;
 import com.group.mis_servicios.service.CustomerService;
 import com.group.mis_servicios.view.dto.CustomerDTO;
@@ -14,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +32,9 @@ public class CustomerController {
     private CustomerService service;
     @Autowired
     private AuthService authService;
+    @Autowired
+    private CustomerRepository repository;
+
     @GetMapping("/")
     @ApiResponse(responseCode = "200", description = "Obtiene todos los clientes")
     public ResponseEntity<List<CustomerResponseDTO>> getAll() {
@@ -80,5 +88,19 @@ public class CustomerController {
         else {
             return new ResponseEntity<>("The customer has no been found with the ID: " + id, HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> obtenerCustomerActual(Principal principal) {
+        String username = principal.getName();
+        System.out.println(" Username desde token: " + username);
+
+        Optional<Customer> customer = repository.findByCredentials_Username(username);
+
+        if (customer.isPresent()) {
+            return ResponseEntity.ok(service.getById(customer.get().getId()));
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Customer not found"));
     }
 }

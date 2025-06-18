@@ -1,12 +1,15 @@
 package com.group.mis_servicios.service;
 
 import com.group.mis_servicios.model.entity.Shift;
+import com.group.mis_servicios.model.repository.CustomerRepository;
 import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.model.repository.ShiftRepository;
 import com.group.mis_servicios.service.mappers.ShiftMapper;
 import com.group.mis_servicios.service.validators.ShiftValidator;
 import com.group.mis_servicios.view.dto.ShiftDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,6 +22,8 @@ public class ShiftService implements I_Service<ShiftDTO> {
     private ShiftRepository shiftRepository;
     @Autowired
     private ProviderRepository providerRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
 
     @Override
     public List<ShiftDTO> getAll() {
@@ -110,16 +115,27 @@ public class ShiftService implements I_Service<ShiftDTO> {
         if (shiftOptional.isPresent()) {
             Shift shift = shiftOptional.get();
             if (!shift.getAvailable()) {
-                return Optional.empty(); // Ya reservado
+                return Optional.empty();
             }
 
+
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String username = auth.getName();
+
+            var customer = customerRepository.findByCredentials_Username(username)
+                    .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+
+            shift.setCustomer(customer);
             shift.setAvailable(false); // Marcar como reservado
+
             Shift saved = shiftRepository.save(shift);
             return Optional.of(ShiftMapper.toDTO(saved));
         }
 
         return Optional.empty(); // No existe
     }
+
     public List<ShiftDTO> getAllByProvider(Long providerId) {
         return shiftRepository.findByProviderId(providerId)
                 .stream()

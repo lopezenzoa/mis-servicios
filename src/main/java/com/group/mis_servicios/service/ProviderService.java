@@ -146,4 +146,15 @@ public class ProviderService implements I_Service<ProviderDTO> {
     public Optional<Provider> getByEmail(String email) {
         return repository.findByEmail(email);
     }
+    public Optional<ProviderResponseDTO> findByEmail(String email) {
+        return repository.findByEmail(email).map(provider -> {
+            ProviderResponseDTO dto = new ProviderResponseDTO();
+            dto.setId(provider.getId());
+            dto.setFirstName(provider.getFirstName());
+            dto.setLastName(provider.getLastName());
+            // cualquier otro dato que quieras devolver
+            return dto;
+        });
+    }
+
 }

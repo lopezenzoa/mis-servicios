@@ -18,5 +18,8 @@ public class ShiftDTO {
     @NotBlank(message = "The date cannot be in blank")
     private String dateTime;
 
-    private Boolean isAvailable;
+    private Boolean available;
+    private String customerName;
+    private String customerPhone;
+
 }

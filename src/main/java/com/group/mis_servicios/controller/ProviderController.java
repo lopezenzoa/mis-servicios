@@ -1,5 +1,6 @@
 package com.group.mis_servicios.controller;
 
+import com.group.mis_servicios.model.entity.Provider;
 import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.service.ProviderService;
 import com.group.mis_servicios.view.dto.ProviderDTO;
@@ -7,15 +8,13 @@ import com.group.mis_servicios.view.dto.ProviderResponseDTO;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -157,4 +156,21 @@ public class ProviderController {
         String errorMessage = "The parameter '" + ex.getName() + "' must be a valid number (Long).";
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> obtenerPrestadorActual(Principal principal) {
+        String username = principal.getName();
+        System.out.println(" Username desde token: " + username);
+
+        Optional<Provider> provider = repository.findByCredentials_Username(username);
+
+        if (provider.isPresent()) {
+            return ResponseEntity.ok(service.getById(provider.get().getId()));
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Provider not found"));
+    }
+
+
+
 }

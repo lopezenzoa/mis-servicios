@@ -1,10 +1,15 @@
 <div class="container">
-  <header>
-    <h1>Panel Prestador de Servicios</h1>
-    <div class="welcome-msg">Hola, {{ nombrePrestador }}</div>
+  <!-- HEADER -->
+  <header style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h1>Panel Prestador de Servicios</h1>
+      <div class="welcome-msg">Hola, {{ nombrePrestador }}</div>
+    </div>
+    <button (click)="logout()" style="height: 40px;">Cerrar sesión</button>
   </header>
 
-  <section class="requests-list">
+  <!-- SOLICITUDES -->
+  <section class="requests-list" *ngIf="solicitudes.length > 0; else noSolicitudes">
     <article class="request-card" *ngFor="let solicitud of solicitudes">
       <h2 class="request-title">{{ solicitud.titulo }}</h2>
       <p class="request-detail">{{ solicitud.descripcion }}</p>
@@ -15,7 +20,47 @@
     </article>
   </section>
 
-  <footer>
+  <ng-template #noSolicitudes>
+    <p style="margin-top: 20px;">No hay solicitudes por el momento.</p>
+  </ng-template>
+
+  <!-- FORMULARIO PARA AGREGAR TURNOS -->
+  <section class="turno-form" style="margin-top: 40px;">
+    <h2>Agregar Turno Disponible</h2>
+    <form (ngSubmit)="agregarTurno()" style="display: flex; flex-direction: column; gap: 10px; max-width: 300px;">
+      <label>
+        Fecha y Hora:
+        <input
+          type="datetime-local"
+          [(ngModel)]="nuevoTurno.dateTime"
+          name="dateTime"
+          required
+        />
+      </label>
+      <button type="submit" class="btn-action">Agregar Turno</button>
+    </form>
+  </section>
+  <section class="lista-turnos">
+    <h2>Mis Turnos Cargados</h2>
+
+    <div *ngIf="turnosAgregados.length === 0">
+      No hay turnos cargados.
+    </div>
+
+    <ul>
+      <li *ngFor="let turno of turnosAgregados" style="margin-bottom: 8px;">
+        {{ turno.dateTime | date:'dd/MM/yyyy HH:mm' }}
+        <br />
+        <span *ngIf="turno.customerName">
+      <strong>Cliente:</strong> {{ turno.customerName }} | <strong>Tel:</strong> {{ turno.customerPhone }}
+    </span>
+        <button (click)="eliminarTurno(turno.id)" style="margin-left: 10px;">Eliminar</button>
+      </li>
+    </ul>
+  </section>
+  <!-- FOOTER -->
+  <footer style="margin-top: 50px;">
     &copy; 2025 Servicios de Confianza
   </footer>
 </div>
+

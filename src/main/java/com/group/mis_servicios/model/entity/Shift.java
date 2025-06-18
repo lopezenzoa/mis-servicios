@@ -24,4 +24,15 @@ public class Shift {
     @ManyToOne
     @JoinColumn(name = "provider_id")  // FK a la tabla Prestador
     private Provider provider;
+    @ManyToOne
+    @JoinColumn(name = "customer_id")  // crea la FK en la tabla shifts
+    private Customer customer;
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
 }

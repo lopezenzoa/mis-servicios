@@ -6,7 +6,6 @@ import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.view.dto.ShiftDTO;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 public class ShiftMapper {
     //private static ProviderRepository providerRepository;
@@ -17,23 +16,26 @@ public class ShiftMapper {
         dto.setId(shift.getId());
         dto.setProviderId(shift.getProvider().getId());
         dto.setDateTime(shift.getDateTime().toString());
-        dto.setIsAvailable(shift.getAvailable());
+        dto.setAvailable(shift.getAvailable());
         dto.setId(shift.getId());
-
+        if (shift.getCustomer() != null) {
+            dto.setCustomerName(shift.getCustomer().getFirstName() + " " + shift.getCustomer().getLastName());
+            dto.setCustomerPhone(shift.getCustomer().getPhoneNumber());
+        }
         return dto;
     }
 
     public static Shift toShift(ShiftDTO dto, ProviderRepository providerRepository) {
-        Shift shift = new Shift();
-        Optional<Provider> provider = providerRepository.findById(dto.getProviderId());
+        Provider provider = providerRepository.findById(dto.getProviderId())
+                .orElseThrow(() -> new IllegalArgumentException("Provider not found with ID: " + dto.getProviderId()));
 
-        if (provider.isPresent()) {
-            shift.setDateTime(LocalDateTime.parse(dto.getDateTime()));
-            shift.setAvailable(dto.getIsAvailable());
-            // shift.setProviderId(dto.getProviderId());
-            shift.setProvider(provider.get());
-        }
+        Shift shift = new Shift();
+        shift.setDateTime(LocalDateTime.parse(dto.getDateTime()));
+        shift.setAvailable(dto.getAvailable() != null ? dto.getAvailable() : true);
+        shift.setProvider(provider);
 
         return shift;
     }
+
+
 }
