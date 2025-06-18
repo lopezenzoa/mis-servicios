@@ -14,10 +14,10 @@ import { FormsModule } from '@angular/forms';
 export class InicioPrestadorComponent implements OnInit {
   nombrePrestador = '';
   solicitudes: any[] = [];
+  turnosAgendados: any[] = [];
+  turnosDisponibles: any[] = [];
   turnosAgregados: any[] = [];
- nuevoTurno = { dateTime: '', available: true };
-
-
+  nuevoTurno = { dateTime: '', available: true };
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -29,13 +29,16 @@ export class InicioPrestadorComponent implements OnInit {
     this.http.get<any>('http://localhost:8080/providers/me', { headers }).subscribe({
       next: (data) => {
         this.nombrePrestador = `${data.firstName} ${data.lastName}`;
-        localStorage.setItem('providerId', data.id); // guardás el ID
+        localStorage.setItem('providerId', data.id);
       },
       error: () => alert('Error al obtener nombre del prestador')
     });
 
+
     this.http.get<any[]>('http://localhost:8080/shifts/mis-turnos', { headers }).subscribe({
-      next: (data) => this.solicitudes = data,
+      next: (data) => {
+        this.solicitudes = data.filter(t => t.customerName && t.status === 'PENDING');
+      },
       error: () => alert('Error al obtener solicitudes')
     });
 
@@ -51,6 +54,7 @@ export class InicioPrestadorComponent implements OnInit {
       next: () => {
         this.solicitudes = this.solicitudes.filter(s => s.id !== id);
         alert('Solicitud aceptada');
+        this.cargarTurnosDelPrestador();
       },
       error: () => alert('Error al aceptar solicitud')
     });
@@ -62,45 +66,50 @@ export class InicioPrestadorComponent implements OnInit {
     });
 
     const providerId = Number(localStorage.getItem('providerId'));
-
     if (!providerId) {
       alert('No se pudo obtener el ID del prestador');
       return;
     }
 
- const turno = {
-   providerId: providerId,
-   dateTime: this.nuevoTurno.dateTime,
-   available: true // no isAvailable
- };
+    const turno = {
+      providerId: providerId,
+      dateTime: this.nuevoTurno.dateTime,
+      available: true
+    };
 
-
-  console.log('Turno a enviar:', turno);
-  this.http.post('http://localhost:8080/shifts/create-multiple', [turno], { headers }).subscribe({
-    next: () => {
-      alert('Turno agregado correctamente');
-      this.nuevoTurno.dateTime = '';
-      this.cargarTurnosDelPrestador();
-    },
-    error: err => {
-      console.error('Error al agregar turno:', err);
-      alert('Error al agregar turno');
-    }
-  });
-  }
-
-  cargarTurnosDelPrestador() {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${localStorage.getItem('token')}`
-    });
-
-    this.http.get<any[]>('http://localhost:8080/shifts/mis-turnos', { headers }).subscribe({
-      next: (data) => {
-        this.turnosAgregados = data;
+    this.http.post('http://localhost:8080/shifts/create-multiple', [turno], { headers }).subscribe({
+      next: () => {
+        alert('Turno agregado correctamente');
+        this.nuevoTurno.dateTime = '';
+        this.cargarTurnosDelPrestador();
       },
-      error: () => alert('Error al cargar los turnos del prestador')
+      error: err => {
+        console.error('Error al agregar turno:', err);
+        alert('Error al agregar turno');
+      }
     });
   }
+
+cargarTurnosDelPrestador() {
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${localStorage.getItem('token')}`
+  });
+
+  this.http.get<any[]>('http://localhost:8080/shifts/mis-turnos', { headers }).subscribe({
+    next: (data) => {
+      console.log('TODOS LOS TURNOS DEL BACKEND:', data);
+
+      this.turnosDisponibles = data.filter(t => !t.customerName);
+
+      this.turnosAgendados = data
+        .filter(t => t.customerName && (t.status === 'ACCEPTED' || t.status === 'PENDING'));
+    },
+    error: () => alert('Error al cargar los turnos del prestador')
+  });
+}
+
+
+
 
   eliminarTurno(id: number) {
     const headers = new HttpHeaders({
@@ -109,6 +118,7 @@ export class InicioPrestadorComponent implements OnInit {
 
     this.http.delete(`http://localhost:8080/shifts/${id}`, { headers }).subscribe({
       next: () => {
+        this.turnosDisponibles = this.turnosDisponibles.filter(t => t.id !== id);
         this.turnosAgregados = this.turnosAgregados.filter(t => t.id !== id);
         alert('Turno eliminado correctamente');
       },

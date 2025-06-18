@@ -1,7 +1,7 @@
 package com.group.mis_servicios.controller.config;
 
-import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,9 +12,9 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("🚀 API Servicios") // Título principal
-                        .version("1.0.0")                    // Versión
-                        .description("Documentación oficial de la API REST")); // Descripción
+                        .title("🚀 API Servicios")
+                        .version("1.0.0")
+                        .description("Documentación oficial de la API REST"));
     }
 }
 

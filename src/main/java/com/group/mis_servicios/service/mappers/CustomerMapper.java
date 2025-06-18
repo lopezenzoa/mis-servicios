@@ -10,7 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.util.ArrayList;
 
 public class CustomerMapper {
-    // private static CredentialsRepository credentialsRepo;  ////no irian porque no funciona en clases estáticas sin @Component, y nunca se inyectan
+
 
     public static CustomerDTO toDTO(Customer customer) {
         CustomerDTO dto = new CustomerDTO();
@@ -34,7 +34,7 @@ public class CustomerMapper {
         credentials.setPassword(encoder.encode(dto.getPassword()));
         credentials.setRole(Roles.CUSTOMER);
 
-        // Credentials saved = credentialsRepo.save(credentials);
+
 
         customer.setCredentials(credentials);
         customer.setFirstName(dto.getFirstName());

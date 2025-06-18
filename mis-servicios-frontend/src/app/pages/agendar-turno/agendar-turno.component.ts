@@ -33,7 +33,7 @@ export class AgendarTurnoComponent implements OnInit {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         });
 
-        // ✅ Cargar nombre del prestador con token
+
         this.http.get<any>(`http://localhost:8080/providers/${this.prestadorId}`, { headers }).subscribe({
           next: data => {
             this.prestadorNombre = `${data.firstName} ${data.lastName}`;
@@ -44,7 +44,6 @@ export class AgendarTurnoComponent implements OnInit {
           }
         });
 
-        // ✅ Cargar turnos disponibles del prestador con token
         this.http.get<Shift[]>(`http://localhost:8080/shifts/availables/${this.prestadorId}`, { headers }).subscribe({
           next: data => {
             this.turnos = data;

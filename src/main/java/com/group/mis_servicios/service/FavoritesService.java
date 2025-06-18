@@ -92,12 +92,10 @@ public class FavoritesService implements I_Service<FavoritesDTO> {
 
         Favorites saved = favoritesListRepository.save(list.get());
 
-        // Conversión de providers a DTO response
         List<ProviderResponseDTO> providersDto = saved.getProviders().stream()
                 .map(ProviderMapper::toResponeDTO)
                 .toList();
 
-        // Se crea y devuelve el DTO de la lista de favoritos
         FavoritesDTO dto = new FavoritesDTO();
 
         dto.setId(saved.getId());

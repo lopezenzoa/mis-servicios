@@ -25,8 +25,12 @@ public class Review {
     private LocalDateTime creationDate;
 
     @ManyToOne
-    //@JoinColumn(name = "customer_id", insertable = false, updatable = false)  //Esto impide que se guarde el customer_id
+
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "provider_id", nullable = false, updatable = false)
+    private Provider provider;
 }

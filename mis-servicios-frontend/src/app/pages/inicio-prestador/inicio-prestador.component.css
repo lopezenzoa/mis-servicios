@@ -101,17 +101,82 @@ footer {
   color: #a0aec0;
   font-size: 0.9rem;
 }
-/* En inicio-usuario.component.css */
+
 .btn-logout {
-  margin-top: 10px;
-  background-color: #e74c3c;
-  color: white;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  margin-left: auto;
+  padding: 10px 20px;
   border: none;
-  padding: 8px 14px;
-  border-radius: 5px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 700;
+  font-size: 0.95rem;
   cursor: pointer;
-  float: right;
+  box-shadow: 0 8px 14px rgba(231, 76, 60, 0.3);
+  transition: background-color 0.3s ease;
 }
 
-.btn-logout:hover {
-  background-colo
+.btn-logout:hover,
+.btn-logout:focus {
+  background-color: #c0392b;
+  outline: none;
+}
+.estado-pendiente {
+  color: orange;
+  font-weight: bold;
+}
+
+.estado-realizado {
+  color: green;
+  font-weight: bold;
+}
+
+.estado-cancelado {
+  color: red;
+  font-weight: bold;
+}
+.turno-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.turno-lista li {
+  list-style: none;
+  background-color: #cbd5e0;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  border-left: 5px solid #764ba2;
+  transition: transform 0.2s;
+}
+
+.turno-lista li:hover {
+  transform: scale(1.02);
+}
+
+.turno-lista li strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.btn-eliminar {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #e53e3e, #c53030);
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-eliminar:hover {
+  background-color: #c53030;
+  transform: scale(1.05);
+}
+
+}

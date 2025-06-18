@@ -105,7 +105,7 @@ if (!regexPasswordFuerte.test(this.password)) {
      this.router.navigate(['/login']);
    },
    error: err => {
-     // Captura mensaje del backend
+
      if (err.error && typeof err.error === 'string') {
        this.mensajeError = err.error;
      } else if (err.error?.message) {

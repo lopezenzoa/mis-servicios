@@ -36,20 +36,18 @@ public class AuthController {
     @Autowired private CustomerRepository customerRepo;
     @Autowired private ProviderRepository providerRepo;
     @Autowired private CredentialsRepository credsRepo;
-    @Autowired private BCryptPasswordEncoder encoder; // to encrypt the password
-    @Autowired
-    private AuthenticationManager authManager;
-    @Autowired
-    private JwtUtil jwtUtil;
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
+    @Autowired private BCryptPasswordEncoder encoder;
+    @Autowired private AuthenticationManager authManager;
+    @Autowired private JwtUtil jwtUtil;
+    @Autowired private CustomUserDetailsService userDetailsService;
+
     public void register(RegisterDTO dto, Roles role) {
-        // Validación de unicidad de username
+
         if (credsRepo.existsByUsername(dto.getUsername())) {
             throw new IllegalArgumentException("El nombre de usuario ya está en uso");
         }
 
-        // Validación de unicidad de email
+
         if (role.equals(Roles.CUSTOMER) && customerRepo.existsByEmail(dto.getEmail())) {
             throw new IllegalArgumentException("El correo electrónico ya está registrado como cliente");
         }
@@ -58,14 +56,14 @@ public class AuthController {
             throw new IllegalArgumentException("El correo electrónico ya está registrado como prestador");
         }
 
-        // Crear credenciales
+
         Credentials creds = new Credentials();
         creds.setUsername(dto.getUsername());
         creds.setPassword(encoder.encode(dto.getPassword()));
         creds.setRole(role);
 
         if (role.equals(Roles.CUSTOMER)) {
-            // Crear nuevo Customer
+
             Customer nuevo = new Customer();
             nuevo.setFirstName(dto.getFirstName());
             nuevo.setLastName(dto.getLastName());
@@ -75,13 +73,13 @@ public class AuthController {
 
             customerRepo.save(nuevo);
 
-            // Asociar credenciales
+
             nuevo.setCredentials(creds);
             creds.setCustomer(nuevo);
             credsRepo.save(creds);
 
         } else if (role.equals(Roles.PROVIDER)) {
-            // Crear nuevo Provider
+
             Provider nuevo = new Provider();
             nuevo.setFirstName(dto.getFirstName());
             nuevo.setLastName(dto.getLastName());
@@ -93,7 +91,7 @@ public class AuthController {
 
             providerRepo.save(nuevo);
 
-            // Asociar credenciales
+
             nuevo.setCredentials(creds);
             creds.setProvider(nuevo);
             credsRepo.save(creds);
@@ -112,7 +110,6 @@ public class AuthController {
             var token = jwtUtil.generateToken(userDetails.getUsername(), userDetails.getAuthorities());
 
 
-            // 🔍 Obtener el rol
             String role = userDetails.getAuthorities().stream()
                     .findFirst()
                     .map(GrantedAuthority::getAuthority)

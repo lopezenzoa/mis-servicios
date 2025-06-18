@@ -38,7 +38,7 @@ public class ProviderController {
     @GetMapping("/")
     @ApiResponse(responseCode = "200", description = "Obtiene todos los proveedores")
     public ResponseEntity<List<ProviderResponseDTO>> getAll() {
-        return ResponseEntity.ok(service.getAllResponse()); // ← debe devolver ProviderResponseDTO
+        return ResponseEntity.ok(service.getAllResponse());
     }
 
 
@@ -107,48 +107,10 @@ public class ProviderController {
                 .body(Map.of("message", "The provider has been registered successfully!"));
     }
 
-//    @GetMapping("/facility/{facilityName}")
-//    public ResponseEntity<?> getByFacility(@PathVariable String facilityName) {
-//        List<ProviderDTO> providerDTOS = service.filterByFacility(facilityName);
-//
-//        return ResponseEntity.ok()
-//                .header("Content-Type", "application/json")
-//                .body(providerDTOS);
-//    }
-
-//    @GetMapping("/search")
-//    public ResponseEntity<List<ProviderResponseDTO>> buscar(
-//            @RequestParam(required = false) String firstName,
-//            @RequestParam(required = false) String lastName,
-//            @RequestParam(required = false) String email,
-//            @RequestParam(required = false) String licenseNumber
-//    ) {
-//        return ResponseEntity.ok(service.filterByCriterios(firstName, lastName, email, licenseNumber));
-//    }
-
-//    @PostMapping("/add-facility")
-//    public ResponseEntity<?> addFacilityToProvider(@RequestBody FacilityToProviderDTO dto) {
-//        boolean added = service.addFacility(dto.getProviderId(), dto.getFacilityId());
-//
-//        if (added)
-//            return ResponseEntity.ok()
-//                    .header("Content-Type", "application/json")
-//                    .body(Map.of("message", "The facility has been added to the provider successfully!"));
-//
-//        return ResponseEntity.status(404)
-//                .header("Content-Type", "application/json")
-//                .body(Map.of("message", "The provider hasn't been found"));
-//    }
 
 
-//    @GetMapping("/page")
-//    public ResponseEntity<Page<ProviderResponseDTO>> listAllPaginated(
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size
-//    ) {
-//        Pageable pageable = PageRequest.of(page, size);
-//        return ResponseEntity.ok(service.listPage(pageable));
-//    }
+
+
 
     // manejo de excecpciones
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -156,6 +118,7 @@ public class ProviderController {
         String errorMessage = "The parameter '" + ex.getName() + "' must be a valid number (Long).";
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
     }
+
     @GetMapping("/me")
     public ResponseEntity<?> obtenerPrestadorActual(Principal principal) {
         String username = principal.getName();
@@ -164,12 +127,7 @@ public class ProviderController {
         Optional<Provider> provider = repository.findByCredentials_Username(username);
 
         if (provider.isPresent()) {
-            Provider p = provider.get();
-            ProviderResponseDTO dto = new ProviderResponseDTO();
-            dto.setId(p.getId());
-            dto.setFirstName(p.getFirstName());
-            dto.setLastName(p.getLastName());
-            return ResponseEntity.ok(dto);
+            return ResponseEntity.ok(service.getById(provider.get().getId()));
         }
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Provider not found"));

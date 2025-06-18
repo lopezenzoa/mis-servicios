@@ -1,6 +1,8 @@
 package com.group.mis_servicios.service;
 
+import com.group.mis_servicios.model.entity.Provider;
 import com.group.mis_servicios.model.entity.Shift;
+import com.group.mis_servicios.model.enums.States;
 import com.group.mis_servicios.model.repository.CustomerRepository;
 import com.group.mis_servicios.model.repository.ProviderRepository;
 import com.group.mis_servicios.model.repository.ShiftRepository;
@@ -142,5 +144,42 @@ public class ShiftService implements I_Service<ShiftDTO> {
                 .map(ShiftMapper::toDTO)
                 .toList();
     }
+
+
+    public List<ShiftDTO> getAllByCustomerUsername(String username) {
+        var customer = customerRepository.findByCredentials_Username(username)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+        return shiftRepository.findByCustomerId(customer.getId())
+                .stream()
+                .map(ShiftMapper::toDTO)
+                .toList();
+    }
+
+
+    public void aceptarTurno(Long shiftId, String providerUsername) {
+        Shift shift = shiftRepository.findById(shiftId)
+                .orElseThrow(() -> new RuntimeException("Turno no encontrado"));
+
+        if (shift.getCustomer() == null) {
+            throw new RuntimeException("Este turno no ha sido reservado aún");
+        }
+
+        Provider provider = providerRepository.findByCredentials_Username(providerUsername)
+                .orElseThrow(() -> new RuntimeException("Proveedor no encontrado"));
+
+        if (!shift.getProvider().getId().equals(provider.getId())) {
+            throw new RuntimeException("No tenés permiso para aceptar este turno");
+        }
+
+
+        shift.setStatus(States.ACCEPTED);
+
+
+        shift.setAvailable(false);
+
+        shiftRepository.save(shift);
+    }
+
 
 }

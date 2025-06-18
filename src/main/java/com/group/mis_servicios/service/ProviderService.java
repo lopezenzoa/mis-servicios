@@ -98,39 +98,6 @@ public class ProviderService implements I_Service<ProviderDTO> {
     }
 
 
-//    public List<ProviderDTO> filterByFacility(String facilityName) {
-//        List<ProviderDTO> providerDTOs = new ArrayList<>();
-//        Optional<Facility> facilityOptional = facilityRepository.findByName(facilityName);
-//
-//        if (facilityOptional.isPresent()) {
-//            List<Provider> providers = /*repository.findAll()
-//                    .stream()
-//                    .filter(p -> p.getFacility() != null)
-//                    .filter(p -> p.getFacility().equals(facilityOptional.get()))
-//                    .toList() */ new ArrayList<>();
-//
-//            providers.forEach(provider -> {
-//                providerDTOs.add(ProviderMapper.toDTO(provider));
-//            });
-//        }
-//
-//        return providerDTOs;
-//    }
-//
-//    public boolean addFacility(Long id, Long facilityId) {
-//        Optional<Facility> facilityOptional = facilityRepository.findById(facilityId);
-//        Optional<Provider> providerOptional = repository.findById(id);
-//
-//        if (facilityOptional.isPresent() && providerOptional.isPresent()) {
-//            Provider provider = providerOptional.get();
-//
-//            // provider.setFacility(facilityOptional.get());
-//
-//            return true;
-//        }
-//
-//        return false;
-//    }
 
     public List<ProviderResponseDTO> filterByCriterios(String firstName, String lastName, String email, String licenseNumber) {
         List<Provider> providers = repository.findByCriterios(firstName, lastName, email, licenseNumber);
@@ -152,7 +119,7 @@ public class ProviderService implements I_Service<ProviderDTO> {
             dto.setId(provider.getId());
             dto.setFirstName(provider.getFirstName());
             dto.setLastName(provider.getLastName());
-            // cualquier otro dato que quieras devolver
+
             return dto;
         });
     }

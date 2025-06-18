@@ -23,7 +23,7 @@ public class ProviderMapper {
         dto.setPhoneNumber(provider.getPhoneNumber());
         dto.setLicenseNumber(provider.getLicenseNumber());
         dto.setFacility(provider.getFacility());
-        // dto.setCategoryId(provider.getCategory() != null ? provider.getCategory().getId() : null);
+
 
         return dto;
     }
@@ -36,10 +36,10 @@ public class ProviderMapper {
         credentials.setRole(Roles.PROVIDER);
         credentials.setPassword(encoder.encode(dto.getPassword()));
 
-        // Credentials saved = credentialsRepository.save(credentials);
+
 
         provider.setCredentials(credentials);
-        // provider.setCredentialsId(saved.getId());
+
         provider.setFirstName(dto.getFirstName());
         provider.setLastName(dto.getLastName());
         provider.setEmail(dto.getEmail());
@@ -48,14 +48,7 @@ public class ProviderMapper {
         provider.setPhoneNumber(dto.getPhoneNumber());
         provider.setFacility(dto.getFacility());
 
-        /*
-        if (dto.getCategoryId() != null) {
-            Category category = categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
-            provider.setCategory(category);
-        }
 
-         */
 
         return provider;
     }

@@ -22,24 +22,33 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Rutas públicas
+
                         .requestMatchers(
                                 "/auth/login",
                                 "/auth/register",
                                 "/categorias/**",
                                 "/providers/register",
+                                "/customers/register",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/flagged-providers/history/**",
+                                "/flagged-providers/count/**"
                         ).permitAll()
 
                         .requestMatchers(
                                 "/shifts/availables/**",
-                                "/shifts/reservar/**"
+                                "/shifts/reservar/**",
+                                "/customers/**",
+                                "/favorites-list/**",
+                                "/reviews/**",
+                                "/flagged-providers/flag",
+                                "/shifts/mis-turnos-cliente"
                         ).hasRole("CUSTOMER")
 
-                        .requestMatchers("/providers/me",
-                                "/shifts/mis-turnos", "/shifts/aceptar/**"
-                        ).hasRole("PROVIDER")
+                        .requestMatchers(
+                                "/providers/me",
+                                "/shifts/**"
+                        ).hasAuthority("ROLE_PROVIDER")
 
                         .anyRequest().authenticated()
                 )

@@ -42,7 +42,7 @@ public class Provider {
     @Column(length = 40, nullable = false)
     private String facility;
 
-    @OneToMany(mappedBy = "provider")  // Relación inversa, donde "prestador" es el campo en la entidad Turno
+    @OneToMany(mappedBy = "provider")
     private List<Shift> shifts;
 
     @OneToMany(mappedBy = "provider")

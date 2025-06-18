@@ -17,15 +17,7 @@ public class FavoritesDTO {
     private Long id;
     @NotBlank(message = "The title cannot be in blank")
     private String title;
-   // @Positive
-//  NO usar @NotBlank acá porque es Long
-// @NotBlank(message = "The customer cannot be in blank")
-   // private Long customerId;
 
-  //  @FutureOrPresent
-//  NO usar @NotBlank acá porque es LocalDateTime
-// @NotBlank(message = "The creation date cannot be in blank")
-    //private LocalDateTime creationDate;
 
     @Positive(message = "The customer id must be a positive number")
     private Long customerId;

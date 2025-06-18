@@ -63,13 +63,6 @@ public class ShiftController {
         }
     }
 
-//    @GetMapping("/availables")
-//    @ApiResponse(responseCode = "200", description = "Obtiene todos los turnos disponibles")
-//    public ResponseEntity<List<ShiftDTO>> getAvailables() {
-//        return ResponseEntity.ok()
-//                .header("Content-Type", "application/json")
-//                .body(service.getAvailables());
-//    }
 
     @PostMapping("/create-multiple")
     @ApiResponse(responseCode = "200", description = "Turno creado")
@@ -127,18 +120,7 @@ public class ShiftController {
         return ResponseEntity.ok(service.getAllByProvider(providerId));
     }
 
-    /*
-    @PutMapping("/reserve/{id}")
-    public ResponseEntity<Shift> reserveShift(@PathVariable Integer id) {
-        Shift shift = service.getById(id);
-        if (!shift.isAvailable()) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT); // turno ya reservado
-        }
-        shift.setAvailable(false);
-        return new ResponseEntity<>(service.update(id, shift), HttpStatus.OK);
-    }
 
-     */
     @GetMapping("/mis-turnos")
     public ResponseEntity<List<ShiftDTO>> getTurnosDelPrestador(Principal principal) {
         String username = principal.getName();
@@ -154,4 +136,21 @@ public class ShiftController {
         List<ShiftDTO> turnos = service.getAllByProvider(providerId);
         return ResponseEntity.ok(turnos);
     }
+    @PostMapping("/aceptar/{id}")
+    public ResponseEntity<?> aceptarTurno(@PathVariable Long id, Principal principal) {
+        try {
+            service.aceptarTurno(id, principal.getName());
+            return ResponseEntity.ok(Map.of("message", "Turno aceptado correctamente"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+        }
+    }
+    @GetMapping("/mis-turnos-cliente")
+    public ResponseEntity<List<ShiftDTO>> getTurnosDelCliente(Principal principal) {
+        String username = principal.getName();
+        List<ShiftDTO> turnos = service.getAllByCustomerUsername(username);
+        return ResponseEntity.ok(turnos);
+    }
+
+
 }
