@@ -14,8 +14,8 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final String SECRET_KEY = "claveSuperSegura12345678901234567890"; // mínimo 32 caracteres
-    private final long EXPIRATION = 1000 * 60 * 60; // 1 hora
+    private final String SECRET_KEY = "claveSuperSegura12345678901234567890";
+    private final long EXPIRATION = 1000 * 60 * 60;
 
     public String generateToken(String username, Collection<? extends GrantedAuthority> roles) {
         return Jwts.builder()

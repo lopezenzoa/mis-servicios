@@ -1,9 +1,9 @@
-/* Reset y box sizing */
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
 
-/* Fondo con patrón SVG creativo de servicios */
+
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -21,7 +21,7 @@ body {
   background-size: 120px 120px;
 }
 
-/* Tarjeta central */
+
 main {
   background: rgba(255 255 255 / 0.95);
   max-width: 540px;
@@ -37,7 +37,7 @@ main {
   margin: 40px auto;
 }
 
-/* Encabezados */
+
 h1, h2, h3 {
   margin: 0 0 16px 0;
   font-weight: 700;
@@ -64,7 +64,6 @@ p {
   margin-right: auto;
 }
 
-/* Formulario */
 form {
   display: flex;
   flex-direction: column;
@@ -93,7 +92,7 @@ input:focus, select:focus {
   box-shadow: 0 0 8px rgba(76,81,191,0.4);
 }
 
-/* Botón principal */
+
 button {
   padding: 14px;
   border: none;
@@ -116,7 +115,6 @@ button:hover, button:focus {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Link inferior */
 .toggle-forms {
   text-align: center;
   font-size: 0.9rem;

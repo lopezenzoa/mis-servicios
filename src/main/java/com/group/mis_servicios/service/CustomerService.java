@@ -55,7 +55,7 @@ public class CustomerService implements I_Service<CustomerDTO> {
             return Optional.empty();
 
         Customer saved = repository.save(CustomerMapper.toCustomer(dto, encoder));
-        // authService.register(AuthMapper.toRegisterDTO(dto), Roles.CUSTOMER); // inserting the customer into the users table
+
 
         return Optional.of(CustomerMapper.toResponseDTO(saved));
     }

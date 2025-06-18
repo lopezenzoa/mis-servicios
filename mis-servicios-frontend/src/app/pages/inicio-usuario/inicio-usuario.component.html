@@ -3,9 +3,12 @@
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <div>
         <h1>Contrata a tu Profesional Ideal</h1>
+        <div class="welcome-msg">Hola, {{ nombreCustomer }}</div>
+
         <p class="lead">Explora servicios confiables cerca de ti: gasistas, plomeros, jardineros, pintores y más.</p>
       </div>
-      <button (click)="logout()" style="height: 40px;">Cerrar sesión</button>
+      <button class="btn-agendar btn-logout" (click)="logout()">Cerrar sesión</button>
+
     </div>
   </header>
 
@@ -41,6 +44,22 @@
     </div>
   </section>
 
+  <section class="user-shifts" style="margin-top: 50px;">
+    <h2>Mis Turnos Agendados</h2>
+
+    <div *ngIf="turnosCliente.length === 0">
+      <p>No tenés turnos agendados por el momento.</p>
+    </div>
+
+    <ul *ngIf="turnosCliente.length > 0" class="turno-lista">
+      <li *ngFor="let turno of turnosCliente" style="margin-bottom: 20px;">
+        <strong>Fecha:</strong> {{ turno.dateTime | date:'dd/MM/yyyy HH:mm' }}<br />
+        <strong>Prestador:</strong> {{ turno.providerName }}<br />
+        <strong>Servicio:</strong> {{ turno.service }}<br />
+        <strong>Estado:</strong> {{ turno.status }}
+      </li>
+    </ul>
+  </section>
 
   <footer>
     &copy; 2025 Servicios de Confianza

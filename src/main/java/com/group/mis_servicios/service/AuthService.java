@@ -7,13 +7,17 @@ import com.group.mis_servicios.model.enums.Roles;
 import com.group.mis_servicios.model.repository.CredentialsRepository;
 import com.group.mis_servicios.model.repository.CustomerRepository;
 import com.group.mis_servicios.model.repository.ProviderRepository;
+import com.group.mis_servicios.security.JwtUtil;
 import com.group.mis_servicios.view.dto.LoginDTO;
+import com.group.mis_servicios.view.dto.LoginResponseDTO;
 import com.group.mis_servicios.view.dto.RegisterDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,7 +28,8 @@ public class AuthService {
     @Autowired private BCryptPasswordEncoder encoder; // to encrypt the password
     @Autowired
     private CustomerRepository customerRepository;
-
+    @Autowired
+    private JwtUtil jwtUtil;
     @Autowired
     private ProviderRepository providerRepository;
 
@@ -53,7 +58,7 @@ public class AuthService {
         creds.setRole(role);
 
         if (role.equals(Roles.CUSTOMER)) {
-            // Crear nuevo Customer
+
             Customer nuevo = new Customer();
             nuevo.setFirstName(dto.getFirstName());
             nuevo.setLastName(dto.getLastName());
@@ -63,13 +68,13 @@ public class AuthService {
 
             customerRepo.save(nuevo);
 
-            // Asociar credenciales
+
             nuevo.setCredentials(creds);
             creds.setCustomer(nuevo);
             credsRepo.save(creds);
 
         } else if (role.equals(Roles.PROVIDER)) {
-            // Crear nuevo Provider
+
             Provider nuevo = new Provider();
             nuevo.setFirstName(dto.getFirstName());
             nuevo.setLastName(dto.getLastName());
@@ -81,7 +86,7 @@ public class AuthService {
 
             providerRepo.save(nuevo);
 
-            // Asociar credenciales
+
             nuevo.setCredentials(creds);
             creds.setProvider(nuevo);
             credsRepo.save(creds);
@@ -89,14 +94,12 @@ public class AuthService {
     }
 
 
-    public boolean login(LoginDTO dto) {
+    public LoginResponseDTO loginConToken(LoginDTO dto) {
         String identifier = dto.getIdentifier();
         String password = dto.getPassword();
 
-        // Primero busca por username
         Optional<Credentials> credsOpt = credsRepo.findByUsername(identifier);
 
-        // Si no encuentra por username, intenta por email
         if (credsOpt.isEmpty()) {
             Optional<Customer> customer = customerRepo.findByEmail(identifier);
             Optional<Provider> provider = providerRepo.findByEmail(identifier);
@@ -108,9 +111,19 @@ public class AuthService {
             }
         }
 
-        return credsOpt
-                .filter(credentials -> passwordEncoder.matches(password, credentials.getPassword()))
-                .isPresent();
+        if (credsOpt.isPresent() && passwordEncoder.matches(password, credsOpt.get().getPassword())) {
+            Credentials credentials = credsOpt.get();
+
+            String role = "ROLE_" + credentials.getRole().name();
+            String token = jwtUtil.generateToken(
+                    credentials.getUsername(),
+                    List.of(new SimpleGrantedAuthority(role))
+            );
+
+            return new LoginResponseDTO(token, role);
+        }
+
+        throw new RuntimeException("Usuario o contraseña inválidos");
     }
     public String getRoleByUsername(String username) {
         boolean esCliente = customerRepository.existsByCredentials_Username(username);

@@ -1,20 +1,19 @@
 <div class="container">
-  <!-- HEADER -->
+
   <header style="display: flex; justify-content: space-between; align-items: center;">
     <div>
       <h1>Panel Prestador de Servicios</h1>
       <div class="welcome-msg">Hola, {{ nombrePrestador }}</div>
     </div>
-    <button (click)="logout()" style="height: 40px;">Cerrar sesión</button>
+    <button class="btn-agendar btn-logout" (click)="logout()">Cerrar sesión</button>
   </header>
 
-  <!-- SOLICITUDES -->
+
   <section class="requests-list" *ngIf="solicitudes.length > 0; else noSolicitudes">
     <article class="request-card" *ngFor="let solicitud of solicitudes">
-      <h2 class="request-title">{{ solicitud.titulo }}</h2>
-      <p class="request-detail">{{ solicitud.descripcion }}</p>
+      <h2 class="request-title">Solicitud pendiente</h2>
       <div class="request-contact">
-        Cliente: {{ solicitud.clienteNombre }} | Tel: {{ solicitud.telefono }}
+        Cliente: {{ solicitud.customerName }} | Tel: {{ solicitud.customerPhone }}
       </div>
       <button class="btn-action" (click)="aceptarSolicitud(solicitud.id)">Aceptar solicitud</button>
     </article>
@@ -24,7 +23,6 @@
     <p style="margin-top: 20px;">No hay solicitudes por el momento.</p>
   </ng-template>
 
-  <!-- FORMULARIO PARA AGREGAR TURNOS -->
   <section class="turno-form" style="margin-top: 40px;">
     <h2>Agregar Turno Disponible</h2>
     <form (ngSubmit)="agregarTurno()" style="display: flex; flex-direction: column; gap: 10px; max-width: 300px;">
@@ -40,27 +38,47 @@
       <button type="submit" class="btn-action">Agregar Turno</button>
     </form>
   </section>
-  <section class="lista-turnos">
-    <h2>Mis Turnos Cargados</h2>
 
-    <div *ngIf="turnosAgregados.length === 0">
-      No hay turnos cargados.
+  <section class="lista-turnos" style="margin-top: 40px;">
+    <h2>Turnos Disponibles</h2>
+
+    <div *ngIf="turnosDisponibles.length === 0">
+      <p>No hay turnos disponibles.</p>
     </div>
 
-    <ul>
-      <li *ngFor="let turno of turnosAgregados" style="margin-bottom: 8px;">
-        {{ turno.dateTime | date:'dd/MM/yyyy HH:mm' }}
-        <br />
-        <span *ngIf="turno.customerName">
-      <strong>Cliente:</strong> {{ turno.customerName }} | <strong>Tel:</strong> {{ turno.customerPhone }}
-    </span>
-        <button (click)="eliminarTurno(turno.id)" style="margin-left: 10px;">Eliminar</button>
+    <ul class="turno-lista">
+      <li *ngFor="let turno of turnosDisponibles">
+        <strong>Fecha:</strong> {{ turno.dateTime | date:'dd/MM/yyyy HH:mm' }}<br />
+        <button class="btn-eliminar" (click)="eliminarTurno(turno.id)">Eliminar</button>
       </li>
     </ul>
   </section>
-  <!-- FOOTER -->
+
+
+
+  <section class="lista-turnos" style="margin-top: 40px;">
+    <h2> Mis Turnos Agendados</h2>
+    <div *ngIf="turnosAgendados.length === 0">No hay turnos agendados.</div>
+    <ul *ngIf="turnosAgendados.length > 0" class="turno-lista">
+      <li *ngFor="let turno of turnosAgendados">
+        <strong>Fecha:</strong> {{ turno.dateTime | date:'dd/MM/yyyy HH:mm' }}<br />
+        <strong>Cliente:</strong> {{ turno.customerName }}<br />
+        <strong>Tel:</strong> {{ turno.customerPhone }}<br />
+        <strong>Estado:</strong>
+        <span [ngClass]="{
+      'estado-pendiente': turno.status === 'PENDING',
+      'estado-realizado': turno.status === 'VISITED',
+      'estado-cancelado': turno.status === 'CANCELED'
+    }">
+      {{ turno.status }}
+    </span>
+      </li>
+    </ul>
+
+  </section>
+
+
   <footer style="margin-top: 50px;">
     &copy; 2025 Servicios de Confianza
   </footer>
 </div>
-

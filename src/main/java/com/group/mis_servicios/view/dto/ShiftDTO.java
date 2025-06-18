@@ -1,5 +1,6 @@
 package com.group.mis_servicios.view.dto;
 
+import com.group.mis_servicios.model.enums.States;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
@@ -21,5 +22,8 @@ public class ShiftDTO {
     private Boolean available;
     private String customerName;
     private String customerPhone;
+    private States status;
+    private String providerName;
+    private String service;
 
 }

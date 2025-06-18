@@ -1,5 +1,6 @@
 package com.group.mis_servicios.model.entity;
 
+import com.group.mis_servicios.model.enums.States;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,11 +23,15 @@ public class Shift {
     private Boolean available;
 
     @ManyToOne
-    @JoinColumn(name = "provider_id")  // FK a la tabla Prestador
+    @JoinColumn(name = "provider_id")
     private Provider provider;
-    @ManyToOne
-    @JoinColumn(name = "customer_id")  // crea la FK en la tabla shifts
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "customer_id")
     private Customer customer;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private States status;
+
 
     public Customer getCustomer() {
         return customer;

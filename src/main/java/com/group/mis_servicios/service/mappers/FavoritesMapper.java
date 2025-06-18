@@ -8,7 +8,6 @@ import com.group.mis_servicios.view.dto.FavoritesDTO;
 import java.util.ArrayList;
 
 public class FavoritesMapper {
-   // private static CustomerRepository customerRepository;   ////no irian porque no funciona en clases estáticas sin @Component, y nunca se inyectan
 
     public static Favorites toFavoritesList(FavoritesDTO dto, CustomerRepository customerRepository) {
         Customer customer = customerRepository.getReferenceById(dto.getCustomerId());

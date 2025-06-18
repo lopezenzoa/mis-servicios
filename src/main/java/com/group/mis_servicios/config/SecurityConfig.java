@@ -22,7 +22,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Rutas públicas
+
                         .requestMatchers(
                                 "/auth/login",
                                 "/auth/register",
@@ -41,13 +41,14 @@ public class SecurityConfig {
                                 "/customers/**",
                                 "/favorites-list/**",
                                 "/reviews/**",
-                                "/flagged-providers/flag"
+                                "/flagged-providers/flag",
+                                "/shifts/mis-turnos-cliente"
                         ).hasRole("CUSTOMER")
 
                         .requestMatchers(
                                 "/providers/me",
                                 "/shifts/**"
-                        ).hasRole("PROVIDER")
+                        ).hasAuthority("ROLE_PROVIDER")
 
                         .anyRequest().authenticated()
                 )
